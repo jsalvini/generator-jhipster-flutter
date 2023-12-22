@@ -1,0 +1,160 @@
+import 'dart:async';
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/widgets.dart';
+import 'package:formz/formz.dart';
+import 'package:<%= baseName %>/account/settings/models/settings_models.dart';
+import 'package:<%= baseName %>/shared/models/user.dart';
+import 'package:<%= baseName %>/shared/repository/account_repository.dart';
+import 'package:<%= baseName %>/shared/utils/http_utils.dart';
+
+part 'settings_events.dart';
+part 'settings_state.dart';
+
+class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
+  final AccountRepository _accountRepository;
+  final emailController = TextEditingController();
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+
+  static final String loginExistKey = 'error.userexists';
+  static final String emailExistKey = 'error.emailexists';
+  static final String successKey = 'success.settings';
+
+  SettingsBloc({
+    required AccountRepository accountRepository,
+  })  : _accountRepository = accountRepository,
+        super(const SettingsState()) {
+    on<FirstnameChanged>(onFirstnameChanged);
+    on<LastnameChanged>(onLastnameChanged);
+    on<EmailChanged>(onEmailChanged);
+    on<FormSubmitted>(onSubmitted);
+    on<LoadCurrentUser>(onLoadCurrentUser);
+  }
+
+  void onFirstnameChanged(
+    FirstnameChanged event,
+    Emitter<SettingsState> emit,
+  ) {
+    final firstname = FirstnameInput.dirty(event.firstname);
+    emit(state.copyWith(
+        firstname: firstname,
+        formStatus: FormzSubmissionStatus.inProgress,
+        isValid: Formz.validate([
+          state.email,
+          state.lastname,
+          firstname,
+        ])));
+  }
+
+  void onLastnameChanged(
+    LastnameChanged event,
+    Emitter<SettingsState> emit,
+  ) {
+    final lastname = LastnameInput.dirty(event.lastname);
+    emit(state.copyWith(
+        lastname: lastname,
+        formStatus: FormzSubmissionStatus.inProgress,
+        isValid: Formz.validate([
+          state.email,
+          state.firstname,
+          lastname,
+        ])));
+  }
+
+  void onEmailChanged(
+    EmailChanged event,
+    Emitter<SettingsState> emit,
+  ) {
+    final email = EmailInput.dirty(event.email);
+    emit(state.copyWith(
+        email: email,
+        formStatus: FormzSubmissionStatus.inProgress,
+        isValid: Formz.validate([
+          state.firstname,
+          state.lastname,
+          email,
+        ])));
+  }
+
+  Future<void> onSubmitted(
+    FormSubmitted event,
+    Emitter<SettingsState> emit,
+  ) async {
+    if (state.isValid) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+      SettingsAction action = SettingsAction.none;
+      try {
+        User newCurrentUser = User(
+          state.currentUser.id,
+          state.currentUser.login,
+          state.email.value,
+          state.currentUser.imageUrl,
+          true,
+          state.firstname.value,
+          state.lastname.value,
+        );
+
+        String? result = await _accountRepository.saveAccount(newCurrentUser);
+
+        if (result?.compareTo(HttpUtils.successResult) != 0) {
+          emit(state.copyWith(
+            formStatus: FormzSubmissionStatus.failure,
+            generalNotificationKey: result,
+          ));
+        } else {
+          emit(state.copyWith(
+            currentUser: newCurrentUser,
+            formStatus: FormzSubmissionStatus.success,
+            action: action,
+            generalNotificationKey: '¡Ajustes guardados correctamente.!',
+          ));
+        }
+      } catch (_) {
+        emit(state.copyWith(
+          formStatus: FormzSubmissionStatus.failure,
+          generalNotificationKey: HttpUtils.errorServerKey,
+        ));
+      }
+    }
+  }
+
+  Future<void> onLoadCurrentUser(
+    LoadCurrentUser event,
+    Emitter<SettingsState> emit,
+  ) async {
+    User? currentUser = await _accountRepository.getAccount();
+
+    String firstName =
+        (currentUser?.firstName != null ? currentUser?.firstName : '')!;
+    String lastName =
+        (currentUser?.lastName != null ? currentUser?.lastName : '')!;
+    String email = (currentUser?.email != null ? currentUser?.email : '')!;
+
+    final firstNameInput = FirstnameInput.dirty(firstName);
+    final lastNameInput = LastnameInput.dirty(lastName);
+    final emailInput = EmailInput.dirty(email);
+
+    emit(state.copyWith(
+      firstname: firstNameInput,
+      lastname: lastNameInput,
+      email: emailInput,
+      currentUser: currentUser,
+      formStatus: FormzSubmissionStatus.initial,
+      isValid: Formz.validate([firstNameInput, lastNameInput, emailInput]),
+    ));
+
+    emailController.text = email;
+    lastNameController.text = lastName;
+    firstNameController.text = firstName;
+  }
+
+  @override
+  Future<void> close() {
+    emailController.dispose();
+    lastNameController.dispose();
+    firstNameController.dispose();
+    return super.close();
+  }
+
+}

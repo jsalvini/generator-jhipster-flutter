@@ -1,0 +1,19 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:myAppFlutter/core/router/routes.dart';
+import 'package:myAppFlutter/splash/views/splash_screen.dart';
+
+class SplashRoutes {
+  static final path = '/splash';
+  static const screenKey = Key('__splashScreen__');
+
+  static final splashRoutes = <GoRoute>[
+    GoRoute(
+      name: MyAppFlutterRoutes.splash,
+      path: path,
+      pageBuilder: (context, state) => MaterialPage(
+        child: SplashScreen(),
+      ),
+    ),
+  ];
+}

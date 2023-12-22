@@ -1,0 +1,31 @@
+import 'package:dart_json_mapper/dart_json_mapper.dart';
+import 'package:<%= baseName %>/shared/models/user.dart';
+import 'package:<%= baseName %>/shared/utils/http_utils.dart';
+
+class AccountRepository {
+  User? _user;
+
+  AccountRepository();
+
+  Future<User?> getAccount() async {
+    final saveRequest = await HttpUtils.getRequest("/account");
+    _user = JsonMapper.deserialize<User>(saveRequest.body);
+    return _user;
+  }
+
+  Future<String?> saveAccount(User user) async {
+    final saveRequest = await HttpUtils.postRequest<User>("/account", user);
+    String? result;
+    if (saveRequest.statusCode != 200) {
+      if (saveRequest.headers[HttpUtils.errorHeader] != null) {
+        result = saveRequest.headers[HttpUtils.errorHeader];
+      } else {
+        result = HttpUtils.errorServerKey;
+      }
+    } else {
+      result = HttpUtils.successResult;
+    }
+
+    return result;
+  }
+}

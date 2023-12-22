@@ -1,0 +1,62 @@
+import 'package:dart_json_mapper/dart_json_mapper.dart';
+import 'package:equatable/equatable.dart';
+
+@jsonSerializable
+class ErrorResponse extends Equatable {
+  @JsonProperty(name: 'type')
+  final String? type;
+
+  @JsonProperty(name: 'title')
+  final String? title;
+
+  @JsonProperty(name: 'status')
+  final int? status;
+
+  @JsonProperty(name: 'instance')
+  final String? instance;
+
+  @JsonProperty(name: 'detail')
+  final String? detail;
+
+  @JsonProperty(name: 'message')
+  final String? message;
+
+  @JsonProperty(name: 'path')
+  final String? path;
+
+  const ErrorResponse(
+    this.type,
+    this.title,
+    this.status,
+    this.detail,
+    this.instance,
+    this.message,
+    this.path,
+  );
+
+  static const empty = ErrorResponse('', '', 0, '', '', '', '');
+
+  @override
+  String toString() {
+    return '''ErrorResponse{
+      type: $type,
+      title: $title,
+      status: $status,
+      detail: $detail,
+      instance: $instance,
+      message: $message,
+      path: $path,
+      }''';
+  }
+
+  @override
+  List<Object?> get props => [
+        type,
+        title,
+        status,
+        detail,
+        instance,
+        message,
+        path,
+      ];
+}

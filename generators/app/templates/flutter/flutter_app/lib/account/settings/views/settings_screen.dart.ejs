@@ -1,0 +1,240 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:formz/formz.dart';
+import 'package:<%= baseName %>/account/settings/bloc/settings_bloc.dart';
+import 'package:<%= baseName %>/account/settings/settings_routes.dart';
+import 'package:<%= baseName %>/shared/repository/account_repository.dart';
+import 'package:<%= baseName %>/shared/utils/http_utils.dart';
+import 'package:<%= baseName %>/shared/widgets/drawer_widget.dart';
+
+import '../models/settings_models.dart';
+
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({Key? key}) : super(key: SettingsRoutes.screenKey);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<SettingsBloc>(
+      create: (context) => SettingsBloc(
+        accountRepository: RepositoryProvider.of<AccountRepository>(context),
+      )..add(LoadCurrentUser()),
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text('Settings'),
+        ),
+        body: BlocConsumer<SettingsBloc, SettingsState>(
+          listener: (context, state) {
+            if (state.formStatus.isFailure || state.formStatus.isSuccess) {
+              Color colorBackground = Colors.green;
+              if (state.formStatus.isFailure) {
+                colorBackground = Colors.red;
+              }
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        Icon(Icons.info_outline_rounded, color: Colors.white),
+                        SizedBox(width: 10),
+                        Text(
+                          state.generalNotificationKey,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    backgroundColor: colorBackground,
+                  ),
+                );
+            }
+          },
+          builder: (context, state) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(15.0),
+              child: Column(
+                children: <Widget>[
+                  const SettingsForm(),
+                ],
+              ),
+            );
+          },
+        ),
+        drawer: MyAppFlutterDrawer(),
+      ),
+    );
+  }
+}
+
+class SettingsForm extends StatelessWidget {
+  const SettingsForm({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      child: Wrap(runSpacing: 15, children: <Widget>[
+        FirstnameField(),
+        LastnameField(),
+        EmailField(),
+        NotificationZone(),
+        Submit()
+      ]),
+    );
+  }
+}
+
+class FirstnameField extends StatelessWidget {
+  const FirstnameField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SettingsBloc, SettingsState>(
+        buildWhen: (previous, current) =>
+            previous.firstname != current.firstname,
+        builder: (context, state) {
+          return TextFormField(
+            controller: context.read<SettingsBloc>().firstNameController,
+            onChanged: (value) {
+              context
+                  .read<SettingsBloc>()
+                  .add(FirstnameChanged(firstname: value));
+            },
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(
+                labelText: 'Firstname',
+                errorText: state.firstname.displayError != null
+                    ? FirstnameValidationError.invalid.invalidMessage
+                    : null),
+          );
+        });
+  }
+}
+
+class LastnameField extends StatelessWidget {
+  const LastnameField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SettingsBloc, SettingsState>(
+        buildWhen: (previous, current) => previous.lastname != current.lastname,
+        builder: (context, state) {
+          return TextFormField(
+              controller: context.read<SettingsBloc>().lastNameController,
+              onChanged: (value) {
+                context
+                    .read<SettingsBloc>()
+                    .add(LastnameChanged(lastname: value));
+              },
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                  labelText: 'Lastname',
+                  errorText: state.lastname.displayError != null
+                      ? LastnameValidationError.invalid.invalidMessage
+                      : null));
+        });
+  }
+}
+
+class EmailField extends StatelessWidget {
+  const EmailField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SettingsBloc, SettingsState>(
+        buildWhen: (previous, current) => previous.email != current.email,
+        builder: (context, state) {
+          return TextFormField(
+              controller: context.read<SettingsBloc>().emailController,
+              onChanged: (value) {
+                context.read<SettingsBloc>().add(EmailChanged(email: value));
+              },
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                  labelText: 'Email',
+                  errorText: state.email.isNotValid
+                      ? EmailValidationError.invalid.invalidMessage
+                      : null));
+        });
+  }
+}
+
+class NotificationZone extends StatelessWidget {
+  const NotificationZone({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SettingsBloc, SettingsState>(
+        buildWhen: (previous, current) =>
+            previous.formStatus != current.formStatus,
+        builder: (context, state) {
+          return Visibility(
+              visible: state.formStatus == FormzSubmissionStatus.failure ||
+                  state.formStatus == FormzSubmissionStatus.success,
+              child: Center(
+                child: NotificationText(state: state),
+              ));
+        });
+  }
+}
+
+class NotificationText extends StatelessWidget {
+  const NotificationText({super.key, required this.state});
+
+  final SettingsState state;
+
+  @override
+  Widget build(BuildContext context) {
+    String notificationTranslated = 'Sin resultado.';
+    Color? notificationColors;
+    if (state.generalNotificationKey.compareTo(SettingsBloc.successKey) == 0) {
+      notificationTranslated = 'Settings saved!';
+      notificationColors = Theme.of(context).primaryColor;
+    } else if (state.generalNotificationKey
+            .compareTo(HttpUtils.errorServerKey) ==
+        0) {
+      notificationTranslated = 'Something wrong happended with the data';
+      notificationColors = Theme.of(context).colorScheme.error;
+    } else if (state.generalNotificationKey
+            .compareTo(HttpUtils.errorServerKey) ==
+        0) {
+      notificationTranslated =
+          'Something wrong when calling the server, please try again';
+      notificationColors = Theme.of(context).colorScheme.error;
+    }
+
+    return Text(
+      notificationTranslated,
+      style: TextStyle(color: notificationColors),
+    );
+  }
+}
+
+class Submit extends StatelessWidget {
+  const Submit({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SettingsBloc, SettingsState>(
+        builder: (context, state) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 30),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              key: const Key('settingsForm_elevatedButton'),
+              onPressed: state.isValid
+                  ? () => context.read<SettingsBloc>().add(FormSubmitted())
+                  : null,
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.2,
+                height: 50,
+                child: Center(child: Text('SAVE')),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+}

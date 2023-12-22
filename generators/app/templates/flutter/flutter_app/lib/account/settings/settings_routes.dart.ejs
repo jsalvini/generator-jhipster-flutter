@@ -1,0 +1,19 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:<%= baseName %>/account/settings/views/settings_screen.dart';
+import 'package:<%= baseName %>/core/router/routes.dart';
+
+class SettingsRoutes {
+  static final path = '/settings';
+  static const screenKey = Key('__settingsScreen__');
+
+  static final settingsRoutes = <GoRoute>[
+    GoRoute(
+      name: <%= camelizedUpperFirstBaseName %>Routes.settings,
+      path: path,
+      pageBuilder: (context, state) => MaterialPage(
+        child: SettingsScreen(),
+      ),
+    ),
+  ];
+}

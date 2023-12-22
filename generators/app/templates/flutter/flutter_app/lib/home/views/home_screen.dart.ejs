@@ -1,0 +1,102 @@
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:<%= baseName %>/home/home_routes.dart';
+import 'package:<%= baseName %>/shared/widgets/drawer_widget.dart';
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({Key? key}) : super(key: HomeRoutes.screenKey);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('Home'),
+      ),
+      body: HomeBody(),
+      drawer: MyAppFlutterDrawer(),
+    );
+  }
+}
+
+class HomeBody extends StatelessWidget {
+  const HomeBody({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.80,
+              child: Text('Welcome to your flutter app',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.displaySmall),
+            ),
+            SizedBox(height: 20),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+            ),
+            LinkWidget(
+              text: 'Jhipster Docs',
+              url: Uri.parse('https://www.jhipster.tech/'),
+            ),
+            LinkWidget(
+              text: 'Stackoverflow',
+              url: Uri.parse('http://stackoverflow.com/tags/jhipster/info'),
+            ),
+            LinkWidget(
+              text: 'Open issues',
+              url: Uri.parse(
+                  'https://github.com/merlinofcha0s/generator-jhipster-flutter/issues?state=open'),
+            ),
+            LinkWidget(
+              text: 'Gitter',
+              url: Uri.parse('https://gitter.im/jhipster/generator-jhipster'),
+            ),
+            LinkWidget(
+              text: 'Jhipster twitter',
+              url: Uri.parse('https://twitter.com/jhipster'),
+            )
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class LinkWidget extends StatelessWidget {
+  final String text;
+  final Uri url;
+
+  const LinkWidget({
+    super.key,
+    required this.text,
+    required this.url,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: ElevatedButton(
+          onPressed: () => _launchUrl(url),
+          child: Container(
+            child: Text(
+              text,
+              textAlign: TextAlign.center,
+            ),
+            width: MediaQuery.of(context).size.width * 0.5,
+          )),
+    );
+  }
+
+  Future<void> _launchUrl(Uri url) async {
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
+    }
+  }
+}

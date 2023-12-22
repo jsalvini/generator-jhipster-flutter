@@ -1,0 +1,50 @@
+part of 'settings_bloc.dart';
+
+enum SettingsAction {none, reloadForLanguage}
+
+class SettingsState extends Equatable {
+  final FirstnameInput firstname;
+  final LastnameInput lastname;
+  final EmailInput email;
+  final FormzSubmissionStatus formStatus;
+  final bool isValid;
+  final SettingsAction action;
+  final String generalNotificationKey;
+  final User currentUser;
+
+  const SettingsState({
+    this.firstname = const FirstnameInput.pure(),
+    this.lastname = const LastnameInput.pure(),
+    this.email = const EmailInput.pure(),
+    this.action = SettingsAction.none,
+    this.formStatus = FormzSubmissionStatus.initial,
+    this.isValid = false,
+    this.generalNotificationKey = HttpUtils.generalNoErrorKey,
+    this.currentUser = const User(0, '', '', '', false, '', ''),
+  });
+
+  SettingsState copyWith(
+      {FirstnameInput? firstname,
+      LastnameInput? lastname,
+      EmailInput? email,
+      FormzSubmissionStatus? formStatus,
+      bool? isValid,
+      String? generalNotificationKey,
+      SettingsAction? action,
+      User? currentUser}) {
+    return SettingsState(
+        firstname: firstname ?? this.firstname,
+        lastname: lastname ?? this.lastname,
+        email: email ?? this.email,
+        formStatus: formStatus ?? this.formStatus,
+        isValid: isValid ?? this.isValid,
+        generalNotificationKey:
+            generalNotificationKey ?? this.generalNotificationKey,
+        action: action ?? this.action,
+        currentUser: currentUser ?? this.currentUser);
+  }
+
+  @override
+  List<Object> get props =>
+      [firstname, lastname, email, formStatus, isValid, generalNotificationKey, action, currentUser];
+}

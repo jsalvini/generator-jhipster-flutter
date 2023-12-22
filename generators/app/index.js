@@ -67,7 +67,7 @@ module.exports = class extends BaseGenerator {
                 name: 'packageName',
                 validate: (input) => (/^([a-z_]{1}[a-z0-9_]*(\.[a-z_]{1}[a-z0-9_]*)*)$/.test(input) ? true : 'The package name you have provided is not a valid Java package name.'),
                 message: 'What is your package name?',
-                default: 'com.myapp',
+                default: 'com.flutterapp',
                 store: true
             },
             {

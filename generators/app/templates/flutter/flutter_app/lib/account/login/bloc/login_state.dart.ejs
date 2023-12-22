@@ -1,0 +1,36 @@
+part of 'login_bloc.dart';
+
+class LoginState extends Equatable {
+  final UsernameInput username;
+  final PasswordInput password;
+  final FormzSubmissionStatus status;
+  final String generalNotificationKey;
+  final bool isValid;
+
+  const LoginState({
+    this.username = const UsernameInput.pure(),
+    this.password = const PasswordInput.pure(),
+    this.status = FormzSubmissionStatus.initial,
+    this.generalNotificationKey = '',
+    this.isValid = false,
+  });
+
+  LoginState copyWith({
+    UsernameInput? username,
+    PasswordInput? password,
+    FormzSubmissionStatus? status,
+    String? generalNotificationKey,
+    bool? isValid,
+  }) {
+    return LoginState(
+      username: username ?? this.username,
+      password: password ?? this.password,
+      status: status ?? this.status,
+      generalNotificationKey: generalNotificationKey ?? this.generalNotificationKey,
+      isValid: isValid ?? this.isValid,
+    );
+  }
+
+  @override
+  List<Object> get props => [username, password, status, generalNotificationKey, isValid];
+}

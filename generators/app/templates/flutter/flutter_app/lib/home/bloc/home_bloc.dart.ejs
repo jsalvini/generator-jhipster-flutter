@@ -1,0 +1,27 @@
+import 'dart:async';
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:<%= baseName %>/shared/models/user.dart';
+import 'package:<%= baseName %>/shared/repository/account_repository.dart';
+
+class HomeBloc extends Bloc<HomeEvent, HomeState> {
+  final AccountRepository _accountRepository;
+
+  HomeBloc({required AccountRepository accountRepository})
+      : _accountRepository = accountRepository,
+        super(const HomeState()) {
+    on<Init>(onInit);
+  }
+
+  Future<void> onInit(
+    Init event,
+    Emitter<HomeState> emit,
+  ) async {
+    User? currentUser = await _accountRepository.getAccount();
+
+    emit(state.copyWith(
+      currentUser: currentUser,
+    ));
+  }
+}
+

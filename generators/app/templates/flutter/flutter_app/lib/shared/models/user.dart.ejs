@@ -1,0 +1,74 @@
+import 'package:dart_json_mapper/dart_json_mapper.dart';
+import 'package:equatable/equatable.dart';
+
+@jsonSerializable
+class User extends Equatable {
+  @JsonProperty(name: 'id')
+  final int? id;
+
+  @JsonProperty(name: 'login')
+  final String? login;
+
+  @JsonProperty(name: 'firstName')
+  final String? firstName;
+
+  @JsonProperty(name: 'lastName')
+  final String? lastName;
+
+  @JsonProperty(name: 'email')
+  final String? email;
+
+  @JsonProperty(name: 'imageUrl')
+  final String? imageUrl;
+
+  @JsonProperty(name: 'activated')
+  final bool? activated;
+
+  const User(
+    this.id,
+    this.login,
+    this.email,
+    this.imageUrl,
+    this.activated,
+    this.firstName,
+    this.lastName,
+  );
+
+  static const empty = User(0, '', '', '', false, '', '');
+
+  @override
+  String toString() {
+    return '''User{
+      login: $login,
+      firstName: $firstName,
+      lastName: $lastName,
+      email: $email,
+      activated: $activated,
+      }''';
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is User &&
+          runtimeType == other.runtimeType &&
+          login == other.login &&
+          email == other.email &&
+          imageUrl == other.imageUrl &&
+          activated == other.activated;
+
+  @override
+  int get hashCode =>
+      login.hashCode ^ email.hashCode ^ imageUrl.hashCode ^ activated.hashCode;
+
+  @override
+  List<Object?> get props => [
+        id,
+        login,
+        email,
+        imageUrl,
+        activated,
+        firstName,
+        lastName,
+      ];
+}

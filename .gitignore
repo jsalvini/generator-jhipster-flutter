@@ -1,7 +1,7 @@
 node_modules
 coverage
 .idea
-!/generators/app/templates/flutter/flutter-app/.idea
+!/generators/app/templates/flutter/flutter_app/.idea
 *.iml
 *.ipr
 *.iws

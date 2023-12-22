@@ -1,6 +1,6 @@
-const MIN_SDK_VERSION = '18';
-const TARGET_SDK_VERSION = '28';
-const MAIN_DIR = 'flutter-app/';
+const MIN_SDK_VERSION = '21';
+const TARGET_SDK_VERSION = '33';
+const MAIN_DIR = 'flutter_app/';
 const MAIN_SRC_DIR = `${MAIN_DIR}lib/`;
 const ANDROID_SRC_DIR = `${MAIN_DIR}android/`;
 const IOS_SRC_DIR = `${MAIN_DIR}ios/`;
@@ -8,8 +8,8 @@ const MAIN_TEST_DIR = `${MAIN_DIR}test/`;
 const INTELLIJ_CONFIG_DIR = `${MAIN_DIR}.idea/runConfigurations/`;
 
 const LANGUAGES = [
-    { name: 'French', dispName: 'Français', value: 'fr' },
-    { name: 'English', dispName: 'Anglais', value: 'en' }
+    { name: 'Spanish', dispName: 'Español', value: 'es' },
+    { name: 'English', dispName: 'English', value: 'en' },
 ];
 
 const FLUTTER_FILES = {
@@ -20,9 +20,9 @@ const FLUTTER_FILES = {
                 '.gitignore',
                 'build.yaml',
                 'pubspec.yaml',
-                'README.md'
-            ]
-        }
+                'README.md',
+            ],
+        },
     ],
     flutterApp: [
         {
@@ -30,67 +30,91 @@ const FLUTTER_FILES = {
             templates: [
                 'app.dart',
                 'environment.dart',
-                'keys.dart',
                 'main_prod.dart',
                 'main.dart',
-                'routes.dart',
-                'themes.dart'
-            ]
-        }
+            ],
+        },
+    ],
+    core: [
+        {
+            path: MAIN_SRC_DIR,
+            templates: [
+                'core/router/routes.dart',
+                'core/router/app_router.dart',
+                'core/theme/themes.dart',
+                'core/core.dart',
+            ],
+        },
     ],
     shared: [
         {
             path: MAIN_SRC_DIR,
             templates: [
-                'shared/widgets/loading_indicator_widget.dart',
-                'shared/widgets/drawer/drawer_widget.dart',
-                'shared/widgets/drawer/bloc/drawer_bloc.dart',
-                'shared/widgets/drawer/bloc/drawer_events.dart',
-                'shared/widgets/drawer/bloc/drawer_state.dart',
-                'shared/widgets/loading_indicator_widget.dart',
-                'shared/models/jwt_token.dart',
-                'shared/models/user_jwt.dart',
-                'shared/models/user.dart',
-                'shared/models/entity_arguments.dart',
-                'shared/repository/http_utils.dart',
-                'shared/repository/account_repository.dart',
                 'shared/exceptions/app_exception.dart',
-            ]
-        }
+                'shared/models/entity_arguments.dart',
+                'shared/models/error_response.dart',
+                'shared/models/jwt_token.dart',
+                'shared/models/login_request.dart',
+                'shared/models/user.dart',
+                'shared/repository/account_repository.dart',
+                'shared/repository/authentication_repository.dart',
+                'shared/repository/repository.dart',
+                'shared/utils/http_utils.dart',
+                'shared/widgets/loading_indicator_widget.dart',
+                'shared/widgets/drawer_widget.dart',
+            ],
+        },
+    ],
+    splash: [
+        {
+            path: MAIN_SRC_DIR,
+            templates: [
+                'splash/views/splash_screen.dart',
+                'splash/splash_routes.dart',
+                'splash/splash.dart',
+            ],
+        },
     ],
     main: [
         {
             path: MAIN_SRC_DIR,
             templates: [
-                'main/bloc/main_bloc.dart',
-                'main/bloc/main_events.dart',
-                'main/bloc/main_state.dart',
-                'main/main_screen.dart',
-            ]
-        }
+                'home/bloc/home_bloc.dart',
+                'home/bloc/home_events.dart',
+                'home/bloc/home_state.dart',
+                'home/views/home_screen.dart',
+                'home/home_routes.dart',
+                'home/home.dart',
+            ],
+        },
     ],
     account: [
         {
             path: MAIN_SRC_DIR,
             templates: [
+                'account/authentication/bloc/authentication_bloc.dart',
+                'account/authentication/bloc/authentication_events.dart',
+                'account/authentication/bloc/authentication_state.dart',
+                'account/authentication/authentication.dart',
                 'account/login/bloc/login_bloc.dart',
                 'account/login/bloc/login_events.dart',
-                'account/login/bloc/login_models.dart',
                 'account/login/bloc/login_state.dart',
-                'account/login/login_repository.dart',
-                'account/login/login_screen.dart',
-                'account/register/bloc/register_bloc.dart',
-                'account/register/bloc/register_events.dart',
-                'account/register/bloc/register_models.dart',
-                'account/register/bloc/register_state.dart',
-                'account/register/register_screen.dart',
+                'account/login/models/models.dart',
+                'account/login/models/password_input.dart',
+                'account/login/models/username_input.dart',
+                'account/login/views/login_form.dart',
+                'account/login/views/login_screen.dart',
+                'account/login/login_routes.dart',
+                'account/login/login.dart',
                 'account/settings/bloc/settings_bloc.dart',
                 'account/settings/bloc/settings_events.dart',
-                'account/settings/bloc/settings_models.dart',
                 'account/settings/bloc/settings_state.dart',
-                'account/settings/settings_screen.dart'
-            ]
-        }
+                'account/settings/models/settings_models.dart',
+                'account/settings/views/settings_screen.dart',
+                'account/settings/settings_routes.dart',
+                'account/settings/settings.dart',
+            ],
+        },
     ],
     android: [
         {
@@ -98,54 +122,32 @@ const FLUTTER_FILES = {
             templates: [
                 'app/build.gradle',
                 'app/src/main/AndroidManifest.xml',
-                'app/src/debug/AndroidManifest.xml'
-            ]
-        }
+                'app/src/debug/AndroidManifest.xml',
+            ],
+        },
     ],
     test: [
         {
             path: MAIN_TEST_DIR,
-            templates: [
-                'widget_test.dart'
-            ]
-        }
+            templates: ['widget_test.dart'],
+        },
     ],
     image: [
         {
             path: MAIN_DIR,
             templates: [
-                { file: 'assets/images/jhipster_family_member_0.svg', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_1.svg', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_2.svg', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_3.svg', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_0_head-192.png', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_1_head-192.png', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_2_head-192.png', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_3_head-192.png', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_0_head-256.png', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_1_head-256.png', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_2_head-256.png', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_3_head-256.png', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_0_head-384.png', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_1_head-384.png', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_2_head-384.png', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_3_head-384.png', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_0_head-512.png', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_1_head-512.png', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_2_head-512.png', method: 'copy' },
-                { file: 'assets/images/jhipster_family_member_3_head-512.png', method: 'copy' },
-                { file: 'assets/images/logo-jhipster.png', method: 'copy' }
-            ]
-        }
+                { file: 'assets/images/jhipster_512.png', method: 'copy' },
+                { file: 'assets/images/logo-jhipster.png', method: 'copy' },
+                { file: 'assets/images/logo_tipre.png', method: 'copy' },
+                { file: 'assets/images/logo_menu.png', method: 'copy' },
+            ],
+        },
     ],
     intellij: [
         {
             path: INTELLIJ_CONFIG_DIR,
-            templates: [
-                'main_dart_dev.xml',
-                'main_dart_prod.xml'
-            ]
-        }
+            templates: ['main_dart_dev.xml', 'main_dart_prod.xml'],
+        },
     ],
 };
 
@@ -159,7 +161,7 @@ const constants = {
     MAIN_DIR,
     FLUTTER_FILES,
     MAIN_TEST_DIR,
-    INTELLIJ_CONFIG_DIR
+    INTELLIJ_CONFIG_DIR,
 };
 
 module.exports = constants;

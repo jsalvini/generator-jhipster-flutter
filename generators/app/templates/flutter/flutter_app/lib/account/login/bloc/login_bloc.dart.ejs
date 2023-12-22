@@ -1,0 +1,78 @@
+import 'dart:async';
+import 'package:bloc/bloc.dart';
+import 'package:formz/formz.dart';
+import 'package:equatable/equatable.dart';
+import 'package:<%= baseName %>/account/login/models/models.dart';
+import 'package:<%= baseName %>/shared/models/login_request.dart';
+import 'package:<%= baseName %>/shared/repository/authentication_repository.dart';
+
+
+part 'login_events.dart';
+part 'login_state.dart';
+
+class LoginBloc extends Bloc<LoginEvent, LoginState> {
+  final AuthenticationRepository _authenticationRepository;
+
+  LoginBloc({required AuthenticationRepository authenticationRepository})
+      : _authenticationRepository = authenticationRepository,
+        super(const LoginState()) {
+    on<LoginUsernameChanged>(onUsernameChanged);
+    on<LoginPasswordChanged>(onPasswordChanged);
+    on<LoginSubmitted>(onSubmitted);
+  }
+
+  void onUsernameChanged(
+    LoginUsernameChanged event,
+    Emitter<LoginState> emit,
+  ) {
+    final username = UsernameInput.dirty(event.username);
+    emit(
+      state.copyWith(
+        username: username,
+        isValid: Formz.validate([state.password, username]),
+      ),
+    );
+  }
+
+  void onPasswordChanged(
+    LoginPasswordChanged event,
+    Emitter<LoginState> emit,
+  ) {
+    final password = PasswordInput.dirty(event.password);
+    emit(
+      state.copyWith(
+        password: password,
+        isValid: Formz.validate([password, state.username]),
+      ),
+    );
+  }
+
+  Future<void> onSubmitted(
+    LoginSubmitted event,
+    Emitter<LoginState> emit,
+  ) async {
+    if (state.isValid) {
+      emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
+      try {
+        LoginRequest userRequest =
+            LoginRequest(state.username.value, state.password.value);
+        final result =
+            await _authenticationRepository.authenticate(userRequest);
+
+        if (result) {
+          emit(state.copyWith(status: FormzSubmissionStatus.success));
+        } else {
+          emit(state.copyWith(
+            status: FormzSubmissionStatus.failure,
+            generalNotificationKey: 'Error usuario/contraseña incorrecto.',
+          ));
+        }
+      } catch (error) {
+        emit(state.copyWith(
+          status: FormzSubmissionStatus.failure,
+          generalNotificationKey: error.toString(),
+        ));
+      }
+    }
+  }
+}
