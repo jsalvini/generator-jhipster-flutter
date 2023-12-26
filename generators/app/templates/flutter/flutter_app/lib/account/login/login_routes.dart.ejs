@@ -4,14 +4,14 @@ import 'package:<%= baseName %>/account/login/views/login_screen.dart';
 import 'package:<%= baseName %>/core/router/routes.dart';
 
 class LoginRoutes {
-  static final path = '/login';
+  static const path = '/login';
   static const screenKey = Key('__loginScreen__');
 
   static final loginRoutes = <GoRoute>[
     GoRoute(
       name: <%= camelizedUpperFirstBaseName %>Routes.login,
       path: path,
-      pageBuilder: (context, state) => MaterialPage(
+      pageBuilder: (context, state) => const MaterialPage(
         child: LoginScreen(),
       ),
     ),

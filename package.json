@@ -7,10 +7,10 @@
     "jhipster-module",
     "jhipster-6"
   ],
-  "homepage": "https://github.com/merlinofcha0s/generator-jhipster-flutter.git",
+  "homepage": "https://github.com/josesalvini/generator-jhipster-flutter.git",
   "author": {
-    "name": "Cyril Casaucau",
-    "url": "https://github.com/merlinofcha0s"
+    "name": "Jose Salvini",
+    "url": "https://github.com/josesalvini"
   },
   "files": [
     "generators"

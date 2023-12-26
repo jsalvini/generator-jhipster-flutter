@@ -11,7 +11,7 @@ class AuthenticationRepository {
   AuthenticationRepository();
 
   final _authenticateController = StreamController<AuthenticationStatus>();
-  final FlutterSecureStorage _storage = FlutterSecureStorage();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   Stream<AuthenticationStatus> get status async* {
     await Future<void>.delayed(const Duration(seconds: 1));
@@ -26,7 +26,6 @@ class AuthenticationRepository {
     if (authenticateResponse.statusCode == 200) {
       token = JsonMapper.deserialize<JWTToken>(authenticateResponse.body);
       if (token != null) {
-        //log('Token: ${token.idToken}');
         await _storage.delete(key: HttpUtils.keyForJWTToken);
         await _storage.write(
             key: HttpUtils.keyForJWTToken, value: token.idToken);

@@ -21,7 +21,7 @@ class SettingsScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: Text('Settings'),
+          title: const Text('Settings'),
         ),
         body: BlocConsumer<SettingsBloc, SettingsState>(
           listener: (context, state) {
@@ -36,11 +36,11 @@ class SettingsScreen extends StatelessWidget {
                   SnackBar(
                     content: Row(
                       children: [
-                        Icon(Icons.info_outline_rounded, color: Colors.white),
-                        SizedBox(width: 10),
+                        const Icon(Icons.info_outline_rounded, color: Colors.white),
+                        const SizedBox(width: 10),
                         Text(
                           state.generalNotificationKey,
-                          style: TextStyle(color: Colors.white),
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ],
                     ),
@@ -50,17 +50,17 @@ class SettingsScreen extends StatelessWidget {
             }
           },
           builder: (context, state) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(15.0),
+            return const SingleChildScrollView(
+              padding: EdgeInsets.all(15.0),
               child: Column(
                 children: <Widget>[
-                  const SettingsForm(),
+                  SettingsForm(),
                 ],
               ),
             );
           },
         ),
-        drawer: MyAppFlutterDrawer(),
+        drawer: const <%= camelizedUpperFirstBaseName %>Drawer(),
       ),
     );
   }
@@ -71,7 +71,7 @@ class SettingsForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
+    return const Form(
       child: Wrap(runSpacing: 15, children: <Widget>[
         FirstnameField(),
         LastnameField(),
@@ -226,10 +226,10 @@ class Submit extends StatelessWidget {
               onPressed: state.isValid
                   ? () => context.read<SettingsBloc>().add(FormSubmitted())
                   : null,
-              child: Container(
+              child: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.2,
                 height: 50,
-                child: Center(child: Text('SAVE')),
+                child: const Center(child: Text('SAVE')),
               ),
             ),
           ],

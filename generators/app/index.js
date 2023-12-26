@@ -191,9 +191,9 @@ module.exports = class extends BaseGenerator {
         // Generate Translation
         if (this.enableTranslation) {
             this.log(chalk.green('Activating I18n...'));
-            this.spawnCommandSync('flutter', ['pub', 'global', 'activate', 'intl_utils', '2.1.0'], { cwd: MAIN_DIR });
+            this.spawnCommandSync('flutter', ['pub', 'add', 'intl_utils', '^2.8.7'], { cwd: MAIN_DIR });
             this.log(chalk.green('Generate I18n files...'));
-            this.spawnCommandSync('flutter', ['pub', 'global', 'run', 'intl_utils:generate'], { cwd: MAIN_DIR });
+            this.spawnCommandSync('flutter', ['pub', 'run', 'intl_utils:generate'], { cwd: MAIN_DIR });
         }
     }
 

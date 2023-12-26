@@ -17,7 +17,7 @@ class LoginForm extends StatelessWidget {
               SnackBar(
                 content: Text(
                   state.generalNotificationKey,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                   ),
                 ),
@@ -35,12 +35,12 @@ class LoginForm extends StatelessWidget {
               Theme.of(context).primaryColor,
               Theme.of(context).secondaryHeaderColor
             ],
-            stops: [0.0, 1.0],
-            begin: AlignmentDirectional(0.87, -1.0),
-            end: AlignmentDirectional(-0.87, 1.0),
+            stops: const [0.0, 1.0],
+            begin: const AlignmentDirectional(0.87, -1.0),
+            end: const AlignmentDirectional(-0.87, 1.0),
           ),
         ),
-        child: SingleChildScrollView(
+        child: const SingleChildScrollView(
           child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -80,12 +80,12 @@ class FormView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      constraints: BoxConstraints(
+      constraints: const BoxConstraints(
         maxWidth: 570.0,
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).primaryColor,
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             blurRadius: 4.0,
             color: Color(0x33000000),
@@ -94,7 +94,7 @@ class FormView extends StatelessWidget {
         ],
         borderRadius: BorderRadius.circular(12.0),
       ),
-      child: Padding(
+      child: const Padding(
         padding: const EdgeInsets.all(15.0),
         child: Form(
             child: Wrap(
@@ -130,9 +130,9 @@ class _UsernameInput extends StatelessWidget {
           keyboardType: TextInputType.text,
           decoration: InputDecoration(
               labelText: 'Username',
-              labelStyle: TextStyle(height: 0.5, fontWeight: FontWeight.bold),
+              labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
               contentPadding:
-                  EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               filled: true,
               isDense: true,
               errorText: state.username.displayError != null
@@ -162,9 +162,9 @@ class _PasswordInput extends StatelessWidget {
           obscureText: true,
           decoration: InputDecoration(
               labelText: 'Password',
-              labelStyle: TextStyle(height: 0.5, fontWeight: FontWeight.bold),
+              labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
               contentPadding:
-                  EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               filled: true,
               isDense: true,
               errorText: state.password.displayError != null
@@ -184,12 +184,12 @@ class _LoginButton extends StatelessWidget {
     return BlocBuilder<LoginBloc, LoginState>(
       builder: (context, state) {
         return state.status.isInProgress
-            ? Padding(
-                padding: const EdgeInsets.only(top: 30, bottom: 20),
+            ? const Padding(
+                padding:  EdgeInsets.only(top: 30, bottom: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const CircularProgressIndicator(),
+                     CircularProgressIndicator(),
                   ],
                 ),
               )
@@ -204,10 +204,10 @@ class _LoginButton extends StatelessWidget {
                           ? () =>
                               context.read<LoginBloc>().add(LoginSubmitted())
                           : null,
-                      child: Container(
+                      child: SizedBox(
                         width: MediaQuery.of(context).size.width * 0.2,
                         height: 50,
-                        child: Center(
+                        child: const Center(
                           child: Text('LOGIN',
                               style: TextStyle(color: Colors.white)),
                         ),

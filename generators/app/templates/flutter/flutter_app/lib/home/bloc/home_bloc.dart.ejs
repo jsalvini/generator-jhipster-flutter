@@ -4,6 +4,9 @@ import 'package:equatable/equatable.dart';
 import 'package:<%= baseName %>/shared/models/user.dart';
 import 'package:<%= baseName %>/shared/repository/account_repository.dart';
 
+part 'home_event.dart';
+part 'home_state.dart';
+
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final AccountRepository _accountRepository;
 

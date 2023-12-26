@@ -9,11 +9,11 @@ import 'main.mapper.g.dart' show initializeJsonMapper;
   <%_ } _%>
 
 void main() {
-  Constants.setEnvironment(Environment.DEV);
+  Constants.setEnvironment(Environment.dev);
   initializeJsonMapper();
   <%_ if (!enableTranslation) { _%>
   Intl.defaultLocale = "es";
   initializeDateFormatting();
   <%_ } _%>
-  runApp(<%= camelizedUpperFirstBaseName %>App());
+  runApp(const <%= camelizedUpperFirstBaseName %>App());
 }

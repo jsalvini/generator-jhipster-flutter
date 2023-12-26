@@ -4,14 +4,14 @@ import 'package:<%= baseName %>/core/router/routes.dart';
 import 'package:<%= baseName %>/home/views/home_screen.dart';
 
 class HomeRoutes {
-  static final path = '/home';
+  static const path = '/home';
   static const screenKey = Key('__homeScreen__');
 
   static final homeRoutes = <GoRoute>[
     GoRoute(
       name: <%= camelizedUpperFirstBaseName %>Routes.home,
       path: path,
-      pageBuilder: (context, state) => MaterialPage(
+      pageBuilder: (context, state) => const MaterialPage(
         child: HomeScreen(),
       ),
     ),

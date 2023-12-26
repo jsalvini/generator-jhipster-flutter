@@ -8,7 +8,7 @@ import 'package:<%= baseName %>/shared/models/user.dart';
 import 'package:<%= baseName %>/shared/repository/account_repository.dart';
 import 'package:<%= baseName %>/shared/utils/http_utils.dart';
 
-part 'settings_events.dart';
+part 'settings_event.dart';
 part 'settings_state.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
@@ -17,9 +17,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
 
-  static final String loginExistKey = 'error.userexists';
-  static final String emailExistKey = 'error.emailexists';
-  static final String successKey = 'success.settings';
+  static const String loginExistKey = 'error.userexists';
+  static const String emailExistKey = 'error.emailexists';
+  static const String successKey = 'success.settings';
 
   SettingsBloc({
     required AccountRepository accountRepository,
@@ -125,12 +125,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   ) async {
     User? currentUser = await _accountRepository.getAccount();
 
-    String firstName =
-        (currentUser?.firstName != null ? currentUser?.firstName : '')!;
-    String lastName =
-        (currentUser?.lastName != null ? currentUser?.lastName : '')!;
-    String email = (currentUser?.email != null ? currentUser?.email : '')!;
-
+    String firstName = (currentUser?.firstName ?? '');
+    String lastName = (currentUser?.lastName ?? '');
+    String email = (currentUser?.email ?? '');
+	
     final firstNameInput = FirstnameInput.dirty(firstName);
     final lastNameInput = LastnameInput.dirty(lastName);
     final emailInput = EmailInput.dirty(email);

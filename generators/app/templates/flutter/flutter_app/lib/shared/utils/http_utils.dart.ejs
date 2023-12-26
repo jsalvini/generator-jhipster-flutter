@@ -24,7 +24,7 @@ class HttpUtils {
   }
 
   static Future<Map<String, String>> headers() async {
-    FlutterSecureStorage storage = new FlutterSecureStorage();
+    FlutterSecureStorage storage = const FlutterSecureStorage();
     String? jwt = await storage.read(key: HttpUtils.keyForJWTToken);
     if (jwt != null) {
       return {
@@ -39,7 +39,7 @@ class HttpUtils {
 
   static Future<Response> postRequest<T>(String endpoint, T body) async {
     var headers = await HttpUtils.headers();
-    final String json = JsonMapper.serialize(body, SerializationOptions(indent: ''));
+    final String json = JsonMapper.serialize(body, const SerializationOptions(indent: ''));
     Response? response;
     try {
       response = await http.post(Uri.parse('${Constants.api}$endpoint'), headers: headers, body: json,
@@ -66,7 +66,7 @@ class HttpUtils {
 
   static Future<Response> putRequest<T>(String endpoint, T body) async {
     var headers = await HttpUtils.headers();
-    final String json = JsonMapper.serialize(body, SerializationOptions(indent: ''));
+    final String json = JsonMapper.serialize(body, const SerializationOptions(indent: ''));
     Response response;
     try {
       response = await http.put(Uri.parse('${Constants.api}$endpoint'), headers: headers, body: json,

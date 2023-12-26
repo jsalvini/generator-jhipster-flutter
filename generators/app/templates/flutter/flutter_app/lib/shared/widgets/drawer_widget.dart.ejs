@@ -3,16 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:<%= baseName %>/account/authentication/authentication.dart';
 import 'package:<%= baseName %>/core/router/routes.dart';
-import 'package:<%= baseName %>/entities/job/job_route.dart';
 import 'package:<%= baseName %>/home/bloc/home_bloc.dart';
 import 'package:<%= baseName %>/shared/repository/account_repository.dart';
 
 // jhipster-merlin-needle-menu-import-entry-add
 
 class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
-  <%= camelizedUpperFirstBaseName %>Drawer({Key? key}) : super(key: key);
+  const <%= camelizedUpperFirstBaseName %>Drawer({Key? key}) : super(key: key);
 
-  static final double iconSize = 30;
+  static const double iconSize = 30;
 
   @override
   Widget build(BuildContext context) {
@@ -31,14 +30,14 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                   accountName: Text(
                     '${state.currentUser.firstName}, ${state.currentUser.lastName}',
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 22,
                     ),
                   ),
                   accountEmail: Text(
                     '${state.currentUser.email}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                     ),
@@ -48,7 +47,7 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                     child: CircleAvatar(
                       radius: 72,
                       backgroundColor: Theme.of(context).primaryColor,
-                      child: CircleAvatar(
+                      child: const CircleAvatar(
                         radius: 70,
                         backgroundColor: Colors.white,
                         backgroundImage:
@@ -56,41 +55,41 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                       ),
                     ),
                   ),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Color(0xff292314),
                   ),
                 );
               },
             ),
             ListTile(
-              leading: Icon(
+              leading: const Icon(
                 Icons.home,
                 size: iconSize,
               ),
-              title: Text('Home'),
+              title: const Text('Home'),
               onTap: () => context.pushNamed(<%= camelizedUpperFirstBaseName %>Routes.home),
             ),
             ListTile(
-              leading: Icon(
+              leading: const Icon(
                 Icons.settings,
                 size: iconSize,
               ),
-              title: Text('Settings'),
+              title: const Text('Settings'),
               onTap: () => context.pushNamed(<%= camelizedUpperFirstBaseName %>Routes.settings),
             ),
             ListTile(
-              leading: Icon(
+              leading: const Icon(
                 Icons.exit_to_app,
                 size: iconSize,
               ),
-              title: Text('Sign out'),
+              title: const Text('Sign out'),
               onTap: () {
                 context
                     .read<AuthenticationBloc>()
                     .add(AuthenticationLogoutRequested());
               },
             ),
-            Divider(thickness: 2),
+            const Divider(thickness: 2),
           ],
         ),
       ),

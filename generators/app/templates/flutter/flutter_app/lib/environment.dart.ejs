@@ -1,4 +1,4 @@
-enum Environment { DEV, PROD }
+enum Environment { dev, prod }
 
 class Constants {
   static Map<String, dynamic>? _config;
@@ -9,28 +9,28 @@ class Constants {
 
   static void setEnvironment(Environment env) {
     switch (env) {
-      case Environment.DEV:
+      case Environment.dev:
         _config = _Config.devConstants;
         break;
-      case Environment.PROD:
+      case Environment.prod:
         _config = _Config.prodConstants;
         break;
     }
   }
 
   static get api {
-    return _config![_Config.API];
+    return _config![_Config.api];
   }
 }
 
 class _Config {
-  static const API = "API";
+  static get api => "API";
 
   static Map<String, dynamic> devConstants = {
-    API: "http://127.0.0.1:8080/api",
+    api: "http://127.0.0.1:8080/api",
   };
 
   static Map<String, dynamic> prodConstants = {
-    API: "https://production-server/api",
+    api: "https://production-server/api",
   };
 }

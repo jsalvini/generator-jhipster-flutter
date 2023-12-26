@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:myAppFlutter/core/router/routes.dart';
-import 'package:myAppFlutter/splash/views/splash_screen.dart';
+import 'package:<%= baseName %>/core/router/routes.dart';
+import 'package:<%= baseName %>/splash/views/splash_screen.dart';
 
 class SplashRoutes {
-  static final path = '/splash';
+  static const path = '/splash';
   static const screenKey = Key('__splashScreen__');
 
   static final splashRoutes = <GoRoute>[
     GoRoute(
-      name: MyAppFlutterRoutes.splash,
+      name: <%= camelizedUpperFirstBaseName %>Routes.splash,
       path: path,
-      pageBuilder: (context, state) => MaterialPage(
+      pageBuilder: (context, state) => const MaterialPage(
         child: SplashScreen(),
       ),
     ),

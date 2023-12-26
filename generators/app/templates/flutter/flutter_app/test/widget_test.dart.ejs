@@ -4,7 +4,7 @@ import 'package:<%= baseName %>/app.dart';
 void main() {
   testWidgets('Create main widget and verify content', (WidgetTester tester) async {
 
-    await tester.pumpWidget(<%= camelizedUpperFirstBaseName %>App());
+    await tester.pumpWidget(const <%= camelizedUpperFirstBaseName %>App());
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome to <%= baseName %>'), findsOneWidget);

@@ -5,8 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:<%= baseName %>/account/authentication/authentication.dart';
 import 'package:<%= baseName %>/account/login/login_routes.dart';
 import 'package:<%= baseName %>/account/settings/settings_routes.dart';
-import 'package:<%= baseName %>/entities/employee/employee_routes.dart';
-import 'package:<%= baseName %>/entities/job/views/job_list_screen.dart';
 import 'package:<%= baseName %>/home/home_routes.dart';
 import 'package:<%= baseName %>/shared/repository/authentication_repository.dart';
 import 'package:<%= baseName %>/splash/splash_routes.dart';
@@ -31,10 +29,10 @@ abstract class AppRouter {
       final authenticationBloc =
           context.read<AuthenticationBloc>().state.status;
 
-      final ir_a = state.matchedLocation;
+      final irA = state.matchedLocation;
 
       if (authenticationBloc == AuthenticationStatus.authenticated &&
-          ir_a.compareTo(LoginRoutes.path) == 0) {
+          irA.compareTo(LoginRoutes.path) == 0) {
         return HomeRoutes.path;
       } else if (authenticationBloc == AuthenticationStatus.unauthenticated) {
         return LoginRoutes.path;
