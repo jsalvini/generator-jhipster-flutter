@@ -28,7 +28,7 @@ class _<%= camelizedUpperFirstBaseName %>AppState extends State<<%= camelizedUpp
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     _authenticationRepository.dispose();
     String? jwt = await _storage.read(key: HttpUtils.keyForJWTToken);
     if (jwt != null) {
