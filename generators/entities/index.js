@@ -140,7 +140,7 @@ module.exports = class extends BaseGenerator {
     install() {
         // Generate Reflection
         this.log(chalk.green('Generate reflection for the new entities...'));
-        this.spawnCommandSync('flutter', ['pub', 'run', 'build_runner', 'build', '--delete-conflicting-outputs']);
+        this.spawnCommandSync('dart', ['run', 'build_runner', 'build', '--delete-conflicting-outputs']);
 
         // Generate Translation
         if (this.context.enableTranslation) {

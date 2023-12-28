@@ -166,7 +166,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			child: Row(
 			  mainAxisAlignment: MainAxisAlignment.spaceBetween,
 			  children: <Widget>[
-				Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldName %>'<%_ } _%>, style: Theme.of(context).textTheme.bodyText1,),
+				Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldName %>'<%_ } _%>, style: Theme.of(context).textTheme.bodyLarge,),
 				DropdownButton<<%= field.fieldType %>>(
 					value: state.<%= field.fieldName %>.value,
 					onChanged: (value) { context.read<<%= entityClass %>Bloc>().add(<%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value!)); },
@@ -184,7 +184,8 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 
 			for (<%= field.fieldType %> <%= field.fieldName %> in <%= field.fieldName %>s) {
 			  DropdownMenuItem<<%= field.fieldType %>> dropdown = DropdownMenuItem<<%= field.fieldType %>>(
-				  value: <%= field.fieldName %>, child: Text(<%= field.fieldName %>.toString()));
+				  value: <%= field.fieldName %>,
+				  child: Text(<%= field.fieldName %>.toString()));
 				  <%= field.fieldName %>DropDown.add(dropdown);
 			}
 
@@ -208,7 +209,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 		  child: Row(
 			mainAxisAlignment: MainAxisAlignment.spaceBetween,
 			children: <Widget>[
-			  Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldName %>'<%_ } _%>, style: Theme.of(context).textTheme.bodyText1,),
+			  Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldName %>'<%_ } _%>, style: Theme.of(context).textTheme.bodyLarge,),
 			  Switch(
 				  value: state.<%= field.fieldName %>.value,
 				  onChanged: (value) { context.bloc<<%= entityClass %>Bloc>().add(<%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value)); },

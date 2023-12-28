@@ -73,8 +73,8 @@ fields.forEach(field => {
         enumsAlreadyDeclared.push(field.fieldType); _%>
 @jsonSerializable
 enum <%= field.fieldType %> {<%
-        const enums = field.fieldValues.split(',');
-        for (let i = 0; i < enums.length; i++) { %>
-    <%= enums[i] %> <%if (i < enums.length - 1) { %>,<% }
-        } %>
+    const enums = field.fieldValues.split(',');
+    for (let i = 0; i < enums.length; i++) { %>
+        <%= enums[i] %><%if (i < enums.length - 1) { %>,<% }
+    } %>
 } <%_ }}); _%>

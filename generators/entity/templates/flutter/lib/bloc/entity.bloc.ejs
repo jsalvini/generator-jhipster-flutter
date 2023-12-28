@@ -135,7 +135,9 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
 	    <%_ fields.forEach(field => { _%>
 			<%_ if(field.fieldType === 'DateTime') { _%>
 				final <%= field.fieldName %> = <%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> ?? DateTime.now()));
-			<%_  } else { _%>
+        <%_ } else if (field.fieldIsEnum) {_%>
+        final <%= field.fieldName %> = <%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> ?? <%= field.fieldType %>.<%= field.fieldValues.split(',')[0] %>));
+        <%_  } else { _%>
 				final <%= field.fieldName %> = <%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> ?? <%- field.defaultValue %>));
 			<%_ } _%>
 		<%_ }); _%>
