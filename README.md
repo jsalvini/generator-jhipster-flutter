@@ -140,3 +140,7 @@ Feel free to help, the project is open to PR
 # License
 
 Apache-2.0 © Cyril Casaucau
+
+# Contribution
+
+Apache-2.0 © José Salvini
