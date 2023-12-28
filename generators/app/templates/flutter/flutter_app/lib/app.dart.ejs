@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/account/authentication/authentication.dart';
 import 'package:<%= baseName %>/shared/repository/repository.dart';
+import 'package:<%= baseName %>/shared/utils/http_utils.dart';
 
 class <%= camelizedUpperFirstBaseName %>App extends StatefulWidget {
   const <%= camelizedUpperFirstBaseName %>App({Key? key}) : super(key: key);
@@ -15,17 +17,23 @@ class _<%= camelizedUpperFirstBaseName %>AppState extends State<<%= camelizedUpp
 
   late final AuthenticationRepository _authenticationRepository;
   late final AccountRepository _accountRepository;
+  late final FlutterSecureStorage _storage;
 
   @override
   void initState() {
     super.initState();
     _authenticationRepository = AuthenticationRepository();
     _accountRepository = AccountRepository();
+    _storage = const FlutterSecureStorage();
   }
 
   @override
   void dispose() {
     _authenticationRepository.dispose();
+    String? jwt = await _storage.read(key: HttpUtils.keyForJWTToken);
+    if (jwt != null) {
+      await _storage.delete(key: HttpUtils.keyForJWTToken);
+    }
     super.dispose();
   }
 
