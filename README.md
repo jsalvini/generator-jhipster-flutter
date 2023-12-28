@@ -30,7 +30,7 @@ Get started and (Full not yet) documentation on my blog [here](https://cyril-cas
 - BLoC Architecture [More informations](https://pub.dev/packages/flutter_bloc)
 - JSON serializer / deserializer Java Jackson like [More informations](https://pub.dev/packages/dart_json_mapper)
 - Language choice
-  - Java / Kotlin for Android 
+  - Java / Kotlin for Android
   - Objective C / Swift for iOS
 - Profiles / Environments
   - Dev
@@ -49,9 +49,10 @@ More informations [here](https://cyril-casaucau.medium.com/using-the-flutter-ent
 
 As this is a [JHipster](https://www.jhipster.tech/) module, we expect you have JHipster and its related tools already installed:
 
-- [Installing JHipster (6.x.x or 7.x.x)](https://www.jhipster.tech/installation/)
-- [Installing Flutter SDK (2.0.x)](https://flutter.dev/docs/get-started/install)
-- Generating your app with 
+- [Installing JHipster (8.x.x)](https://www.jhipster.tech/installation/)
+- [Installing Flutter SDK (3.16.3)](https://flutter.dev/docs/get-started/install)
+- [Installing Dart (3.2.3)](https://flutter.dev/docs/get-started/install)
+- Generating your app with
 
 ```bash
 jhipster
@@ -89,7 +90,7 @@ yarn global upgrade generator-jhipster-flutter-merlin
 
 # Usage
 
-To use this blueprint, run 
+To use this blueprint, run
 
 ```bash
 yo jhipster-flutter-merlin
@@ -111,12 +112,12 @@ You'll probably need the current master of **generator-jhipster** :
 - `npm ci`
 - `npm link`
 
-Then, about **jhipster-flutter** :
+Then, about **generator-jhipster-flutter** :
 
-- fork jhipster-flutter: `https://github.com/jhipster/jhipster-flutter/fork`
-- clone locally your fork: `git clone https://github.com/<your_username>/jhipster-flutter`
+- fork jhipster-flutter: `https://github.com/merlinofcha0s/generator-jhipster-flutter/fork`
+- clone locally your fork: `git clone https://github.com/<your_username>/generator-jhipster-flutter`
 - `cd jhipster-flutter`
-- `git remote add upstream https://github.com/jhipster/jhipster-flutter`
+- `git remote add upstream https://github.com/merlinofcha0s/generator-jhipster-flutter`
 - so you'll be able to update regularly your fork, using `git fetch upstream && git checkout master && git rebase upstream/master`
 - `npm ci`
 - `npm link`
