@@ -9,6 +9,8 @@ import 'package:<%= baseName %>/home/home_routes.dart';
 import 'package:<%= baseName %>/shared/repository/authentication_repository.dart';
 import 'package:<%= baseName %>/splash/splash_routes.dart';
 
+// jhipster-merlin-needle-import-add - JHipster will add new imports here
+
 abstract class AppRouter {
   static GoRouter router = GoRouter(
     initialLocation: SplashRoutes.path,
@@ -17,6 +19,7 @@ abstract class AppRouter {
       ...HomeRoutes.homeRoutes,
       ...LoginRoutes.loginRoutes,
       ...SettingsRoutes.settingsRoutes,
+      // jhipster-merlin-needle-route-add - JHipster will add new routes here
     ],
     errorPageBuilder: (context, state) => const MaterialPage(
       child: Scaffold(

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/account/authentication/authentication.dart';
 import 'package:<%= baseName %>/core/router/routes.dart';
 import 'package:<%= baseName %>/home/bloc/home_bloc.dart';
 import 'package:<%= baseName %>/shared/repository/account_repository.dart';
-
-// jhipster-merlin-needle-menu-import-entry-add
 
 class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
   const <%= camelizedUpperFirstBaseName %>Drawer({Key? key}) : super(key: key);
@@ -20,7 +19,7 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
         accountRepository: RepositoryProvider.of<AccountRepository>(context),
       )..add(Init()),
       child: Drawer(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: Theme.of(context).colorScheme.background,
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
@@ -30,15 +29,15 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                   accountName: Text(
                     '${state.currentUser.firstName}, ${state.currentUser.lastName}',
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 22,
                     ),
                   ),
                   accountEmail: Text(
                     '${state.currentUser.email}',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 16,
                     ),
                   ),
@@ -46,7 +45,7 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 10),
                     child: CircleAvatar(
                       radius: 72,
-                      backgroundColor: Theme.of(context).primaryColor,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       child: const CircleAvatar(
                         radius: 70,
                         backgroundColor: Colors.white,
@@ -55,8 +54,8 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                       ),
                     ),
                   ),
-                  decoration: const BoxDecoration(
-                    color: Color(0xff292314),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onPrimary,
                   ),
                 );
               },
@@ -90,6 +89,25 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
               },
             ),
             const Divider(thickness: 2),
+            // jhipster-merlin-needle-menu-entry-add
+            const Divider(thickness: 2),
+			      Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Theme Light'),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Switch(
+                      value: context.read<ThemeBloc>().state == ThemeMode.dark,
+                      onChanged: (value) {
+                        context
+                            .read<ThemeBloc>()
+                            .add(ThemeChanged(isDark: value));
+                      }),
+                ),
+                const Text('Theme Dark'),
+              ],
+            ),
           ],
         ),
       ),

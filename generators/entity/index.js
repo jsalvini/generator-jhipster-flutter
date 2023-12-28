@@ -111,7 +111,7 @@ module.exports = class extends BaseGenerator {
 
                 this.jhipsterAppConfig = this.getAllJhipsterConfig();
 
-                const rawdata = fs.readFileSync(path.normalize(`${context.backendPath}/.yo-rc.json`));
+                const rawdata = fs.readFileSync(path.normalize(`${context.backendPath}/.yo-rc-flutter.json`));
                 const yoRC = JSON.parse(rawdata);
                 this.context.baseName = yoRC['generator-jhipster'].baseName;
                 this.context.camelizedBaseName = _.camelCase(this.context.baseName);
@@ -608,6 +608,9 @@ module.exports = class extends BaseGenerator {
                 field.defaultValue = false;
             } else if (field.fieldIsEnum) {
                 field.defaultValue = 'null';
+            } else if (field.fieldType === 'Double') {
+                field.fieldType = 'double';
+                field.defaultValue = 0;
             } else {
                 field.defaultValue = '\'\'';
             }
@@ -637,7 +640,7 @@ module.exports = class extends BaseGenerator {
         if (!this.context.fromCLI) {
             // Generate Reflection
             this.log(chalk.green('Generate reflection...'));
-            this.spawnCommandSync('flutter', ['pub', 'run', 'build_runner', 'build', '--delete-conflicting-outputs']);
+            this.spawnCommandSync('dart', ['run', 'build_runner', 'build', '--delete-conflicting-outputs']);
 
             // Generate Translation
             if (this.enableTranslation) {
@@ -661,34 +664,36 @@ module.exports = class extends BaseGenerator {
      * @param {string} camelizedUpperFirstBaseName - Formatted base name (ex: MonApplication)
      */
     _addEntityToRoute(baseName, entityClass, entityFileName, camelizedUpperFirstBaseName, entityClassPlural, entityInstance) {
-        const appClassPath = 'lib/app.dart';
+        // const appClassPath = 'lib/app.dart';
+        const routersClassPath = 'lib/core/router/app_router.dart';
+
         entityFileName = _.snakeCase(_.lowerCase(entityFileName));
 
         try {
-            const routeImport = `import 'entities/${entityFileName}/${entityFileName}_route.dart';`;
-
+            // const routeImport = `import 'entities/${entityFileName}/${entityFileName}_route.dart';`;
+            const routeImport = `import 'package:${baseName}/entities/${entityFileName}/${entityFileName}_routes.dart';`;
             utils.rewriteFile({
-                file: appClassPath,
+                file: routersClassPath,
                 needle: 'jhipster-merlin-needle-import-add',
                 splicable: [
                     this.stripMargin(routeImport)
                 ]
             }, this);
 
-            const addRoute = `...${entityClass}Routes.map,`;
+            const addRoute = `...${entityClass}Routes.${entityFileName}Routes,`;
             utils.rewriteFile({
-                file: appClassPath,
+                file: routersClassPath,
                 needle: 'jhipster-merlin-needle-route-add',
                 splicable: [
                     this.stripMargin(addRoute)
                 ]
             }, this);
 
-            const drawerClassPath = 'lib/shared/widgets/drawer/drawer_widget.dart';
+            const drawerClassPath = 'lib/shared/widgets/drawer_widget.dart';
             const newMenuEntry = `ListTile(
-                leading: Icon(Icons.label, size: iconSize,),
-                title: Text('${entityClassPlural}'),
-                onTap: () => Navigator.pushNamed(context, ${entityClass}Routes.list),
+                leading: const Icon(Icons.label, size: iconSize,),
+                title: const Text('${entityClassPlural}'),
+                onTap: () => context.pushNamed('${entityFileName}'),
             ),`;
             utils.rewriteFile({
                 file: drawerClassPath,
@@ -698,16 +703,18 @@ module.exports = class extends BaseGenerator {
                 ]
             }, this);
 
-            const newMenuImportEntry = `import 'package:${baseName}/entities/${entityFileName}/${entityFileName}_route.dart';`;
+            const routesPath = 'lib/core/router/routes.dart';
+            const newRoute = `static const ${entityFileName} = '${entityFileName}';`;
+
             utils.rewriteFile({
-                file: drawerClassPath,
-                needle: 'jhipster-merlin-needle-menu-import-entry-add',
+                file: routesPath,
+                needle: 'jhipster-merlin-needle-routes-entry-add',
                 splicable: [
-                    this.stripMargin(newMenuImportEntry)
+                    this.stripMargin(newRoute)
                 ]
             }, this);
         } catch (e) {
-            this.log(`${chalk.yellow('\nUnable to find ') + appClassPath + chalk.yellow(' or missing required jhipster-needle. Reference to ') + entityClass})}`);
+            this.log(`${chalk.yellow('\nUnable to find ') + routersClassPath + chalk.yellow(' or missing required jhipster-needle. Reference to ') + entityClass})}`);
             this.debug('Error:', e);
         }
     }

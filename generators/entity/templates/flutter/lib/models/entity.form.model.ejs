@@ -11,13 +11,13 @@ const relationships = context.relationships;
 const primaryKeyType = context.primaryKeyType;
 _%>
 import 'package:formz/formz.dart';
-import 'package:<%= baseName %>/entities/<%= entityFileName %>/<%= entityFileName %>_model.dart';
+import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_models.dart';
 
 <%_ fields.forEach(field => { _%>
 enum <%= field.fieldNameCapitalized %>ValidationError { invalid }
   <%_ if(field.fieldType === 'DateTime') { _%>
 class <%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldType %>, <%= field.fieldNameCapitalized %>ValidationError> {
-  const <%= field.fieldNameCapitalized %>Input.pure() : super.pure(null);
+  const <%= field.fieldNameCapitalized %>Input.pure(<%= field.fieldType %> value) : super.pure(value);
   const <%= field.fieldNameCapitalized %>Input.dirty(<%= field.fieldType %> value) : super.dirty(value);
 
   @override

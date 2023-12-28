@@ -16,7 +16,7 @@ _%>
 part of '<%= entityFileName %>_bloc.dart';
 
 enum <%= entityClass %>StatusUI {init, loading, error, done}
-enum <%= entityClass %>DeleteStatus {ok, ko, none}
+enum <%= entityClass %>DeleteStatus {ok, error, none}
 
 class <%= entityClass %>State extends Equatable {
   final List<<%= entityClass %>> <%= entityClassPluralLowered %>;
@@ -25,7 +25,8 @@ class <%= entityClass %>State extends Equatable {
   final <%= entityClass %>DeleteStatus deleteStatus;
   final <%= entityClass %>StatusUI <%= entityInstance %>StatusUI;
 
-  final FormzStatus formStatus;
+  final FormzSubmissionStatus formStatus;
+  final bool isValid;
   final String generalNotificationKey;
 
   <%_ fields.forEach(field => { _%>
@@ -33,16 +34,21 @@ class <%= entityClass %>State extends Equatable {
   <%_ }); _%>
 
 
-  <%= entityClass %>State({
+  const <%= entityClass %>State({
     this.<%= entityClassPluralLowered %> = const [],
     this.<%= entityInstance %>StatusUI = <%= entityClass %>StatusUI.init,
     this.loaded<%= entityClass %> = const <%= entityClass %>(<%- idField.defaultValue %>, <%_ fields.forEach(field => { _%> <%- field.defaultValue %>, <%_ }); _%><%_ relationships.forEach(relationship => { _%> null, <%_ }); _%>),
     this.editMode = false,
-    this.formStatus = FormzStatus.pure,
+    this.formStatus = FormzSubmissionStatus.initial,
+    this.isValid = false,
     this.generalNotificationKey = '',
     this.deleteStatus = <%= entityClass %>DeleteStatus.none,
-    <%_ fields.forEach(field => { _%>
-    this.<%= field.fieldName %> = const <%= field.fieldNameCapitalized %>Input.pure(),
+    <%_ fields.forEach(field => { _%> 
+	<%_ if(field.fieldType === 'DateTime') { _%>
+	required this.<%= field.fieldName %>,
+	<%_  } else { _%>
+	this.<%= field.fieldName %> = const <%= field.fieldNameCapitalized %>Input.pure(),
+	<%_ } _%>
     <%_ }); _%>
   });
 
@@ -52,7 +58,8 @@ class <%= entityClass %>State extends Equatable {
     bool? editMode,
     <%= entityClass %>DeleteStatus? deleteStatus,
     <%= entityClass %>? loaded<%= entityClass %>,
-    FormzStatus? formStatus,
+    FormzSubmissionStatus? formStatus,
+	bool? isValid,
     String? generalNotificationKey,
     <%_ fields.forEach(field => { _%>
     <%= field.fieldNameCapitalized %>Input? <%= field.fieldName %>,
@@ -64,6 +71,7 @@ class <%= entityClass %>State extends Equatable {
       loaded<%= entityClass %>: loaded<%= entityClass %> ?? this.loaded<%= entityClass %>,
       editMode: editMode ?? this.editMode,
       formStatus: formStatus ?? this.formStatus,
+	  isValid: isValid ?? this.isValid,
       generalNotificationKey: generalNotificationKey ?? this.generalNotificationKey,
       deleteStatus: deleteStatus ?? this.deleteStatus,
       <%_ fields.forEach(field => { _%>
@@ -74,7 +82,7 @@ class <%= entityClass %>State extends Equatable {
 
   @override
   List<Object> get props => [<%= entityClassPluralLowered %>, <%= entityInstance %>StatusUI,
-     loaded<%= entityClass %>, editMode, deleteStatus, formStatus, generalNotificationKey,
+     loaded<%= entityClass %>, editMode, deleteStatus, formStatus, isValid, generalNotificationKey,
      <%_ fields.forEach(field => { _%><%= field.fieldName %>%>,<%_ }); _%>];
 
   @override

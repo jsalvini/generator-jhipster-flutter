@@ -5,11 +5,15 @@ const flutterFiles = {
             templates: [
                 {
                     file: 'models/entity.model',
-                    renameTo: (generator) => `${generator.context.entityFolderName}/${generator.context.entityFileName}_model.dart`,
+                    renameTo: (generator) => `${generator.context.entityFolderName}/models/${generator.context.entityFileName}_model.dart`,
                 },
                 {
                     file: 'models/entity.form.model',
-                    renameTo: (generator) => `${generator.context.entityFolderName}/bloc/${generator.context.entityFileName}_form_model.dart`,
+                    renameTo: (generator) => `${generator.context.entityFolderName}/models/${generator.context.entityFileName}_form_model.dart`,
+                },
+                {
+                    file: 'models/entity.models',
+                    renameTo: (generator) => `${generator.context.entityFolderName}/models/${generator.context.entityFileName}_models.dart`,
                 },
                 {
                     file: 'bloc/entity.state',
@@ -25,15 +29,15 @@ const flutterFiles = {
                 },
                 {
                     file: 'views/entity.update.screen',
-                    renameTo: (generator) => `${generator.context.entityFolderName}/${generator.context.entityFileName}_update_screen.dart`,
+                    renameTo: (generator) => `${generator.context.entityFolderName}/views/${generator.context.entityFileName}_update_screen.dart`,
                 },
                 {
                     file: 'views/entity.view.screen',
-                    renameTo: (generator) => `${generator.context.entityFolderName}/${generator.context.entityFileName}_view_screen.dart`,
+                    renameTo: (generator) => `${generator.context.entityFolderName}/views/${generator.context.entityFileName}_view_screen.dart`,
                 },
                 {
                     file: 'views/entity.list',
-                    renameTo: (generator) => `${generator.context.entityFolderName}/${generator.context.entityFileName}_list_screen.dart`,
+                    renameTo: (generator) => `${generator.context.entityFolderName}/views/${generator.context.entityFileName}_list_screen.dart`,
                 },
                 {
                     file: 'entity.repository',
@@ -41,7 +45,7 @@ const flutterFiles = {
                 },
                 {
                     file: 'entity.routes',
-                    renameTo: (generator) => `${generator.context.entityFolderName}/${generator.context.entityFileName}_route.dart`,
+                    renameTo: (generator) => `${generator.context.entityFolderName}/${generator.context.entityFileName}_routes.dart`,
                 },
             ],
         },

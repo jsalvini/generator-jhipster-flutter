@@ -10,6 +10,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+		backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         centerTitle: true,
         title: const Text('Home'),
       ),
@@ -34,7 +35,8 @@ class HomeBody extends StatelessWidget {
               width: MediaQuery.of(context).size.width * 0.80,
               child: Text('Welcome to your flutter app',
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.displaySmall),
+                  style: Theme.of(context).textTheme.displaySmall,
+				  ),
             ),
             const SizedBox(height: 20),
             const Padding(

@@ -11,7 +11,7 @@ class UsernameInput extends FormzInput<String, UsernameValidationError> {
   const UsernameInput.pure() : super.pure('');
   const UsernameInput.dirty([super.value = '']) : super.dirty();
 
-  static final const numberMin = 3;
+  static const numberMin = 3;
 
   @override
   UsernameValidationError? validator(String value) {

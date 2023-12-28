@@ -1,15 +1,81 @@
 import 'package:flutter/material.dart';
 
 class Themes {
-  static final ThemeData jhLight = ThemeData(
-    colorSchemeSeed: Colors.amber,
+  static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
-    brightness: Brightness.light,
+    colorScheme: lightColorScheme,
   );
 
-  static final ThemeData jhDark = ThemeData(
-    colorSchemeSeed: Colors.amber,
+  static final ThemeData darkTheme = ThemeData(
     useMaterial3: true,
+    colorScheme: darkColorScheme,
+  );
+
+  static const lightColorScheme = ColorScheme(
+    brightness: Brightness.light,
+    primary: Color(0xFF6E5E00),
+    onPrimary: Color(0xFFFFFFFF),
+    primaryContainer: Color(0xFFFFE25C),
+    onPrimaryContainer: Color(0xFF221B00),
+    secondary: Color(0xFF146D33),
+    onSecondary: Color(0xFFFFFFFF),
+    secondaryContainer: Color(0xFFA1F6AD),
+    onSecondaryContainer: Color(0xFF00210A),
+    tertiary: Color(0xFFC00100),
+    onTertiary: Color(0xFFFFFFFF),
+    tertiaryContainer: Color(0xFFFFDAD4),
+    onTertiaryContainer: Color(0xFF410000),
+    error: Color(0xFFBA1A1A),
+    errorContainer: Color(0xFFFFDAD6),
+    onError: Color(0xFFFFFFFF),
+    onErrorContainer: Color(0xFF410002),
+    background: Color(0xFFFAFCFF),
+    onBackground: Color(0xFF001F2A),
+    surface: Color(0xFFFAFCFF),
+    onSurface: Color(0xFF001F2A),
+    surfaceVariant: Color(0xFFE9E2D0),
+    onSurfaceVariant: Color(0xFF4B4739),
+    outline: Color(0xFF7C7767),
+    onInverseSurface: Color(0xFFE1F4FF),
+    inverseSurface: Color(0xFF003547),
+    inversePrimary: Color(0xFFE6C500),
+    shadow: Color(0xFF000000),
+    surfaceTint: Color(0xFF6E5E00),
+    outlineVariant: Color(0xFFCDC6B4),
+    scrim: Color(0xFF000000),
+  );
+
+  static const darkColorScheme = ColorScheme(
     brightness: Brightness.dark,
+    primary: Color(0xFFE6C500),
+    onPrimary: Color(0xFF393000),
+    primaryContainer: Color(0xFF534600),
+    onPrimaryContainer: Color(0xFFFFE25C),
+    secondary: Color(0xFF85D993),
+    onSecondary: Color(0xFF003916),
+    secondaryContainer: Color(0xFF005322),
+    onSecondaryContainer: Color(0xFFA1F6AD),
+    tertiary: Color(0xFFFFB4A8),
+    onTertiary: Color(0xFF690000),
+    tertiaryContainer: Color(0xFF930100),
+    onTertiaryContainer: Color(0xFFFFDAD4),
+    error: Color(0xFFFFB4AB),
+    errorContainer: Color(0xFF93000A),
+    onError: Color(0xFF690005),
+    onErrorContainer: Color(0xFFFFDAD6),
+    background: Color(0xFF001F2A),
+    onBackground: Color(0xFFBFE9FF),
+    surface: Color(0xFF001F2A),
+    onSurface: Color(0xFFBFE9FF),
+    surfaceVariant: Color(0xFF4B4739),
+    onSurfaceVariant: Color(0xFFCDC6B4),
+    outline: Color(0xFF969080),
+    onInverseSurface: Color(0xFF001F2A),
+    inverseSurface: Color(0xFFBFE9FF),
+    inversePrimary: Color(0xFF6E5E00),
+    shadow: Color(0xFF000000),
+    surfaceTint: Color(0xFFE6C500),
+    outlineVariant: Color(0xFF4B4739),
+    scrim: Color(0xFF000000),
   );
 }

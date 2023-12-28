@@ -41,6 +41,8 @@ const FLUTTER_FILES = {
             templates: [
                 'core/router/routes.dart',
                 'core/router/app_router.dart',
+                'core/theme/bloc/theme_bloc.dart',
+                'core/theme/bloc/theme_event.dart',
                 'core/theme/themes.dart',
                 'core/core.dart',
             ],

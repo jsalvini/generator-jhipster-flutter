@@ -4,8 +4,6 @@ import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/account/authentication/authentication.dart';
 import 'package:<%= baseName %>/shared/repository/repository.dart';
 
-// jhipster-merlin-needle-import-add - JHipster will add new imports here
-
 class <%= camelizedUpperFirstBaseName %>App extends StatefulWidget {
   const <%= camelizedUpperFirstBaseName %>App({Key? key}) : super(key: key);
 
@@ -49,6 +47,9 @@ class _<%= camelizedUpperFirstBaseName %>AppState extends State<<%= camelizedUpp
                 authenticationRepository: _authenticationRepository,
                 accountRepository: _accountRepository),
           ),
+		  BlocProvider<ThemeBloc>(
+            create: (context) => ThemeBloc(),
+          ),
         ],
         child: const AppView(),
       ),
@@ -71,13 +72,18 @@ class _AppViewState extends State<AppView> {
       listener: (context, state) {
         AppRouter.router.refresh();
       },
-      child: MaterialApp.router(
-        theme: Themes.jhDark,
-        darkTheme: Themes.jhDark,
-        debugShowCheckedModeBanner: false,
-        routeInformationParser: AppRouter.router.routeInformationParser,
-        routerDelegate: AppRouter.router.routerDelegate,
-        routeInformationProvider: AppRouter.router.routeInformationProvider,
+      child: BlocBuilder<ThemeBloc, ThemeMode>(
+        builder: (context, state) {
+          return MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            theme: Themes.lightTheme,
+            darkTheme: Themes.darkTheme,
+            themeMode: state,
+            routeInformationParser: AppRouter.router.routeInformationParser,
+            routerDelegate: AppRouter.router.routerDelegate,
+            routeInformationProvider: AppRouter.router.routeInformationProvider,
+          );
+        },
       ),
     );
   }

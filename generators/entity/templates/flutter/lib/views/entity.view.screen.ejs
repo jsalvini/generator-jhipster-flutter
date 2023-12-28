@@ -15,28 +15,28 @@ const primaryKeyType = context.primaryKeyType;
 const enableTranslation = context.enableTranslation;
 const hasDateTime = context.hasDateTime;
 _%>
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
-import 'package:<%= baseName %>/entities/<%= entityFileName %>/<%= entityFileName %>_model.dart';
-<%_ if(enableTranslation) { _%>
-import 'package:<%= baseName %>/generated/l10n.dart';
-<%_ } _%>
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 <%_ if(hasDateTime) { _%>
 import 'package:intl/intl.dart';
 <%_ } _%>
+import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
+import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_model.dart';
 import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
-import '<%= entityFileName %>_route.dart';
+import '../<%= entityFileName %>_routes.dart';
 
 class <%= entityClass %>ViewScreen extends StatelessWidget {
-  <%= entityClass %>ViewScreen({Key? key}) : super(key: <%= entityClass %>Routes.createScreenKey);
+  const <%= entityClass %>ViewScreen({Key? key}) : super(key: <%= entityClass %>Routes.createScreenKey);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
           appBar: AppBar(
+		    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
             centerTitle: true,
-            title:Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>ViewTitle<%_ } else { _%>'<%= entityClassPlural %> View'<%_ } _%>),
+            title: const Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>ViewTitle<%_ } else { _%>'<%= entityClassPlural %> View'<%_ } _%>),
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(15.0),
@@ -45,7 +45,7 @@ class <%= entityClass %>ViewScreen extends StatelessWidget {
               builder: (context, state) {
                 return Visibility(
                   visible: state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.done,
-                  replacement: LoadingIndicator(),
+                  replacement: const LoadingIndicator(),
                   child: Column(children: <Widget>[
                     <%= entityInstance %>Card(state.loaded<%= entityClass %>, context)
                   ]),
@@ -54,9 +54,9 @@ class <%= entityClass %>ViewScreen extends StatelessWidget {
             ),
           ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => Navigator.pushNamed(context, <%= entityClass %>Routes.create),
-          child: Icon(Icons.add, color: Theme.of(context).iconTheme.color,),
+          onPressed: () => context.pushNamed('<%= entityInstance %>create'),
           backgroundColor: Theme.of(context).primaryColor,
+		  child: Icon(Icons.add, color: Theme.of(context).iconTheme.color,),
         )
     );
   }
@@ -64,20 +64,20 @@ class <%= entityClass %>ViewScreen extends StatelessWidget {
   Widget <%= entityInstance %>Card(<%= entityClass %> <%= entityInstance %>, BuildContext context) {
     return Card(
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         width: MediaQuery.of(context).size.width * 0.90,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('<%= context.idField.fieldNameHumanized %> : ' + <%= entityInstance %>.<%= context.idField.fieldName %>.toString(), style: Theme.of(context).textTheme.bodyText1,),
+            Text('<%= context.idField.fieldNameHumanized %> : ${<%= entityInstance %>.<%= context.idField.fieldName %>}', style: Theme.of(context).textTheme.bodyLarge,),
             <%_ fields.forEach(field => { _%>
               <%_ if(field.fieldType === 'DateTime') { _%>
-              Text('<%= field.fieldNameHumanized %> : ' + (<%= entityInstance %>.<%= field.fieldName %> != null ? DateFormat.yMMMMd(<%_ if(enableTranslation) { _%>S.of(context).locale<%_ } else { _%>'en'<%_ } _%>).format(<%= entityInstance %>.<%= field.fieldName %>!) : ''), style: Theme.of(context).textTheme.bodyText1,),
+              Text('<%= field.fieldNameHumanized %> : ${<%= entityInstance %>.<%= field.fieldName %> != null ? DateFormat("yyyy-MM-dd").format(<%= entityInstance %>.<%= field.fieldName %>!) : ''}', style: Theme.of(context).textTheme.bodyLarge,),
               <%_ } else if (field.fieldType === 'int' || field.fieldType === 'bool') {_%>
-                Text('<%= field.fieldNameHumanized %> : ' + <%= entityInstance %>.<%= field.fieldName %>.toString(), style: Theme.of(context).textTheme.bodyText1,),
+                Text('<%= field.fieldNameHumanized %> : ${<%= entityInstance %>.<%= field.fieldName %>}', style: Theme.of(context).textTheme.bodyLarge,),
               <%_ } else {_%>
-                Text('<%= field.fieldNameHumanized %> : ' + <%= entityInstance %>.<%= field.fieldName %>.toString(), style: Theme.of(context).textTheme.bodyText1,),
+                Text('<%= field.fieldNameHumanized %> : ${<%= entityInstance %>.<%= field.fieldName %>}', style: Theme.of(context).textTheme.bodyLarge,),
               <%_ } _%>
             <%_ }); _%>
           ],

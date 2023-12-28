@@ -21,7 +21,7 @@ abstract class <%= entityClass %>Event extends Equatable {
   bool get stringify => true;
 }
 
-class Init<%= entityClass %>List extends <%= entityClass %>Event {}
+class Load<%= entityClass %>List extends <%= entityClass %>Event {}
 
 <%_ fields.forEach(field => { _%>
 class <%= field.fieldNameCapitalized %>Changed extends <%= entityClass %>Event {

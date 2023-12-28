@@ -8,6 +8,7 @@ const baseName = context.baseName;
 const idField = context.idField;
 _%>
 import 'package:dart_json_mapper/dart_json_mapper.dart';
+import 'package:equatable/equatable.dart';
 
 <%_ relationships.forEach(relation => { if (relation.desc === 'relationship') { _%>
 <%_ if (relation.relationshipNameCapitalized === 'User') { _%>
@@ -18,7 +19,7 @@ import '../<%- relation.otherEntityFolderName %>/<%- relation.otherEntityFileNam
 <%_ }}); _%>
 
 @jsonSerializable
-class <%= entityClass %> {
+class <%= entityClass %> extends Equatable {
 
   @JsonProperty(name: '<%- idField.fieldName _%>')
   final <%= idField.fieldType %>? <%= idField.fieldName %>;
@@ -47,7 +48,7 @@ class <%= entityClass %> {
 
 @override
 String toString() {
-    return '<%= entityClass %>{'+
+    return '''<%= entityClass %>{'+
     '<%= idField.fieldName _%>: $<%= idField.fieldName _%>,' +
     <%_ fields.forEach(field => { _%>
         '<%= field.fieldName _%>: $<%= field.fieldName _%>,' +
@@ -55,19 +56,14 @@ String toString() {
     <%_ relationships.forEach(relationship => { _%>
         '<%= relationship.relationshipFieldName _%>: $<%= relationship.relationshipFieldName _%>,' +
     <%_ }); _%>
-    '}';
+    '}''';
    }
 
 @override
-bool operator == (Object other) =>
-    identical(this, other) ||
-    other is <%= entityClass %> &&
-    <%- idField.fieldName + ' == other.' + idField.fieldName + ' '-%>;
+List<Object?> get props => [
+	<%_ fields.forEach(field => { %> <%= field.fieldName %>, <%_ }); _%>
+];
 
-
-@override
-int get hashCode =>
-    <%- idField.fieldName + '.hashCode ' -%>;
 }
 
 
