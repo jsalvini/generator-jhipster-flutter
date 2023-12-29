@@ -9,9 +9,15 @@ const entityClassCamelCase = context.entityClassCamelCase;
 const fields = context.fields;
 const relationships = context.relationships;
 const primaryKeyType = context.primaryKeyType;
+let found = false;
 _%>
 import 'package:formz/formz.dart';
-import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_models.dart';
+<%_ fields.forEach(field => { _%>
+  <%_ if(field.fieldIsEnum && !found) { _%>
+    import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_models.dart';
+    <%_ found = true; _%>
+    <%_ } _%>
+<%_ }); _%>
 
 <%_ fields.forEach(field => { _%>
 enum <%= field.fieldNameCapitalized %>ValidationError { invalid }

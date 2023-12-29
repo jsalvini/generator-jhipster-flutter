@@ -56,10 +56,10 @@ module.exports = class extends BaseGenerator {
     prompting() {
         const done = this.async();
         const context = this.context;
-        const autodetection = context.searchAutoBackendFolder;
+        const backendPath = context.backendPath;
         const prompts = [
             {
-                when: () => autodetection === false,
+                when: backendPath == null,
                 type: 'input',
                 name: 'backendPath',
                 message: 'Enter the path to your JHipster app\'s root directory:',
@@ -86,11 +86,11 @@ module.exports = class extends BaseGenerator {
             .then((props) => {
                 this.props = props;
 
-                if (this.context.searchAutoBackendFolder) {
-                    this.context.backendPath = this.context.rootDir;
-                } else {
+                if (props.backendPath) {
                     this.configRootPath = props.backendPath;
                     this.context.backendPath = props.backendPath;
+                } else {
+                    this.configRootPath = this.context.backendPath;
                 }
 
                 if (!path.isAbsolute(this.context.backendPath)) {
@@ -104,7 +104,7 @@ module.exports = class extends BaseGenerator {
 
                 this.jhipsterAppConfig = this.getAllJhipsterConfig();
 
-                const rawdata = fs.readFileSync(`${this.context.backendPath}/.yo-rc.json`);
+                const rawdata = fs.readFileSync(path.normalize(`${context.backendPath}/.yo-rc-flutter.json`));
                 const yoRc = JSON.parse(rawdata);
                 this.context.baseName = yoRc['generator-jhipster'].baseName;
                 this.context.camelizedBaseName = _.camelCase(this.context.baseName);
@@ -115,9 +115,9 @@ module.exports = class extends BaseGenerator {
                     this.log(chalk.green('\nFound the entity folder configuration file, entity can be automatically generated!\n'));
 
                     context.fromPath = `${context.backendPath}/${context.jhipsterConfigDirectory}/`;
+
                     context.useConfigurationFile = true;
                     context.useBackendJson = true;
-                    context.fromPath = `${context.backendPath}/${context.jhipsterConfigDirectory}/`;
 
                     this.context.entitiesToGenerate = [];
                     fs.readdirSync(context.fromPath).forEach((file) => {
@@ -133,7 +133,7 @@ module.exports = class extends BaseGenerator {
     writing() {
         this.context.entitiesToGenerate.forEach((entity) => {
             this.log(chalk.green(`Generate ${entity}...`));
-            this.spawnCommandSync('yo', ['jhipster-flutter-merlin:entity', entity, this.context.backendPath, '--fromCLI', '--force']);
+            this.spawnCommandSync('yo', ['jhipster-flutter-merlin:entity', entity, '--fromCLI', '--force']);
         });
     }
 

@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:<%= baseName %>/environment.dart';
 import 'app.dart';
 import 'main.mapper.g.dart' show initializeJsonMapper;
-
 <%_ if (!enableTranslation) { _%>
-  import 'package:intl/intl.dart';
-  import 'package:intl/date_symbol_data_local.dart';
-  <%_ } _%>
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
+<%_ } _%>
 
 void main() {
   Constants.setEnvironment(Environment.dev);

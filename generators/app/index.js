@@ -186,7 +186,11 @@ module.exports = class extends BaseGenerator {
 
         // Generate Reflection
         this.log(chalk.green('Generate reflection for the first time...'));
-        this.spawnCommandSync('flutter', ['pub', 'run', 'build_runner', 'build'], { cwd: MAIN_DIR });
+        this.spawnCommandSync('dart', ['run', 'build_runner', 'build'], { cwd: MAIN_DIR });
+
+        // Dart fix
+        this.log(chalk.green('Dart fix...'));
+        this.spawnCommandSync('dart', ['fix', '--apply']);
 
         // Generate Translation
         if (this.enableTranslation) {

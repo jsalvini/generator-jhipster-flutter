@@ -9,12 +9,11 @@ const idField = context.idField;
 _%>
 import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:equatable/equatable.dart';
-
 <%_ relationships.forEach(relation => { if (relation.desc === 'relationship') { _%>
 <%_ if (relation.relationshipNameCapitalized === 'User') { _%>
 import 'package:<%- baseName %>/shared/models/user.dart';
 <%_ } else { _%>
-import '../<%- relation.otherEntityFolderName %>/<%- relation.otherEntityFileName %>_model.dart';
+import '../../<%- relation.otherEntityFolderName %>/models/<%- relation.otherEntityFileName %>_model.dart';
 <%_ } _%>
 <%_ }}); _%>
 

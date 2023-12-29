@@ -67,7 +67,7 @@ class <%= entityClass %>ListScreen extends StatelessWidget {
           appBar: AppBar(
 		    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
             centerTitle: true,
-			title: const Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>ListTitle<%_ } else { _%> '<%= entityClassPlural %> List'  <%_ } _%>),
+			title: const Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>ListTitle<%_ } else { _%> '<%= entityClass %>'  <%_ } _%>),
 			actions: [
             Padding(
               padding: const EdgeInsets.only(right: 10),
