@@ -36,7 +36,7 @@ class <%= entityClass %>ViewScreen extends StatelessWidget {
           appBar: AppBar(
 		    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
             centerTitle: true,
-            title: const Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>ViewTitle<%_ } else { _%>'<%= entityClassPlural %> View'<%_ } _%>),
+            title: const Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>ViewTitle<%_ } else { _%>'<%= entityClass %> View'<%_ } _%>),
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(15.0),

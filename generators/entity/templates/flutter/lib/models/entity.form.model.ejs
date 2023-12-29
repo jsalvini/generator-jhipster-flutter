@@ -12,6 +12,7 @@ const primaryKeyType = context.primaryKeyType;
 let found = false;
 _%>
 import 'package:formz/formz.dart';
+import 'package:<%= baseName %>/core/core.dart';
 <%_ fields.forEach(field => { _%>
   <%_ if(field.fieldIsEnum && !found) { _%>
     import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_models.dart';
@@ -20,8 +21,9 @@ import 'package:formz/formz.dart';
 <%_ }); _%>
 
 <%_ fields.forEach(field => { _%>
-enum <%= field.fieldNameCapitalized %>ValidationError { invalid }
   <%_ if(field.fieldType === 'DateTime') { _%>
+enum <%= field.fieldNameCapitalized %>ValidationError { invalid }
+
 class <%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldType %>, <%= field.fieldNameCapitalized %>ValidationError> {
   const <%= field.fieldNameCapitalized %>Input.pure(<%= field.fieldType %> value) : super.pure(value);
   const <%= field.fieldNameCapitalized %>Input.dirty(<%= field.fieldType %> value) : super.dirty(value);
@@ -32,6 +34,8 @@ class <%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldT
   }
 }
   <%_ } else if(field.fieldIsEnum) { _%>
+enum <%= field.fieldNameCapitalized %>ValidationError { invalid }
+
 class <%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldType %>, <%= field.fieldNameCapitalized %>ValidationError> {
   const <%= field.fieldNameCapitalized %>Input.pure() : super.pure(<%= field.fieldType %>.<%= field.fieldValues.split(',')[0] %>);
   const <%= field.fieldNameCapitalized %>Input.dirty(<%= field.fieldType %> value) : super.dirty(value);
@@ -41,7 +45,14 @@ class <%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldT
     return null;
   }
 }
-  <%_ } else { _%>
+<%_ } else if(field.fieldType === 'int') { _%>
+enum <%= field.fieldNameCapitalized %>ValidationError { invalid }
+
+extension <%= field.fieldNameCapitalized %>ValidationErrorMessage on <%= field.fieldNameCapitalized %>ValidationError {
+  String invalidMessage() =>
+      'El <%= field.fieldNameHumanized %> no es valido:\n\t${MessageValidation.numerosEnteros}';
+}
+
 class <%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldType %>, <%= field.fieldNameCapitalized %>ValidationError> {
   const <%= field.fieldNameCapitalized %>Input.pure() : super.pure(<%- field.defaultValue %>);
   const <%= field.fieldNameCapitalized %>Input.dirty([<%= field.fieldType %> value = <%- field.defaultValue %>]) : super.dirty(value);
@@ -51,6 +62,53 @@ class <%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldT
     return null;
   }
 }
+<%_ } else if(field.fieldType === 'double') { _%>
+  enum <%= field.fieldNameCapitalized %>ValidationError { invalid }
+
+  class <%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldType %>, <%= field.fieldNameCapitalized %>ValidationError> {
+    const <%= field.fieldNameCapitalized %>Input.pure() : super.pure(<%- field.defaultValue %>);
+    const <%= field.fieldNameCapitalized %>Input.dirty([<%= field.fieldType %> value = <%- field.defaultValue %>]) : super.dirty(value);
+
+    @override
+    <%= field.fieldNameCapitalized %>ValidationError? validator(<%= field.fieldType %> value) {
+      return null;
+    }
+  }
+  <%_ } else if(field.fieldType === 'String') { _%>
+    enum <%= field.fieldNameCapitalized %>ValidationError { invalid, length }
+
+    extension <%= field.fieldNameCapitalized %>ValidationErrorMessage on <%= field.fieldNameCapitalized %>ValidationError {
+      String invalidMessage() {
+        switch (this) {
+          case <%= field.fieldNameCapitalized %>ValidationError.invalid:
+            return 'El <%= field.fieldNameHumanized %> no es valido:\n\t${MessageValidation.soloLetras}';
+          case <%= field.fieldNameCapitalized %>ValidationError.length:
+            return 'El <%= field.fieldNameHumanized %> no es valido:\n\t${MessageValidation.minimoCaracteres}';
+        }
+      }
+    }
+
+    class <%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldType %>, <%= field.fieldNameCapitalized %>ValidationError> {
+      const <%= field.fieldNameCapitalized %>Input.pure() : super.pure(<%- field.defaultValue %>);
+      const <%= field.fieldNameCapitalized %>Input.dirty([<%= field.fieldType %> value = <%- field.defaultValue %>]) : super.dirty(value);
+
+      @override
+      <%= field.fieldNameCapitalized %>ValidationError? validator(<%= field.fieldType %> value) {
+        return null;
+      }
+    }
+    <%_ } else { _%>
+      enum <%= field.fieldNameCapitalized %>ValidationError { invalid }
+
+      class <%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldType %>, <%= field.fieldNameCapitalized %>ValidationError> {
+        const <%= field.fieldNameCapitalized %>Input.pure() : super.pure(<%- field.defaultValue %>);
+        const <%= field.fieldNameCapitalized %>Input.dirty([<%= field.fieldType %> value = <%- field.defaultValue %>]) : super.dirty(value);
+
+        @override
+        <%= field.fieldNameCapitalized %>ValidationError? validator(<%= field.fieldType %> value) {
+          return null;
+        }
+      }
 <%_ } _%>
 
 <%_ }); _%>
