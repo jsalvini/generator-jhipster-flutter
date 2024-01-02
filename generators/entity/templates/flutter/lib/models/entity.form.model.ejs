@@ -12,6 +12,7 @@ const primaryKeyType = context.primaryKeyType;
 let found = false;
 _%>
 import 'package:formz/formz.dart';
+import 'package:regexpattern/regexpattern.dart';
 import 'package:<%= baseName %>/core/core.dart';
 <%_ fields.forEach(field => { _%>
   <%_ if(field.fieldIsEnum && !found) { _%>
@@ -59,11 +60,21 @@ class <%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldT
 
   @override
   <%= field.fieldNameCapitalized %>ValidationError? validator(<%= field.fieldType %> value) {
+    if (!value.isFinite) {
+      return <%= field.fieldNameCapitalized %>ValidationError.invalid;
+    } else if (value.isNegative) {
+      return <%= field.fieldNameCapitalized %>ValidationError.invalid;
+    }
     return null;
   }
 }
 <%_ } else if(field.fieldType === 'double') { _%>
   enum <%= field.fieldNameCapitalized %>ValidationError { invalid }
+
+  extension <%= field.fieldNameCapitalized %>ValidationErrorMessage on <%= field.fieldNameCapitalized %>ValidationError {
+    String invalidMessage() =>
+        'El <%= field.fieldNameHumanized %> no es valido:\n\t${MessageValidation.numerosDecimales}';
+  }
 
   class <%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldType %>, <%= field.fieldNameCapitalized %>ValidationError> {
     const <%= field.fieldNameCapitalized %>Input.pure() : super.pure(<%- field.defaultValue %>);
@@ -71,6 +82,11 @@ class <%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldT
 
     @override
     <%= field.fieldNameCapitalized %>ValidationError? validator(<%= field.fieldType %> value) {
+      if (!value.isFinite) {
+        return <%= field.fieldNameCapitalized %>ValidationError.invalid;
+      } else if (value.isNegative) {
+        return <%= field.fieldNameCapitalized %>ValidationError.invalid;
+      }
       return null;
     }
   }
@@ -91,9 +107,15 @@ class <%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldT
     class <%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldType %>, <%= field.fieldNameCapitalized %>ValidationError> {
       const <%= field.fieldNameCapitalized %>Input.pure() : super.pure(<%- field.defaultValue %>);
       const <%= field.fieldNameCapitalized %>Input.dirty([<%= field.fieldType %> value = <%- field.defaultValue %>]) : super.dirty(value);
+      static const minLength = 3;
 
       @override
       <%= field.fieldNameCapitalized %>ValidationError? validator(<%= field.fieldType %> value) {
+        if (value.length < minLength) {
+          return <%= field.fieldNameCapitalized %>ValidationError.length;
+        }else if(!value.isAlphabet()){
+          return <%= field.fieldNameCapitalized %>ValidationError.invalid;
+        }
         return null;
       }
     }
