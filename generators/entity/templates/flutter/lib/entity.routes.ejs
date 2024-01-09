@@ -39,7 +39,7 @@ class <%= entityClass %>Routes {
         child: BlocProvider<<%= entityClass %>Bloc>(
           create: (context) => <%= entityClass %>Bloc(
             <%= entityInstance %>Repository: <%= entityClass %>Repository(),
-          )..add(Load<%= entityClass %>List()),
+          )..add(Load<%= entityClass %>List(page: 0, sort: 'id', ascending: 'asc')),
           child: <%= entityClass %>ListScreen(),
         ),
       ),

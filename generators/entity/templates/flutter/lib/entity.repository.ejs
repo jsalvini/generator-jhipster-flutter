@@ -9,8 +9,9 @@ const entityClassCamelCase = context.entityClassCamelCase;
 const entityClassKebabCase = context.entityClassKebabCase;
 const entityClassKebabCasePlural = context.entityClassKebabCasePlural;
 _%>
-
-import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_model.dart';
+import 'package:http/http.dart';
+import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_models.dart';
+import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_response.dart';
 import 'package:<%= baseName %>/shared/models/error_response.dart';
 import 'package:<%= baseName %>/shared/utils/http_utils.dart';
 import 'package:dart_json_mapper/dart_json_mapper.dart';
@@ -20,9 +21,23 @@ class <%= entityClass %>Repository {
 
   static const String uriEndpoint = '/<%= entityClassKebabCasePlural %>';
 
-  Future<List<<%= entityClass %>>?> getAll<%= entityClassPlural %>() async {
-    final all<%= entityClassPlural %>Request = await HttpUtils.getRequest(uriEndpoint);
-    return JsonMapper.deserialize<List<<%= entityClass %>>>(all<%= entityClassPlural %>Request.body);
+  Future<<%= entityClass %>Response> getAll<%= entityClassPlural %>({
+    required int page,
+    required String sort,
+    required String ascending,
+  }) async {
+    final newUriEndpoint = '$uriEndpoint?sort=$sort%2C$ascending&page=$page&size=20';
+    final Response all<%= entityClassPlural %>Request = await HttpUtils.getRequest(newUriEndpoint);
+
+    int count = int.parse(all<%= entityClassPlural %>Request.headers['x-total-count']!);
+    String link = all<%= entityClassPlural %>Request.headers['link'] as String;
+
+    List<<%= entityClass %>>? <%= entityClassPluralLowered %> =
+        JsonMapper.deserialize<List<<%= entityClass %>>>(all<%= entityClassPlural %>Request.body);
+
+        <%= entityClass %>Response <%= entityInstance %>Response =
+        <%= entityClass %>Response(<%= entityClassPluralLowered %>: <%= entityClassPluralLowered %>!, totalCount: count, link: link);
+    return <%= entityInstance %>Response;
   }
 
   Future<<%= entityClass %>?> get<%= entityClass %>(int? id) async {

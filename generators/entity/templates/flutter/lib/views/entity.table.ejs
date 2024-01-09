@@ -1,0 +1,347 @@
+<%_
+const baseName = context.baseName;
+const entityInstance = context.entityInstance;
+const entityFileName = context.entityFileName;
+const entityClassPlural = context.entityClassPlural;
+const entityClassPluralLowered = context.entityClassPluralLowered;
+const entityClass = context.entityClass;
+const camelizedUpperFirstBaseName = context.camelizedUpperFirstBaseName;
+const enableTranslation = context.enableTranslation;
+const fields = context.fields;
+const idField = context.idField;
+let filtro = 1;
+_%>
+import 'package:data_table_2/data_table_2.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:pager/pager.dart';
+import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
+import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_model.dart';
+import 'package:<%= baseName %>/entities/<%= entityFileName %>/views/widgets/<%= entityFileName %>_delete_dialog.dart';
+
+class <%= entityClass %>Table extends StatelessWidget {
+  const <%= entityClass %>Table({
+    super.key,
+    required this.<%= entityClassPluralLowered %>,
+    required this.blocContext,
+  });
+
+  final List<<%= entityClass %>> <%= entityClassPluralLowered %>;
+  final BuildContext blocContext;
+
+  @override
+  Widget build(BuildContext context) {
+    final widthSize = MediaQuery.of(context).size.width;
+    final heigthSize = MediaQuery.of(context).size.height;
+
+    return Column(
+      children: [
+        Padding(
+          padding:
+              const EdgeInsets.only(top: 10, bottom: 5, right: 16, left: 16),
+          child: Card(
+            margin: EdgeInsets.zero,
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton.icon(
+                    onPressed: () => context.pushNamed('<%= entityInstance %>create'),
+                    icon: const Icon(Icons.add, color: Colors.white),
+                    label: const Text('Nuevo <%= entityInstance %>',
+                        style: TextStyle(color: Colors.white)),
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStatePropertyAll(
+                            Theme.of(context).colorScheme.primary)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Theme(
+            data: ThemeData(
+                iconTheme: const IconThemeData(color: Colors.white),
+                scrollbarTheme: ScrollbarThemeData(
+                    thickness: MaterialStateProperty.all(5),
+                    thumbVisibility: MaterialStateProperty.all(true),
+                    thumbColor: MaterialStateProperty.all<Color>(
+                        Theme.of(context).primaryColor))),
+            child: SizedBox(
+              height: heigthSize * 0.70,
+              child: Card(
+                margin: EdgeInsets.zero,
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(15)),
+                    child: DataTable2(
+                      headingRowColor: MaterialStateColor.resolveWith(
+                          (states) => Theme.of(context).primaryColor),
+                      headingTextStyle: const TextStyle(color: Colors.white),
+                      headingCheckboxTheme: const CheckboxThemeData(
+                        side: BorderSide(color: Colors.white, width: 2.0),
+                      ),
+                      isHorizontalScrollBarVisible: true,
+                      isVerticalScrollBarVisible: true,
+                      columnSpacing: 12,
+                      horizontalMargin: 12,
+                      sortArrowBuilder: null,
+                      border: TableBorder(
+                          horizontalInside:
+                              BorderSide(color: Theme.of(context).primaryColor),
+                          right: BorderSide(
+                              color: Theme.of(context).primaryColor)),
+                      dividerThickness: 1,
+                      bottomMargin: 10,
+                      minWidth: 900,
+                      sortColumnIndex: blocContext
+                          .read<<%= entityClass %>Bloc>()
+                          .state
+                          .sortColumnIndex,
+                      sortAscending:
+                          blocContext.read<<%= entityClass %>Bloc>().state.sortAscending,
+                      sortArrowIcon: Icons.keyboard_arrow_up,
+                      sortArrowAnimationDuration:
+                          const Duration(milliseconds: 500),
+                      columns: _columns(widthSize),
+                      empty: Center(
+                          child: Container(
+                              padding: const EdgeInsets.all(20),
+                              color: Colors.grey[200],
+                              child: const Text(
+                                  'No hay registros para mostrar.'))),
+                      rows: _rows(widthSize),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 5),
+          child: SizedBox(
+            width: widthSize < 1300 ? (widthSize * 0.5) : (widthSize * 0.3),
+            child: Card(
+                margin: EdgeInsets.zero,
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Pager(
+                    currentPage:
+                        blocContext.read<<%= entityClass %>Bloc>().state.currentPage,
+                    totalPages: cantidadDePaginas(
+                      blocContext.read<<%= entityClass %>Bloc>().state.totalRow,
+                      blocContext.read<<%= entityClass %>Bloc>().state.rowsPerPage,
+                    ),
+                    onPageChanged: (page) {
+                      int pageQuery = page - 1;
+                      blocContext
+                          .read<<%= entityClass %>Bloc>()
+                          .add(CurrentPageChanged(currentPage: page));
+                      String columnName =
+                          blocContext.read<<%= entityClass %>Bloc>().state.columnName;
+                      var order =
+                          blocContext.read<<%= entityClass %>Bloc>().state.sortAscending
+                              ? 'asc'
+                              : 'desc';
+                      blocContext.read<<%= entityClass %>Bloc>().add(Load<%= entityClass %>List(
+                            page: pageQuery,
+                            sort: columnName,
+                            ascending: order,
+                          ));
+                    },
+                    numberButtonSelectedColor: Theme.of(context).primaryColor,
+                    numberTextUnselectedColor: Colors.grey,
+                  ),
+                )),
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<DataRow> _rows(double widthSize) {
+    return <%= entityClassPluralLowered %>.map((<%= entityInstance %>) {
+      return DataRow2.byIndex(
+        index: <%= entityInstance %>.id,
+        cells: _cell(<%= entityInstance %>, widthSize),
+      );
+    }).toList();
+  }
+
+  int cantidadDePaginas(int totalRegistros, int registrosPorPagina) {
+    return (totalRegistros / registrosPorPagina).ceil();
+  }
+
+  List<DataColumn> _columns(double widthSize) {
+    return [
+      DataColumn2(
+        label: const Text(''),
+        size: ColumnSize.L,
+        fixedWidth: widthSize < 1200 ? 150 : 300,
+      ),
+      DataColumn2(
+        label: const Align(
+          alignment: Alignment.centerLeft,
+          child: Text('<%= context.idField.fieldNameHumanized %>'),
+        ),
+        size: ColumnSize.S,
+        numeric: true,
+        onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
+      ),
+    <%_ fields.forEach(field => { %>
+      DataColumn2(
+        <%_ if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
+        label: const Align(
+          alignment: Alignment.centerLeft,
+          child: Text('<%= field.fieldNameHumanized %>'),
+        ),
+        numeric: true,
+        <%_ } else if(field.fieldType === 'bool' ) {_%>
+        label: const Text('<%= field.fieldNameHumanized %>'),
+        size: ColumnSize.S,
+        <%_ } else { _%>
+        label: const Text('<%= field.fieldNameHumanized %>'),
+        <%_ } _%>
+        onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
+      ),
+    <%_ }); _%>
+    ];
+  }
+
+  List<DataCell> _cell(<%= entityClass %> <%= entityInstance %>, double widthSize) {
+    return [
+      DataCell(
+        Row(
+          children: [
+            widthSize > 1200
+                ?  TextButton.icon(
+                    label: const Text('Ver'),
+                    onPressed: () {
+                      blocContext.pushNamed('<%= entityInstance %>view', extra: <%= entityInstance %>.id);
+                    },
+                    icon: const Icon(
+                      Icons.remove_red_eye_outlined,
+                      color: Colors.green,
+                    ),
+                  )
+                : IconButton(
+                    onPressed: () {
+                      blocContext.pushNamed('<%= entityInstance %>view', extra: <%= entityInstance %>.id);
+                    },
+                    icon: const Icon(
+                      Icons.remove_red_eye_outlined,
+                      color: Colors.green,
+                    ),
+                  ),
+            widthSize > 1200
+                ?  TextButton.icon(
+                    label: const Text('Editar'),
+                    onPressed: () {
+                      blocContext.pushNamed('<%= entityInstance %>edit', extra: <%= entityInstance %>.id);
+                    },
+                    icon: const Icon(
+                      Icons.edit,
+                      color: Colors.amber,
+                    ),
+                  )
+                : IconButton(
+                    onPressed: () {
+                      blocContext.pushNamed('<%= entityInstance %>edit', extra: <%= entityInstance %>.id);
+                    },
+                    icon: const Icon(
+                      Icons.edit,
+                      color: Colors.amber,
+                    ),
+                  ),
+            widthSize > 1200
+                ?  TextButton.icon(
+                    label: const Text('Eliminar'),
+                    onPressed: () {
+                      showDialog(
+                        context: blocContext,
+                        builder: (BuildContext context) {
+                          return <%= entityClass %>DeleteDialog(
+                            id: <%= entityInstance %>.id,
+                            blocContext: blocContext,
+                          );
+                        },
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.delete_forever,
+                      color: Colors.red,
+                    ),
+                  )
+                : IconButton(
+                    onPressed: () {
+                      showDialog(
+                        context: blocContext,
+                        builder: (BuildContext context) {
+                          return <%= entityClass %>DeleteDialog(
+                            id: <%= entityInstance %>.id,
+                            blocContext: blocContext,
+                          );
+                        },
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.delete_forever,
+                      color: Colors.red,
+                    ),
+                  ),
+          ],
+        ),
+      ),
+      DataCell(
+        Align(alignment: Alignment.centerLeft, child: Text('${<%= entityInstance %>.<%= idField.fieldName %>}')),
+      ),
+    <%_ fields.forEach(field => { %>
+      DataCell(
+      <%_ if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
+        Align(alignment: Alignment.centerLeft, child: Text('${<%= entityInstance %>.<%- field.fieldName -%>}')),
+      <%_ } else {_%>
+        Text('${<%= entityInstance %>.<%- field.fieldName -%>}'),
+      <%_ } _%>
+      ),
+    <%_ }); _%>
+    ];
+  }
+
+  void sort(
+    int columnIndex,
+    bool ascending,
+  ) {
+    var columnName = '<%= idField.fieldName %>';
+    switch (columnIndex) {
+      case 1:
+        columnName = '<%= idField.fieldName %>';
+        break;
+    <%_ fields.forEach(field => { %>
+      <%_ filtro++; _%>
+      case <%= filtro %>:
+        columnName = '<%= field.fieldName %>';
+        break;
+    <%_ }); _%>
+    }
+    int pageQuery = blocContext.read<<%= entityClass %>Bloc>().state.currentPage - 1;
+    var order = ascending ? 'asc' : 'desc';
+
+    blocContext.read<<%= entityClass %>Bloc>().add(SortChanged(
+          sortColumnIndex: columnIndex,
+          sortAscending: ascending,
+          columnName: columnName,
+        ));
+
+    blocContext.read<<%= entityClass %>Bloc>().add(
+        Load<%= entityClass %>List(page: pageQuery, sort: columnName, ascending: order));
+  }
+}

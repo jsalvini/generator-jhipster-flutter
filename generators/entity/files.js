@@ -16,6 +16,10 @@ const flutterFiles = {
                     renameTo: (generator) => `${generator.context.entityFolderName}/models/${generator.context.entityFileName}_models.dart`,
                 },
                 {
+                    file: 'models/entity.response',
+                    renameTo: (generator) => `${generator.context.entityFolderName}/models/${generator.context.entityFileName}_response.dart`,
+                },
+                {
                     file: 'bloc/entity.state',
                     renameTo: (generator) => `${generator.context.entityFolderName}/bloc/${generator.context.entityFileName}_state.dart`,
                 },
@@ -38,6 +42,14 @@ const flutterFiles = {
                 {
                     file: 'views/entity.list',
                     renameTo: (generator) => `${generator.context.entityFolderName}/views/${generator.context.entityFileName}_list_screen.dart`,
+                },
+                {
+                    file: 'views/entity.table',
+                    renameTo: (generator) => `${generator.context.entityFolderName}/views/${generator.context.entityFileName}_table.dart`,
+                },
+                {
+                    file: 'views/widgets/entity.delete.dialog',
+                    renameTo: (generator) => `${generator.context.entityFolderName}/views/widgets/${generator.context.entityFileName}_delete_dialog.dart`,
                 },
                 {
                     file: 'entity.repository',

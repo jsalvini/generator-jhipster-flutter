@@ -1,0 +1,33 @@
+<%_
+const baseName = context.baseName;
+const entityInstance = context.entityInstance;
+const entityFileName = context.entityFileName;
+const entityClassPlural = context.entityClassPlural;
+const entityClass = context.entityClass;
+const entityClassPluralLowered = context.entityClassPluralLowered;
+const fields = context.fields;
+_%>
+import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_model.dart';
+
+class <%= entityClass %>Response {
+  final List<<%= entityClass %>> <%= entityClassPluralLowered %>;
+  final int totalCount;
+  final String link;
+
+  const <%= entityClass %>Response({
+    required this.<%= entityClassPluralLowered %>,
+    required this.totalCount,
+    required this.link,
+  });
+
+  <%= entityClass %>Response copyWith({
+    List<<%= entityClass %>>? <%= entityClassPluralLowered %>,
+    int? totalCount,
+    String? link,
+  }) =>
+  <%= entityClass %>Response(
+        <%= entityClassPluralLowered %>: <%= entityClassPluralLowered %> ?? this.<%= entityClassPluralLowered %>,
+        totalCount: totalCount ?? this.totalCount,
+        link: link ?? this.link,
+      );
+}

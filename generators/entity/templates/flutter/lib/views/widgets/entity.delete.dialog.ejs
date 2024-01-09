@@ -1,0 +1,53 @@
+<%_
+const pkType = context.pkType;
+const fields = context.fields;
+const relationships = context.relationships;
+const entityClass = context.entityClass;
+const entityInstance = context.entityInstance;
+const baseName = context.baseName;
+const idField = context.idField;
+const entityFileName = context.entityFileName;
+_%>
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
+
+class <%= entityClass %>DeleteDialog extends StatelessWidget {
+  const <%= entityClass %>DeleteDialog({
+    super.key,
+    required this.id,
+    required this.blocContext,
+  });
+
+  final int? id;
+  final BuildContext blocContext;
+
+  @override
+  Widget build(BuildContext context) {
+    <%= entityClass %>Bloc <%= entityInstance %>Bloc = blocContext.read<<%= entityClass %>Bloc>();
+
+    return BlocProvider<<%= entityClass %>Bloc>.value(
+      value: <%= entityInstance %>Bloc,
+      child: AlertDialog(
+        title: const Text('Eliminar <%= entityClass %>'),
+        content: Text('Seguro que quiere eliminar el <%= entityInstance %> $id?'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Si'),
+            onPressed: () {
+              <%= entityInstance %>Bloc.add(Delete<%= entityClass %>ById(id: id));
+              context.pop();
+            },
+          ),
+          TextButton(
+            child: const Text('No'),
+            onPressed: () {
+              context.pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}

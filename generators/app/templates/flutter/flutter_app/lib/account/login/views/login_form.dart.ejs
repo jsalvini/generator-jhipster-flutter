@@ -194,11 +194,13 @@ class _LoginButton extends StatelessWidget {
                           ? () =>
                               context.read<LoginBloc>().add(LoginSubmitted())
                           : null,
+                      style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Theme.of(context).primaryColor)),
                       child: SizedBox(
                         width: MediaQuery.of(context).size.width * 0.2,
                         height: 50,
                         child: const Center(
                           child: Text('LOGIN'),
+                          style: TextStyle(color: Colors.white)
                         ),
                       ),
                     ),

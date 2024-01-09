@@ -21,13 +21,52 @@ abstract class <%= entityClass %>Event extends Equatable {
   bool get stringify => true;
 }
 
-class Load<%= entityClass %>List extends <%= entityClass %>Event {}
+class RowsPerPageChanged extends <%= entityClass %>Event {
+  final int rowsPerPage;
+
+  const RowsPerPageChanged({required this.rowsPerPage});
+}
+
+class InitialRowChanged extends <%= entityClass %>Event {
+  final int initialRow;
+
+  const InitialRowChanged({required this.initialRow});
+}
+
+class SortChanged extends <%= entityClass %>Event {
+  final String columnName;
+  final int sortColumnIndex;
+  final bool sortAscending;
+
+  const SortChanged(
+      {required this.sortColumnIndex,
+      required this.sortAscending,
+      required this.columnName});
+}
+
+class CurrentPageChanged extends <%= entityClass %>Event {
+  final int currentPage;
+
+  const CurrentPageChanged({required this.currentPage});
+}
+
+class Load<%= entityClass %>List extends <%= entityClass %>Event {
+  final int page;
+  final String sort;
+  final String ascending;
+
+  const Load<%= entityClass %>List(
+      {required this.page, required this.sort, required this.ascending});
+
+  @override
+  List<Object> get props => [page, sort, ascending];
+}
 
 <%_ fields.forEach(field => { _%>
-class <%= field.fieldNameCapitalized %>Changed extends <%= entityClass %>Event {
+class <%= entityClass %><%= field.fieldNameCapitalized %>Changed extends <%= entityClass %>Event {
   final <%= field.fieldType %> <%= field.fieldName %>;
 
-  const <%= field.fieldNameCapitalized %>Changed({required this.<%= field.fieldName %>});
+  const <%= entityClass %><%= field.fieldNameCapitalized %>Changed({required this.<%= field.fieldName %>});
 
   @override
   List<Object> get props => [<%= field.fieldName %>];

@@ -55,7 +55,7 @@ class _<%= camelizedUpperFirstBaseName %>AppState extends State<<%= camelizedUpp
                 authenticationRepository: _authenticationRepository,
                 accountRepository: _accountRepository),
           ),
-		  BlocProvider<ThemeBloc>(
+		      BlocProvider<ThemeBloc>(
             create: (context) => ThemeBloc(),
           ),
         ],
@@ -84,8 +84,22 @@ class _AppViewState extends State<AppView> {
         builder: (context, state) {
           return MaterialApp.router(
             debugShowCheckedModeBanner: false,
-            theme: Themes.lightTheme,
-            darkTheme: Themes.darkTheme,
+            theme: Themes.lightTheme.copyWith(
+              iconTheme: const IconThemeData(color: Colors.white),
+              appBarTheme: AppBarTheme(
+                iconTheme: const IconThemeData(color: Colors.white),
+                titleTextStyle: const TextStyle(color: Colors.white),
+                backgroundColor: Theme.of(context).primaryColor,
+              ),
+            ),
+            darkTheme: Themes.darkTheme.copyWith(
+              iconTheme: const IconThemeData(color: Colors.white),
+              appBarTheme: AppBarTheme(
+                iconTheme: const IconThemeData(color: Colors.white),
+                titleTextStyle: const TextStyle(color: Colors.white),
+                backgroundColor: Theme.of(context).primaryColor,
+              ),
+            ),
             themeMode: state,
             routeInformationParser: AppRouter.router.routeInformationParser,
             routerDelegate: AppRouter.router.routerDelegate,

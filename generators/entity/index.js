@@ -257,8 +257,6 @@ module.exports = class extends BaseGenerator {
             }
 
             if (_.isUndefined(field.fieldInJavaBeanMethod)) {
-                // Handle the specific case when the second letter is capitalized
-                // See http://stackoverflow.com/questions/2948083/naming-convention-for-getters-setters-in-java
                 if (field.fieldName.length > 1) {
                     const firstLetter = field.fieldName.charAt(0);
                     const secondLetter = field.fieldName.charAt(1);

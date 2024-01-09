@@ -1,11 +1,11 @@
 {
   "name": "generator-jhipster-flutter-merlin",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "A Flutter module for JHipster. It will use Flutter as the frontend",
   "keywords": [
     "yeoman-generator",
     "jhipster-module",
-    "jhipster-6"
+    "jhipster-8"
   ],
   "homepage": "https://github.com/josesalvini/generator-jhipster-flutter.git",
   "author": {
@@ -18,7 +18,7 @@
   "main": "generators/app/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/merlinofcha0s/generator-jhipster-flutter.git"
+    "url": "git+https://github.com/josesalvini/generator-jhipster-flutter.git"
   },
   "dependencies": {
     "chalk": "4.1.0",

@@ -24,26 +24,30 @@ class <%= entityClass %> extends Equatable {
   final <%= idField.fieldType %>? <%= idField.fieldName %>;
 <%_ fields.forEach(field => { %>
   @JsonProperty(name: '<%- field.fieldName _%>' <%_ if(field.fieldType === 'DateTime') { _%>, converterParams: {'format': 'yyyy-MM-dd\'T\'HH:mm:ss\'Z\''}<%_ }  _%>)
-  final <%= field.fieldType %>? <%= field.fieldName %>;
+  final <%= %> <%_ if(field.fieldValidateRules != 'required' ) { _%><%= field.fieldType %>?<%=  %><%_ } else { _%><%=  %> <%= field.fieldType %><%_ } _%>  <%=  %> <%= field.fieldName %>;
 <%_ }); _%>
 <%_ relationships.forEach(relationship => { %>
   @JsonProperty(name: '<%- relationship.relationshipFieldName _%>')
-      <%_ if(relationship.isList) { _%>
+  <%_ if(relationship.isList) { _%>
   final List<<%- relationship.otherEntityNameCapitalized %>>? <%- relationship.relationshipFieldName _%>;
-      <%_ } else { _%>
+  <%_ } else { _%>
   final <%= relationship.otherEntityNameCapitalized %>? <%= relationship.relationshipFieldName %>;
-      <%_ } _%>
-  <%_ }); _%>
+  <%_ } _%>
+<%_ }); _%>
 
- const <%= entityClass %> (
-     this.<%= idField.fieldName %>,
-     <%_ fields.forEach(field => { _%>
-        this.<%- field.fieldName -%>,
-        <%_ }); _%>
-    <%_ relationships.forEach(relationship => { _%>
-        this.<%- relationship.relationshipFieldName -%>,
+  @JsonProperty(ignoreForDeserialization: true, ignoreForSerialization: true)
+  final bool selected;
+
+ const <%= entityClass %> ({
+    this.<%= idField.fieldName %>,
+    <%_ fields.forEach(field => { _%>
+    this.<%- field.fieldName -%><%_ if(field.fieldValidateRules != 'required' ) { _%>,<%_ } else { _%> = <%- field.defaultValue %>,<%_ } _%>
     <%_ }); _%>
-    );
+    <%_ relationships.forEach(relationship => { _%>
+    this.<%- relationship.relationshipFieldName -%>,
+    <%_ }); _%>
+    this.selected = false,
+    });
 
 @override
 String toString() {
@@ -61,6 +65,7 @@ String toString() {
 @override
 List<Object?> get props => [
 	<%_ fields.forEach(field => { %> <%= field.fieldName %>, <%_ }); _%>
+    selected,
 ];
 
 }

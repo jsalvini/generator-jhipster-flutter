@@ -20,6 +20,15 @@ enum <%= entityClass %>DeleteStatus {ok, error, none}
 
 class <%= entityClass %>State extends Equatable {
   final List<<%= entityClass %>> <%= entityClassPluralLowered %>;
+  final int initialRow;
+  final int rowsPerPage;
+  final bool sortAscending;
+  final int sortColumnIndex;
+  final bool selectAll;
+  final int totalRow;
+  final String columnName;
+  final int currentPage;
+
   final <%= entityClass %> loaded<%= entityClass %>;
   final bool editMode;
   final <%= entityClass %>DeleteStatus deleteStatus;
@@ -30,48 +39,74 @@ class <%= entityClass %>State extends Equatable {
   final String generalNotificationKey;
 
   <%_ fields.forEach(field => { _%>
-  final <%= field.fieldNameCapitalized %>Input <%= field.fieldName %>;
+  final <%= entityClass %><%= field.fieldNameCapitalized %>Input <%= field.fieldName %>;
   <%_ }); _%>
 
 
   const <%= entityClass %>State({
     this.<%= entityClassPluralLowered %> = const [],
+    this.initialRow = 0,
+    this.rowsPerPage = 20,
+    this.sortAscending = true,
+    this.sortColumnIndex = 1,
+    this.selectAll = false,
+    this.totalRow = 0,
+    this.columnName = 'id',
+    this.currentPage = 1,
     this.<%= entityInstance %>StatusUI = <%= entityClass %>StatusUI.init,
-    this.loaded<%= entityClass %> = const <%= entityClass %>(<%- idField.defaultValue %>, <%_ fields.forEach(field => { _%> <%- field.defaultValue %>, <%_ }); _%><%_ relationships.forEach(relationship => { _%> null, <%_ }); _%>),
+    this.loaded<%= entityClass %> = const <%= entityClass %>(<%= idField.fieldName %>: <%- idField.defaultValue %>, 
+    <%_ fields.forEach(field => { _%> <%- field.fieldName -%>: <%- field.defaultValue %>, <%_ }); _%>
+    <%_ relationships.forEach(relationship => { _%> <%= relationship.relationshipFieldName %>: null, <%_ }); _%>),
     this.editMode = false,
     this.formStatus = FormzSubmissionStatus.initial,
     this.isValid = false,
     this.generalNotificationKey = '',
     this.deleteStatus = <%= entityClass %>DeleteStatus.none,
-    <%_ fields.forEach(field => { _%> 
-	<%_ if(field.fieldType === 'DateTime') { _%>
-	required this.<%= field.fieldName %>,
-	<%_  } else { _%>
-	this.<%= field.fieldName %> = const <%= field.fieldNameCapitalized %>Input.pure(),
-	<%_ } _%>
+    <%_ fields.forEach(field => { _%>
+    <%_ if(field.fieldType === 'DateTime') { _%>
+    required this.<%= field.fieldName %>,
+    <%_  } else { _%>
+    this.<%= field.fieldName %> = const <%= entityClass %><%= field.fieldNameCapitalized %>Input.pure(),
+    <%_ } _%>
     <%_ }); _%>
   });
 
   <%= entityClass %>State copyWith({
     List<<%= entityClass %>>? <%= entityClassPluralLowered %>,
+    int? initialRow,
+    int? rowsPerPage,
+    bool? sortAscending,
+    int? sortColumnIndex,
+    bool? selectAll,
+    int? totalRow,
+    String? columnName,
+    int? currentPage,
     <%= entityClass %>StatusUI? <%= entityInstance %>StatusUI,
     bool? editMode,
     <%= entityClass %>DeleteStatus? deleteStatus,
     <%= entityClass %>? loaded<%= entityClass %>,
     FormzSubmissionStatus? formStatus,
-	bool? isValid,
+	  bool? isValid,
     String? generalNotificationKey,
     <%_ fields.forEach(field => { _%>
-    <%= field.fieldNameCapitalized %>Input? <%= field.fieldName %>,
+    <%= entityClass %><%= field.fieldNameCapitalized %>Input? <%= field.fieldName %>,
     <%_ }); _%>
   }) {
     return <%= entityClass %>State(
       <%= entityClassPluralLowered %>: <%= entityClassPluralLowered %> ?? this.<%= entityClassPluralLowered %>,
+      initialRow: initialRow ?? this.initialRow,
+      rowsPerPage: rowsPerPage ?? this.rowsPerPage,
+      sortAscending: sortAscending ?? this.sortAscending,
+      sortColumnIndex: sortColumnIndex ?? this.sortColumnIndex,
+      selectAll: selectAll ?? this.selectAll,
+      totalRow: totalRow ?? this.totalRow,
+      columnName: columnName ?? this.columnName,
+      currentPage: currentPage ?? this.currentPage,
       <%= entityInstance %>StatusUI: <%= entityInstance %>StatusUI ?? this.<%= entityInstance %>StatusUI,
       loaded<%= entityClass %>: loaded<%= entityClass %> ?? this.loaded<%= entityClass %>,
       editMode: editMode ?? this.editMode,
       formStatus: formStatus ?? this.formStatus,
-	  isValid: isValid ?? this.isValid,
+	    isValid: isValid ?? this.isValid,
       generalNotificationKey: generalNotificationKey ?? this.generalNotificationKey,
       deleteStatus: deleteStatus ?? this.deleteStatus,
       <%_ fields.forEach(field => { _%>
@@ -81,8 +116,9 @@ class <%= entityClass %>State extends Equatable {
   }
 
   @override
-  List<Object> get props => [<%= entityClassPluralLowered %>, <%= entityInstance %>StatusUI,
-     loaded<%= entityClass %>, editMode, deleteStatus, formStatus, isValid, generalNotificationKey,
+  List<Object> get props => [<%= entityClassPluralLowered %>, initialRow, rowsPerPage, sortAscending, sortColumnIndex,
+    <%= entityInstance %>StatusUI,
+      selectAll, totalRow, columnName, currentPage, loaded<%= entityClass %>, editMode, deleteStatus, formStatus, isValid, generalNotificationKey,
      <%_ fields.forEach(field => { _%><%= field.fieldName %>%>,<%_ }); _%>];
 
   @override

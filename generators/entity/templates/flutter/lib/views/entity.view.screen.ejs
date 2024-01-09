@@ -34,7 +34,6 @@ class <%= entityClass %>ViewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
           appBar: AppBar(
-		    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
             centerTitle: true,
             title: const Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>ViewTitle<%_ } else { _%>'<%= entityClass %> View'<%_ } _%>),
           ),
