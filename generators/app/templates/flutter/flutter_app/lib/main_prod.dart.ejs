@@ -1,14 +1,39 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:<%= baseName %>/environment.dart';
+import 'package:window_manager/window_manager.dart';
 import 'app.dart';
 import 'main.mapper.g.dart' show initializeJsonMapper;
-
 <%_ if (!enableTranslation) { _%>
-  import 'package:intl/intl.dart';
-  import 'package:intl/date_symbol_data_local.dart';
-  <%_ } _%>
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
+<%_ } _%>
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (!kIsWeb) {
+    if (Platform.isWindows) {
+      await windowManager.ensureInitialized();
+
+      WindowOptions windowOptions = const WindowOptions(
+          size: Size(800, 720),
+          center: true,
+          fullScreen: false,
+          minimumSize: Size(800, 720)
+          //backgroundColor: Colors.transparent,
+          //skipTaskbar: false,
+          //titleBarStyle: TitleBarStyle.normal,
+          );
+      windowManager.waitUntilReadyToShow(windowOptions, () async {
+        await windowManager.show();
+        await windowManager.focus();
+      });
+      //WindowManager.instance.setMinimumSize(const Size(800, 720));
+      //WindowManager.instance.setFullScreen(true);
+      WindowManager.instance.setResizable(true);
+    }
+  }
   Constants.setEnvironment(Environment.prod);
   initializeJsonMapper();
   <%_ if (!enableTranslation) { _%>

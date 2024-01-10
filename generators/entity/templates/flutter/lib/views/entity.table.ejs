@@ -11,7 +11,9 @@ const fields = context.fields;
 const idField = context.idField;
 let filtro = 1;
 _%>
+import 'package:adaptive_scrollbar/adaptive_scrollbar.dart';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -21,7 +23,7 @@ import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entity
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/views/widgets/<%= entityFileName %>_delete_dialog.dart';
 
 class <%= entityClass %>Table extends StatelessWidget {
-  const <%= entityClass %>Table({
+  <%= entityClass %>Table({
     super.key,
     required this.<%= entityClassPluralLowered %>,
     required this.blocContext,
@@ -29,6 +31,9 @@ class <%= entityClass %>Table extends StatelessWidget {
 
   final List<<%= entityClass %>> <%= entityClassPluralLowered %>;
   final BuildContext blocContext;
+  final ScrollController horizontalScroll = ScrollController();
+  final ScrollController verticalScroll = ScrollController();
+  final double widthScrollbar = 20.0;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +56,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                   TextButton.icon(
                     onPressed: () => context.pushNamed('<%= entityInstance %>create'),
                     icon: const Icon(Icons.add, color: Colors.white),
-                    label: const Text('Nuevo <%= entityInstance %>',
+                    label: const Text('Agregar <%= entityInstance %>',
                         style: TextStyle(color: Colors.white)),
                     style: ButtonStyle(
                         backgroundColor: MaterialStatePropertyAll(
@@ -73,7 +78,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                     thumbColor: MaterialStateProperty.all<Color>(
                         Theme.of(context).primaryColor))),
             child: SizedBox(
-              height: heigthSize * 0.70,
+              height: !kIsWeb ? heigthSize * 0.70 : heigthSize * 0.65,
               child: Card(
                 margin: EdgeInsets.zero,
                 elevation: 4,
@@ -81,43 +86,82 @@ class <%= entityClass %>Table extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: ClipRRect(
                     borderRadius: const BorderRadius.all(Radius.circular(15)),
-                    child: DataTable2(
-                      headingRowColor: MaterialStateColor.resolveWith(
-                          (states) => Theme.of(context).primaryColor),
-                      headingTextStyle: const TextStyle(color: Colors.white),
-                      headingCheckboxTheme: const CheckboxThemeData(
-                        side: BorderSide(color: Colors.white, width: 2.0),
+                    child: AdaptiveScrollbar(
+                      controller: verticalScroll,
+                      width: widthScrollbar,
+                      scrollToClickDelta: 75,
+                      scrollToClickFirstDelay: 200,
+                      scrollToClickOtherDelay: 50,
+                      sliderDecoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(12.0))),
+                      sliderActiveDecoration: const BoxDecoration(
+                          color: Color.fromRGBO(206, 206, 206, 100),
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(12.0))),
+                      underColor: Colors.transparent,
+                      child: AdaptiveScrollbar(
+                        underSpacing: const EdgeInsets.only(bottom: 20),
+                        controller: horizontalScroll,
+                        width: widthScrollbar,
+                        position: ScrollbarPosition.bottom,
+                        sliderDecoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(12.0))),
+                        sliderActiveDecoration: const BoxDecoration(
+                            color: Color.fromRGBO(206, 206, 206, 100),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(12.0))),
+                        underColor: Colors.transparent,
+                        child: SingleChildScrollView(
+                          controller: horizontalScroll,
+                          scrollDirection: Axis.horizontal,
+                          child: SizedBox(
+                            width: 8000,
+                            child: DataTable2(
+                              headingRowColor: MaterialStateColor.resolveWith(
+                                  (states) => Theme.of(context).primaryColor),
+                              headingTextStyle:
+                                  const TextStyle(color: Colors.white),
+                              headingCheckboxTheme: const CheckboxThemeData(
+                                side: BorderSide(color: Colors.white, width: 2.0),
+                              ),
+                              isHorizontalScrollBarVisible: false,
+                              isVerticalScrollBarVisible: false,
+                              columnSpacing: 12,
+                              horizontalMargin: 12,
+                              sortArrowBuilder: null,
+                              border: TableBorder(
+                                  horizontalInside: BorderSide(
+                                      color: Theme.of(context).primaryColor),
+                                  right: BorderSide(
+                                      color: Theme.of(context).primaryColor)),
+                              dividerThickness: 1,
+                              bottomMargin: 10,
+                              minWidth: 900,
+                              sortColumnIndex: blocContext
+                                  .read<<%= entityClass %>Bloc>()
+                                  .state
+                                  .sortColumnIndex,
+                              sortAscending:
+                                  blocContext.read<<%= entityClass %>Bloc>().state.sortAscending,
+                              sortArrowIcon: Icons.keyboard_arrow_up,
+                              sortArrowAnimationDuration:
+                                  const Duration(milliseconds: 500),
+                              columns: _columns(widthSize),
+                              empty: Center(
+                                  child: Container(
+                                      padding: const EdgeInsets.all(20),
+                                      color: Colors.grey[200],
+                                      child: const Text(
+                                          'No hay registros para mostrar.'))),
+                              rows: _rows(widthSize),
+                            ),
+                          ),
+                        ),
                       ),
-                      isHorizontalScrollBarVisible: true,
-                      isVerticalScrollBarVisible: true,
-                      columnSpacing: 12,
-                      horizontalMargin: 12,
-                      sortArrowBuilder: null,
-                      border: TableBorder(
-                          horizontalInside:
-                              BorderSide(color: Theme.of(context).primaryColor),
-                          right: BorderSide(
-                              color: Theme.of(context).primaryColor)),
-                      dividerThickness: 1,
-                      bottomMargin: 10,
-                      minWidth: 900,
-                      sortColumnIndex: blocContext
-                          .read<<%= entityClass %>Bloc>()
-                          .state
-                          .sortColumnIndex,
-                      sortAscending:
-                          blocContext.read<<%= entityClass %>Bloc>().state.sortAscending,
-                      sortArrowIcon: Icons.keyboard_arrow_up,
-                      sortArrowAnimationDuration:
-                          const Duration(milliseconds: 500),
-                      columns: _columns(widthSize),
-                      empty: Center(
-                          child: Container(
-                              padding: const EdgeInsets.all(20),
-                              color: Colors.grey[200],
-                              child: const Text(
-                                  'No hay registros para mostrar.'))),
-                      rows: _rows(widthSize),
                     ),
                   ),
                 ),

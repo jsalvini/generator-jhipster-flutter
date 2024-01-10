@@ -20,7 +20,6 @@ class SettingsScreen extends StatelessWidget {
       )..add(LoadCurrentUser()),
       child: Scaffold(
         appBar: AppBar(
-		  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           centerTitle: true,
           title: const Text('Settings'),
         ),
@@ -72,14 +71,22 @@ class SettingsForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Form(
-      child: Wrap(runSpacing: 15, children: <Widget>[
-        FirstnameField(),
-        LastnameField(),
-        EmailField(),
-        NotificationZone(),
-        Submit()
-      ]),
+    return const Padding(
+      padding: EdgeInsets.only(top: 30),
+      child: Center(
+        child:  SizedBox(
+          width: 600,
+          child:  Form(
+            child: Wrap(runSpacing: 15, children: <Widget>[
+              FirstnameField(),
+              LastnameField(),
+              EmailField(),
+              NotificationZone(),
+              Submit()
+            ]),
+          ),
+        ),
+      ),
     );
   }
 }

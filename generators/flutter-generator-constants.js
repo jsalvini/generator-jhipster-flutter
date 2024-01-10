@@ -143,6 +143,7 @@ const FLUTTER_FILES = {
                 { file: 'assets/images/logo-jhipster.png', method: 'copy' },
                 { file: 'assets/images/logo_tipre.png', method: 'copy' },
                 { file: 'assets/images/logo_menu.png', method: 'copy' },
+                { file: 'assets/images/banner.png', method: 'copy' },
             ],
         },
     ],

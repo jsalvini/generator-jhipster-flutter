@@ -12,6 +12,7 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xff191918),
       body: BlocProvider<LoginBloc>(
         create: (context) => LoginBloc(
           authenticationRepository: RepositoryProvider.of<AuthenticationRepository>(context),
