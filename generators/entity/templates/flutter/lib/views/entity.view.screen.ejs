@@ -15,7 +15,7 @@ const primaryKeyType = context.primaryKeyType;
 const enableTranslation = context.enableTranslation;
 const hasDateTime = context.hasDateTime;
 _%>
-
+import 'package:<%= baseName %>/core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -25,6 +25,12 @@ import 'package:intl/intl.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_model.dart';
 import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
+<%_ relationships.forEach(relationship => { %>
+<%_ if(!relationship.isList) { _%>
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityName %>/bloc/<%= relationship.otherEntityName %>_bloc.dart';
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityName %>/models/<%= relationship.otherEntityName %>_models.dart';
+<%_ } _%>
+<%_ }); _%>
 import '../<%= entityFileName %>_routes.dart';
 
 class <%= entityClass %>ViewScreen extends StatelessWidget {
@@ -33,55 +39,273 @@ class <%= entityClass %>ViewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            title: const Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>ViewTitle<%_ } else { _%>'<%= entityClass %> View'<%_ } _%>),
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(15.0),
-            child: BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
-              buildWhen: (previous, current) => previous.loaded<%= entityClass %> != current.loaded<%= entityClass %>,
-              builder: (context, state) {
-                return Visibility(
-                  visible: state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.done,
-                  replacement: const LoadingIndicator(),
-                  child: Column(children: <Widget>[
-                    <%= entityInstance %>Card(state.loaded<%= entityClass %>, context)
-                  ]),
-                );
-              }
-            ),
-          ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => context.pushNamed('<%= entityInstance %>create'),
-          backgroundColor: Theme.of(context).primaryColor,
-		  child: Icon(Icons.add, color: Theme.of(context).iconTheme.color,),
-        )
-    );
-  }
-
-  Widget <%= entityInstance %>Card(<%= entityClass %> <%= entityInstance %>, BuildContext context) {
-    return Card(
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        width: MediaQuery.of(context).size.width * 0.90,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text('<%= context.idField.fieldNameHumanized %> : ${<%= entityInstance %>.<%= context.idField.fieldName %>}', style: Theme.of(context).textTheme.bodyLarge,),
-            <%_ fields.forEach(field => { _%>
-              <%_ if(field.fieldType === 'DateTime') { _%>
-              Text('<%= field.fieldNameHumanized %> : ${<%= entityInstance %>.<%= field.fieldName %> != null ? DateFormat("yyyy-MM-dd").format(<%= entityInstance %>.<%= field.fieldName %>!) : ''}', style: Theme.of(context).textTheme.bodyLarge,),
-              <%_ } else if (field.fieldType === 'int' || field.fieldType === 'bool') {_%>
-                Text('<%= field.fieldNameHumanized %> : ${<%= entityInstance %>.<%= field.fieldName %>}', style: Theme.of(context).textTheme.bodyLarge,),
-              <%_ } else {_%>
-                Text('<%= field.fieldNameHumanized %> : ${<%= entityInstance %>.<%= field.fieldName %>}', style: Theme.of(context).textTheme.bodyLarge,),
-              <%_ } _%>
-            <%_ }); _%>
-          ],
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>ViewTitle<%_ } else { _%>'<%= entityClass %> View'<%_ } _%>),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(15.0),
+        child: BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
+          buildWhen: (previous, current) => previous.loaded<%= entityClass %> != current.loaded<%= entityClass %>,
+          builder: (context, state) {
+            return Visibility(
+              visible: state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.done,
+              replacement: const LoadingIndicator(),
+              child: const Column(
+                  children: <Widget>[
+                    Form<%= entityClass %>(),
+                  ],
+              ),
+            );
+          }
         ),
       ),
     );
   }
 }
+
+class Form<%= entityClass %> extends StatelessWidget {
+  const Form<%= entityClass %>({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.only(top: 30),
+      child: Center(
+        child: SizedBox(
+          width: 600,
+          child: Form(
+            child: Wrap(
+              runSpacing: 15,
+              children: <Widget>[
+                <%_ fields.forEach(field => { _%>
+                <%= field.fieldNameCapitalized %>Field(),
+                <%_ }); _%>
+                EditButton(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class EditButton extends StatelessWidget {
+  const EditButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
+      buildWhen: (previous, current) =>
+          previous.loaded<%= entityClass %>.id != current.loaded<%= entityClass %>.id,
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 30),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () => context.pushNamed('<%= entityInstance %>edit',
+                    extra: state.loaded<%= entityClass %>.id),
+                style: ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll(
+                        Theme.of(context).primaryColor)),
+                child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.2,
+                    height: 50,
+                    child: const Center(
+                      child: Text(
+                        'Editar',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+<%_ fields.forEach(field => { _%>
+  <%_ if(field.fieldType === 'DateTime') { _%>
+  class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
+
+    const <%= field.fieldNameCapitalized %>Field({super.key});
+
+    @override
+    Widget build(BuildContext context) {
+      return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
+        buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
+        builder: (context, state) {
+          return DateTimeField(
+          controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+          readOnly: true,
+          format: DateFormat("yyyy-MM-dd"),
+          keyboardType: TextInputType.datetime,
+          decoration: const InputDecoration(labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldName %>'<%_ } _%>,),
+          onShowPicker: (context, currentValue) async {
+            return await showDatePicker(
+              locale: const Locale(<%_ if(enableTranslation) { _%>S.of(context).locale<%_ } else { _%>'en'<%_ } _%>),
+              context: context,
+              firstDate: DateTime(1950),
+              initialDate: currentValue ?? DateTime.now(),
+              lastDate: DateTime(2100));
+            },
+          );
+        });
+      }
+  }
+  <%_ } else if (field.fieldIsEnum) {_%>
+  class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
+
+    const <%= field.fieldNameCapitalized %>Field({super.key});
+
+    @override
+    Widget build(BuildContext context) {
+      return BlocBuilder<<%= entityClass %>Bloc,<%= entityClass %>State>(
+      buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
+      builder: (context, state) {
+        return Padding(
+        padding: const EdgeInsets.only(left: 3.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>, style: Theme.of(context).textTheme.bodyLarge,),
+            const SizedBox(width: 20),
+            DropdownButton<<%= field.fieldType %>>(
+              value: state.<%= field.fieldName %>.value,
+              onChanged: null,
+              items: createDropdown<%= field.fieldType %>Items(<%= field.fieldType %>.values),
+            ),
+          ],
+        ),
+        );
+      });
+    }
+
+    <%_ fields.forEach(field => { _%>
+      <%_ if(field.fieldIsEnum) { _%>
+        List<DropdownMenuItem<<%= field.fieldType %>>> createDropdown<%= field.fieldType %>Items(List<<%= field.fieldType %>> <%= field.fieldName %>s) {
+        List<DropdownMenuItem<<%= field.fieldType %>>> <%= field.fieldName %>DropDown = [];
+
+        for (<%= field.fieldType %> <%= field.fieldName %> in <%= field.fieldName %>s) {
+          DropdownMenuItem<<%= field.fieldType %>> dropdown = DropdownMenuItem<<%= field.fieldType %>>(
+            value: <%= field.fieldName %>,
+            child: Text(<%= field.fieldName %>.name),
+        );
+            <%= field.fieldName %>DropDown.add(dropdown);
+        }
+        return <%= field.fieldName %>DropDown;
+        }
+      <%_ } _%>
+    <%_ }); _%>
+    }
+  <%_ } else if (field.fieldType === 'bool') {_%>
+  class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
+
+    const <%= field.fieldNameCapitalized %>Field({super.key});
+
+    @override
+    Widget build(BuildContext context) {
+      return BlocBuilder<<%= entityClass %>Bloc,<%= entityClass %>State>(
+      buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
+      builder: (context, state) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 3.0),
+        child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>, style: Theme.of(context).textTheme.bodyLarge,),
+          const SizedBox(width: 20),
+          Switch(
+            value: state.<%= field.fieldName %>.value,
+            onChanged: null,
+            activeColor: Theme.of(context).primaryColor,
+            ),
+        ],
+        ),
+      );
+      });
+    }
+  }
+  <%_ } else if(field.fieldType === 'int' ) {_%>
+  class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
+
+    const <%= field.fieldNameCapitalized %>Field({super.key});
+
+    @override
+    Widget build(BuildContext context) {
+      return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
+      buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
+      builder: (context, state) {
+      return TextFormField(
+        controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+        readOnly: true,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+          labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
+          helperText: MessageValidation.numerosEnteros,
+          labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
+            contentPadding: const EdgeInsets.symmetric(vertical: 10),
+          ),
+        );
+      }
+    );
+  }
+  }
+  <%_ } else if(field.fieldType === 'double' ) {_%>
+    class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
+
+      const <%= field.fieldNameCapitalized %>Field({super.key});
+
+      @override
+      Widget build(BuildContext context) {
+        return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
+          buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
+          builder: (context, state) {
+            return TextFormField(
+              controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+              readOnly: true,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
+                helperText: MessageValidation.numerosDecimales,
+                labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                ),
+            );
+          }
+        );
+    }
+  }
+  <%_ } else  {_%>
+  class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
+
+    const <%= field.fieldNameCapitalized %>Field({super.key});
+
+    @override
+    Widget build(BuildContext context) {
+      return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
+        buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
+        builder: (context, state) {
+          return TextFormField(
+            controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+            readOnly: true,
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(
+              labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
+              helperText: '${MessageValidation.soloLetras}\n${MessageValidation.minimoCaracteres}',
+              labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
+              contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              ),
+          );
+        }
+      );
+    }
+    }
+  <%_ } _%>
+<%_ }); _%>

@@ -41,6 +41,11 @@ class <%= entityClass %>State extends Equatable {
   <%_ fields.forEach(field => { _%>
   final <%= entityClass %><%= field.fieldNameCapitalized %>Input <%= field.fieldName %>;
   <%_ }); _%>
+  <%_ relationships.forEach(relationship => { %>
+  <%_ if(!relationship.isList) { _%>
+  final <%= relationship.otherEntityNameCapitalized %> <%= relationship.otherEntityName %>;
+  <%_ } _%>
+  <%_ }); _%>
 
 
   const <%= entityClass %>State({
@@ -69,6 +74,11 @@ class <%= entityClass %>State extends Equatable {
     this.<%= field.fieldName %> = const <%= entityClass %><%= field.fieldNameCapitalized %>Input.pure(),
     <%_ } _%>
     <%_ }); _%>
+    <%_ relationships.forEach(relationship => { %>
+    <%_ if(!relationship.isList) { _%>
+    this.<%= relationship.otherEntityName %> = const <%= relationship.otherEntityNameCapitalized %>(),
+    <%_ } _%>
+    <%_ }); _%>
   });
 
   <%= entityClass %>State copyWith({
@@ -91,6 +101,11 @@ class <%= entityClass %>State extends Equatable {
     <%_ fields.forEach(field => { _%>
     <%= entityClass %><%= field.fieldNameCapitalized %>Input? <%= field.fieldName %>,
     <%_ }); _%>
+    <%_ relationships.forEach(relationship => { %>
+    <%_ if(!relationship.isList) { _%>
+    <%= relationship.otherEntityNameCapitalized %>? <%= relationship.otherEntityName %>,
+    <%_ } _%>
+    <%_ }); _%>
   }) {
     return <%= entityClass %>State(
       <%= entityClassPluralLowered %>: <%= entityClassPluralLowered %> ?? this.<%= entityClassPluralLowered %>,
@@ -112,6 +127,11 @@ class <%= entityClass %>State extends Equatable {
       <%_ fields.forEach(field => { _%>
       <%= field.fieldName %>: <%= field.fieldName %> ?? this.<%= field.fieldName %>,
       <%_ }); _%>
+      <%_ relationships.forEach(relationship => { %>
+      <%_ if(!relationship.isList) { _%>
+      <%= relationship.otherEntityName %>: <%= relationship.otherEntityName %> ?? this.<%= relationship.otherEntityName %>,
+      <%_ } _%>
+      <%_ }); _%>
     );
   }
 
@@ -119,7 +139,12 @@ class <%= entityClass %>State extends Equatable {
   List<Object> get props => [<%= entityClassPluralLowered %>, initialRow, rowsPerPage, sortAscending, sortColumnIndex,
     <%= entityInstance %>StatusUI,
       selectAll, totalRow, columnName, currentPage, loaded<%= entityClass %>, editMode, deleteStatus, formStatus, isValid, generalNotificationKey,
-     <%_ fields.forEach(field => { _%><%= field.fieldName %>%>,<%_ }); _%>];
+     <%_ fields.forEach(field => { _%><%= field.fieldName %>%>,<%_ }); _%>
+     <%_ relationships.forEach(relationship => { %>
+     <%_ if(!relationship.isList) { _%>
+     <%= relationship.otherEntityName %>,
+     <%_ } _%>
+     <%_ }); _%>];
 
   @override
   bool get stringify => true;

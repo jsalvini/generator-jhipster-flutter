@@ -27,6 +27,13 @@ import 'package:intl/intl.dart';
 import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_models.dart';
+<%_ relationships.forEach(relationship => { %>
+<%_ if(!relationship.isList) { _%>
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityName %>/bloc/<%= relationship.otherEntityName %>_bloc.dart';
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityName %>/models/<%= relationship.otherEntityName %>_models.dart';
+import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
+<%_ } _%>
+<%_ }); _%>
 import '../<%= entityFileName %>_routes.dart';
 
 class <%= entityClass %>UpdateScreen extends StatelessWidget {
@@ -37,7 +44,7 @@ class <%= entityClass %>UpdateScreen extends StatelessWidget {
     return BlocListener<<%= entityClass %>Bloc, <%= entityClass %>State>(
       listener: (context, state) {
         if(state.formStatus == FormzSubmissionStatus.success){
-		  context.pushNamed('<%= entityFileName %>');
+		  context.pushNamed('<%= entityInstance %>');
         }
       },
       child: Scaffold(
@@ -46,7 +53,7 @@ class <%= entityClass %>UpdateScreen extends StatelessWidget {
             title: BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
                 buildWhen: (previous, current) => previous.editMode != current.editMode,
                 builder: (context, state) {
-                	String title = state.editMode == true ? <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>UpdateTitle<%_ } else { _%>'Edit <%= entityClass %>'<%_ } _%> : <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>CreateTitle<%_ } else { _%>'Create <%=entityClass%>'<%_ } _%>;
+                	String title = state.editMode == true ? <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>UpdateTitle<%_ } else { _%>'Editar <%= entityClass %>'<%_ } _%> : <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>CreateTitle<%_ } else { _%>'Crear <%=entityClass%>'<%_ } _%>;
                 	return Text(title);
                 }
             ),
@@ -79,6 +86,11 @@ class Form<%= entityClass %> extends StatelessWidget {
 				<%_ fields.forEach(field => { _%>
 				<%= field.fieldNameCapitalized %>Field(),
 				<%_ }); _%>
+				<%_ relationships.forEach(relationship => { %>
+				<%_ if(!relationship.isList) { _%>
+				<%= relationship.otherEntityNameCapitalized %>Field(),
+				<%_ } _%>
+				<%_ }); _%>
 				SubmitForm(),
 			  ]),
 			),
@@ -105,6 +117,10 @@ class SubmitForm extends StatelessWidget {
 					  ? () =>
 						  context.read<<%= entityClass %>Bloc>().add(<%= entityClass %>FormSubmitted())
 					  : null,
+				  style: ButtonStyle(
+						backgroundColor:
+							MaterialStatePropertyAll(Theme.of(context).primaryColor),
+				  ),
 				  child: SizedBox(
 					  width: MediaQuery.of(context).size.width * 0.2,
 					  height: 50,
@@ -112,7 +128,10 @@ class SubmitForm extends StatelessWidget {
 						child: Visibility(
 						  replacement: const CircularProgressIndicator(),
 						  visible: !(state.formStatus == FormzSubmissionStatus.inProgress),
-						  child: const Text('SAVE'),
+						  child: const Text(
+							'SAVE',
+							style: TextStyle(color: Colors.white),
+						  ),
 						),
 					  )),
 				),
@@ -122,8 +141,6 @@ class SubmitForm extends StatelessWidget {
     });
   }
 }
-
-
 
 <%_ fields.forEach(field => { _%>
 <%_ if(field.fieldType === 'DateTime') { _%>
@@ -173,8 +190,8 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			child: Row(
 			  mainAxisAlignment: MainAxisAlignment.start,
 			  children: <Widget>[
-				Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameHumanized %>Field<%_ } else { _%>'<%= field.fieldNameHumanized %>'<%_ } _%>, style: Theme.of(context).textTheme.bodyLarge,),
-				const SizedBox(width: 10),
+				Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>, style: Theme.of(context).textTheme.bodyLarge,),
+				const SizedBox(width: 20),
 				DropdownButton<<%= field.fieldType %>>(
 					value: state.<%= field.fieldName %>.value,
 					onChanged: (value) { context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value!)); },
@@ -218,8 +235,8 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 		  child: Row(
 			mainAxisAlignment: MainAxisAlignment.start,
 			children: <Widget>[
-			  Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameHumanized %>Field<%_ } else { _%>'<%= field.fieldNameHumanized %>'<%_ } _%>, style: Theme.of(context).textTheme.bodyLarge,),
-			  const SizedBox(width: 10),
+			  Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>, style: Theme.of(context).textTheme.bodyLarge,),
+			  const SizedBox(width: 20),
 			  Switch(
 				  value: state.<%= field.fieldName %>.value,
 				  onChanged: (value) { context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value)); },
@@ -247,7 +264,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: <%_ if(field.fieldType === 'int') { _%> int.tryParse(value) ?? -1 <%_ } else { _%> value <%_ } _%>)); },
 		  keyboardType: TextInputType.number,
 		  decoration: InputDecoration(
-			  labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameHumanized %>Field<%_ } else { _%>'<%= field.fieldNameHumanized %>'<%_ } _%>,
+			  labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
 			  helperText: MessageValidation.numerosEnteros,
 			  labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
 		      contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -276,7 +293,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 				.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: <%_ if(field.fieldType === 'double') { _%> double.tryParse(value) ?? -1 <%_ } else { _%> value <%_ } _%>)); },
 			  keyboardType: TextInputType.number,
 			  decoration: InputDecoration(
-				  labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameHumanized %>Field<%_ } else { _%>'<%= field.fieldNameHumanized %>'<%_ } _%>,
+				  labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
 				  helperText: MessageValidation.numerosDecimales,
 				  labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
 				  contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -305,7 +322,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value)); },
 			keyboardType: TextInputType.text,
 			decoration: InputDecoration(
-				labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameHumanized %>Field<%_ } else { _%>'<%= field.fieldNameHumanized %>'<%_ } _%>,
+				labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
 				helperText: '${MessageValidation.soloLetras}\n${MessageValidation.minimoCaracteres}',
 				labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
 				contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -318,5 +335,76 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 	);
 	}
 	}
+<%_ } _%>
+<%_ }); _%>
+
+<%_ relationships.forEach(relationship => { %>
+<%_ if(!relationship.isList) { _%>
+class <%= relationship.otherEntityNameCapitalized %>Field extends StatelessWidget {
+	const <%= relationship.otherEntityNameCapitalized %>Field({super.key});
+
+	@override
+	Widget build(BuildContext context) {
+	  return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
+		builder: (context, state) {
+		  return BlocBuilder<<%= relationship.otherEntityNameCapitalized %>Bloc, <%= relationship.otherEntityNameCapitalized %>State>(
+			builder: (context, state) {
+			  if (state.<%= relationship.otherEntityName %>StatusUI == <%= relationship.otherEntityNameCapitalized %>StatusUI.done) {
+				List<<%= relationship.otherEntityNameCapitalized %>> <%= relationship.otherEntityName %>List = state.<%= relationship.otherEntityNamePlural %>;
+
+				return Padding(
+				  padding: const EdgeInsets.only(left: 3.0),
+				  child: Row(
+					mainAxisAlignment: MainAxisAlignment.start,
+					children: <Widget>[
+					  Text(
+						'<%= relationship.otherEntityNameCapitalized %>',
+						style: Theme.of(context).textTheme.bodyLarge,
+					  ),
+					  const SizedBox(width: 10),
+					  DropdownButton<<%= relationship.otherEntityNameCapitalized %>>(
+						value: BlocProvider.of<<%= entityClass %>Bloc>(context)
+									.state
+									.<%= relationship.otherEntityName %>
+									.id !=
+								null
+							? BlocProvider.of<<%= entityClass %>Bloc>(context)
+								.state
+								.<%= relationship.otherEntityName %>
+							: null,
+						onChanged: (value) {
+						  BlocProvider.of<<%= entityClass %>Bloc>(context)
+							  .add(<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed(<%= relationship.otherEntityName %>: value!));
+						},
+						items: createDropdown<%= relationship.otherEntityNameCapitalizedPlural %>Items(<%= relationship.otherEntityName %>List),
+					  ),
+					],
+				  ),
+				);
+			  }
+			  if (BlocProvider.of<<%= relationship.otherEntityNameCapitalized %>Bloc>(context).state.<%= relationship.otherEntityName %>StatusUI ==
+			  <%= relationship.otherEntityNameCapitalized %>StatusUI.loading) {
+				return const LoadingIndicator();
+			  }
+			  return const Center(child: CircularProgressIndicator());
+			},
+		  );
+		},
+	  );
+	}
+	List<DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>> createDropdown<%= relationship.otherEntityNameCapitalizedPlural %>Items(
+		List<<%= relationship.otherEntityNameCapitalized %>> <%= relationship.otherEntityNamePlural %>) {
+	  List<DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>> <%= relationship.otherEntityName %>DropDown = [];
+
+	  for (<%= relationship.otherEntityNameCapitalized %> <%= relationship.otherEntityName %> in <%= relationship.otherEntityNamePlural %>) {
+		DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>> dropdown = DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>(
+		  value: <%= relationship.otherEntityName %>,
+		  child: Text('{<%= relationship.otherEntityName %>.<%=relationship.otherEntityField %>}'),
+		);
+		<%= relationship.otherEntityName %>DropDown.add(dropdown);
+	  }
+	  return <%= relationship.otherEntityName %>DropDown;
+	}
+  }
 <%_ } _%>
 <%_ }); _%>

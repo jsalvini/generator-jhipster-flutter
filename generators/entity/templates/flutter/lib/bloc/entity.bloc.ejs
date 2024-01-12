@@ -13,7 +13,9 @@ const hasDateTime = context.hasDateTime;
 const idField = context.idField;
 _%>
 import 'package:bloc/bloc.dart';
+import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:<%= baseName %>/core/core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:formz/formz.dart';
 <%_ if(hasDateTime) { _%>
@@ -21,6 +23,11 @@ import 'package:intl/intl.dart';
 <%_ } _%>
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_models.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/<%= entityFileName %>_repository.dart';
+<%_ relationships.forEach(relationship => { %>
+<%_ if(!relationship.isList) { _%>
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityName %>/models/<%= relationship.otherEntityName %>_models.dart';
+<%_ } _%>
+<%_ }); _%>
 <%_ if(enableTranslation) { _%>
 import 'package:<%= baseName %>/generated/l10n.dart';
 <%_ } _%>
@@ -62,7 +69,26 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
     on<InitialRowChanged>(onInitialRowChanged);
     on<SortChanged>(onSortChanged);
     on<CurrentPageChanged>(onCurrentPageChanged);
+    <%_ relationships.forEach(relationship => { %>
+    <%_ if(!relationship.isList) { _%>
+    on<<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed>(on<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed);
+    <%_ } _%>
+    <%_ }); _%>
   }
+
+  <%_ relationships.forEach(relationship => { %>
+  <%_ if(!relationship.isList) { _%>
+  void on<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed(
+    <%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed event,
+    Emitter<<%= entityClass %>State> emit,
+  ) {
+    emit(state.copyWith(
+      <%= relationship.otherEntityName %>: event.<%= relationship.otherEntityName %>,
+      formStatus: FormzSubmissionStatus.initial,
+    ));
+  }
+  <%_ } _%>
+  <%_ }); _%>
 
   void onRowsPerPageChanged(
     RowsPerPageChanged event,
@@ -111,18 +137,32 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
     emit(state.copyWith(
           <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.loading,
         ));
-    <%= entityClass %>Response <%= entityInstance %>Response = await _<%= entityInstance %>Repository.getAll<%= entityClassPlural %>(
+    final result = await _<%= entityInstance %>Repository.getAll<%= entityClassPlural %>(
       page: event.page,
       sort: event.sort,
       ascending: event.ascending,
       );
-    List<<%= entityClass %>>? <%= entityClassPluralLowered %> = <%= entityInstance %>Response.<%= entityClassPluralLowered %>;
 
-    emit(state.copyWith(
-          <%= entityClassPluralLowered %>: <%= entityClassPluralLowered %>,
-          totalRow: <%= entityInstance %>Response.totalCount,
-          <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.done,
-        ));
+    result.fold(
+      (Failure failure) {
+        emit(
+          state.copyWith(
+              <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.error,
+              generalNotificationKey: failure.errorMessage),
+        );
+      },
+      (<%= entityClass %>Response data) {
+        List<<%= entityClass %>>? <%= entityClassPluralLowered %> = data.<%= entityClassPluralLowered %>;
+
+        emit(
+          state.copyWith(
+            <%= entityClassPluralLowered %>: <%= entityClassPluralLowered %>,
+            totalRow: data.totalCount,
+            <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.done,
+          ),
+        );
+      },
+    );
   }
 
   Future<void> onSubmit(
@@ -133,46 +173,52 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
       emit(state.copyWith(
             formStatus: FormzSubmissionStatus.inProgress,
           ));
-      try {
-        <%= entityClass %> new<%= entityClass %>;
 
-        if (state.editMode) {
-            new<%= entityClass %> = <%= entityClass %>(
-            <%= idField.fieldName %>: state.loaded<%= entityClass %>.id,
-            <%_ fields.forEach(field => { _%>
-              <%= field.fieldName %>: state.<%= field.fieldName %>.value,
-                <%_ }); _%>
-              <%_ relationships.forEach(relationship => { _%>
-                <%= relationship.relationshipFieldName %>: null,
-            <%_ }); _%>
+      <%= entityClass %> new<%= entityClass %>;
+      Either<Failure, <%= entityClass %>?> result;
+
+      if (state.editMode) {
+        new<%= entityClass %> = <%= entityClass %>(
+          <%= idField.fieldName %>: state.loaded<%= entityClass %>.id,
+          <%_ fields.forEach(field => { _%>
+            <%= field.fieldName %>: state.<%= field.fieldName %>.value,
+          <%_ }); _%>
+          <%_ relationships.forEach(relationship => { _%>
+            <%= relationship.relationshipFieldName %>: state.<%= relationship.relationshipFieldName %>,
+          <%_ }); _%>
+        );
+        result = await _<%= entityInstance %>Repository.update(
+          new<%= entityClass %>,
+          state.loaded<%= entityClass %>.id!,
+        );
+      } else {
+        new<%= entityClass %> = <%= entityClass %>(
+          <%= idField.fieldName %>: null,
+          <%_ fields.forEach(field => { _%>
+          <%= field.fieldName %>: state.<%= field.fieldName %>.value,
+          <%_ }); _%>
+          <%_ relationships.forEach(relationship => { _%>
+          <%= relationship.relationshipFieldName %>: state.<%= relationship.relationshipFieldName %>,
+          <%_ }); _%>
           );
-
-          // ignore: unused_local_variable
-          <%= entityClass %>? result = await _<%= entityInstance %>Repository.update(
-            new<%= entityClass %>, state.loaded<%= entityClass %>.id!);
-        } else {
-          new<%= entityClass %> = <%= entityClass %>(
-            <%= idField.fieldName %>: null,
-            <%_ fields.forEach(field => { _%>
-              <%= field.fieldName %>: state.<%= field.fieldName %>.value,
-                <%_ }); _%>
-              <%_ relationships.forEach(relationship => { _%>
-                <%= relationship.relationshipFieldName %>: null,
-              <%_ }); _%>
-            );
-          // ignore: unused_local_variable
-          <%= entityClass %>? result = await _<%= entityInstance %>Repository.create(new<%= entityClass %>);
-        }
-        add(const Load<%= entityClass %>List(page: 0, sort: 'id', ascending: 'asc'));
-        emit(state.copyWith(
-              formStatus: FormzSubmissionStatus.success,
-              generalNotificationKey: HttpUtils.successResult,
-            ));
-      } catch (e) {
-        emit(state.copyWith(
-            formStatus: FormzSubmissionStatus.failure,
-            generalNotificationKey: HttpUtils.errorServerKey));
+        result = await _<%= entityInstance %>Repository.create(new<%= entityClass %>);
       }
+      result.fold(
+        (Failure failure) {
+          emit(
+            state.copyWith(
+              <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.error,
+                generalNotificationKey: failure.errorMessage),
+          );
+        },
+        (<%= entityClass %>? data) {
+          add(const Load<%= entityClass %>List(page: 0, sort: 'id', ascending: 'asc'));
+          emit(state.copyWith(
+                formStatus: FormzSubmissionStatus.success,
+                generalNotificationKey: HttpUtils.successResult,
+          ));
+        },
+      );
     }
   }
 
@@ -181,64 +227,71 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
     Emitter<<%= entityClass %>State> emit,
   ) async {
     emit(state.copyWith(<%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.loading));
-    <%= entityClass %>? loaded<%= entityClass %> = await _<%= entityInstance %>Repository.get<%= entityClass %>(event.id);
+    final result = await _<%= entityInstance %>Repository.get<%= entityClass %>(event.id);
+    result.fold(
+      (Failure failure) {
+        emit(
+          state.copyWith(
+            <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.error,
+              generalNotificationKey: failure.errorMessage,
+            ),
+        );
+      },
+      (<%= entityClass %>? data) {
+        <%= entityClass %>? loaded<%= entityClass %> = data;
 
-	if (loaded<%= entityClass %> != null) {
-	    <%_ fields.forEach(field => { _%>
-			<%_ if(field.fieldType === 'DateTime') { _%>
-				final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> <%_ if(field.fieldValidateRules != 'required') { _%>?? DateTime.now()<%_ } _%>));
-        <%_ } else if (field.fieldIsEnum) {_%>
-        final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> ?? <%= field.fieldType %>.<%= field.fieldValues.split(',')[0] %>));
-        <%_  } else { _%>
-				final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> <%_ if(field.fieldValidateRules != 'required') { _%>?? <%- field.defaultValue %><%_ } _%>));
-			<%_ } _%>
-		<%_ }); _%>
-		emit(state.copyWith(
-          loaded<%= entityClass %>: loaded<%= entityClass %>,
-          editMode: true,
+        if (loaded<%= entityClass %> != null) {
           <%_ fields.forEach(field => { _%>
-            <%= field.fieldName %>: <%= field.fieldName %>,
+            <%_ if(field.fieldType === 'DateTime') { _%>
+              final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> <%_ if(field.fieldValidateRules != 'required') { _%>?? DateTime.now()<%_ } _%>));
+              <%_ } else if (field.fieldIsEnum) {_%>
+              final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> ?? <%= field.fieldType %>.<%= field.fieldValues.split(',')[0] %>));
+              <%_  } else { _%>
+              final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> <%_ if(field.fieldValidateRules != 'required') { _%>?? <%- field.defaultValue %><%_ } _%>));
+            <%_ } _%>
           <%_ }); _%>
-          <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.done,
-        ));
-	<%_ fields.forEach(field => { _%>
-		<%_ if(field.fieldType === 'DateTime') { _%>
-		<%= field.fieldName %>Controller.text = DateFormat("yyyy-MM-dd").format(loaded<%= entityClass %>.<%= field.fieldName %><%_ if(field.fieldValidateRules != 'required') { _%>!<%_ } _%>);
-			<%_  } else if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
-		<%= field.fieldName %>Controller.text = loaded<%= entityClass %>.<%= field.fieldName %><%_ if(field.fieldValidateRules != 'required') { _%>!<%_ } _%>.toString();
-			<%_ } else if (!field.fieldIsEnum && field.fieldType !== 'bool') { _%>
-		<%= field.fieldName %>Controller.text = loaded<%= entityClass %>.<%= field.fieldName %><%_ if(field.fieldValidateRules != 'required') { _%>!<%_ } _%>;
-			<%_ } _%>
-	<%_ }); _%>
-	}
+          emit(state.copyWith(
+            loaded<%= entityClass %>: loaded<%= entityClass %>,
+            editMode: true,
+            <%_ fields.forEach(field => { _%>
+              <%= field.fieldName %>: <%= field.fieldName %>,
+            <%_ }); _%>
+            <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.done,
+          ));
+          <%_ fields.forEach(field => { _%>
+          <%_ if(field.fieldType === 'DateTime') { _%>
+          <%= field.fieldName %>Controller.text = DateFormat("yyyy-MM-dd").format(loaded<%= entityClass %>.<%= field.fieldName %><%_ if(field.fieldValidateRules != 'required') { _%>!<%_ } _%>);
+            <%_  } else if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
+          <%= field.fieldName %>Controller.text = loaded<%= entityClass %>.<%= field.fieldName %><%_ if(field.fieldValidateRules != 'required') { _%>!<%_ } _%>.toString();
+            <%_ } else if (!field.fieldIsEnum && field.fieldType !== 'bool') { _%>
+          <%= field.fieldName %>Controller.text = loaded<%= entityClass %>.<%= field.fieldName %><%_ if(field.fieldValidateRules != 'required') { _%>!<%_ } _%>;
+          <%_ } _%>
+          <%_ }); _%>
+        }
+      },
+    );
   }
 
   Future<void> onDelete<%= entityClass %>Id(
     Delete<%= entityClass %>ById event,
     Emitter<<%= entityClass %>State> emit,
   ) async {
-    try {
-      String result = await _<%= entityInstance %>Repository.delete(event.id!);
-      if (result.compareTo('OK') == 0) {
-        add(Load<%= entityClass %>List(page: 0, sort: 'id', ascending: 'asc'));
+    final result = await _<%= entityInstance %>Repository.delete(event.id!);
+    result.fold(
+      (Failure failure) {
         emit(state.copyWith(
-            deleteStatus: <%= entityClass %>DeleteStatus.ok,
-            generalNotificationKey: '<%= entityClass %> id ${event.id} eliminado correctamente.'));
-      } else {
-        emit(state.copyWith(
-              deleteStatus: <%= entityClass %>DeleteStatus.error,
-              generalNotificationKey: result,
-            ));
-      }
-    } catch (e) {
-      emit(state.copyWith(
-            deleteStatus: <%= entityClass %>DeleteStatus.error,
-            generalNotificationKey: HttpUtils.errorServerKey,
-          ));
-    }
-    emit(state.copyWith(
-          deleteStatus: <%= entityClass %>DeleteStatus.none,
+          deleteStatus: <%= entityClass %>DeleteStatus.error,
+          generalNotificationKey: failure.errorMessage,
         ));
+      },
+      (String data) {
+        add(const Load<%= entityClass %>List(page: 0, sort: 'id', ascending: 'asc'));
+        emit(state.copyWith(
+            deleteStatus: <%= entityClass %>DeleteStatus.none,
+            generalNotificationKey:
+                '<%= entityClass %> id ${event.id} eliminado correctamente.'));
+      },
+    );
   }
 
   Future<void> onLoad<%= entityClass %>IdForView(
@@ -246,21 +299,51 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
     Emitter<<%= entityClass %>State> emit,
   ) async {
     emit(state.copyWith(
-          <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.loading,
-        ));
-    try {
-        <%= entityClass %>? loaded<%= entityClass %> =
-          await _<%= entityInstance %>Repository.get<%= entityClass %>(event.id);
-      emit(state.copyWith(
+    <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.loading,
+    ));
+
+    final result = await _<%= entityInstance %>Repository.get<%= entityClass %>(event.id);
+    result.fold(
+      (Failure failure) {
+        emit(
+          state.copyWith(
+            <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.error,
+              generalNotificationKey: failure.errorMessage,
+            ),
+        );
+      },
+      (<%= entityClass %>? data) {
+        <%= entityClass %>? loaded<%= entityClass %> = data;
+
+        if (loaded<%= entityClass %> != null) {
+          <%_ fields.forEach(field => { _%>
+            <%_ if(field.fieldType === 'DateTime') { _%>
+              final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> <%_ if(field.fieldValidateRules != 'required') { _%>?? DateTime.now()<%_ } _%>));
+              <%_ } else if (field.fieldIsEnum) {_%>
+              final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> ?? <%= field.fieldType %>.<%= field.fieldValues.split(',')[0] %>));
+              <%_  } else { _%>
+              final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> <%_ if(field.fieldValidateRules != 'required') { _%>?? <%- field.defaultValue %><%_ } _%>));
+            <%_ } _%>
+          <%_ }); _%>
+          emit(state.copyWith(
             loaded<%= entityClass %>: loaded<%= entityClass %>,
+            <%_ fields.forEach(field => { _%>
+              <%= field.fieldName %>: <%= field.fieldName %>,
+            <%_ }); _%>
             <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.done,
           ));
-    } catch (e) {
-      emit(state.copyWith(
-            loaded<%= entityClass %>: null,
-            <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.error,
-          ));
-    }
+          <%_ fields.forEach(field => { _%>
+          <%_ if(field.fieldType === 'DateTime') { _%>
+          <%= field.fieldName %>Controller.text = DateFormat("yyyy-MM-dd").format(loaded<%= entityClass %>.<%= field.fieldName %><%_ if(field.fieldValidateRules != 'required') { _%>!<%_ } _%>);
+            <%_  } else if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
+          <%= field.fieldName %>Controller.text = loaded<%= entityClass %>.<%= field.fieldName %><%_ if(field.fieldValidateRules != 'required') { _%>!<%_ } _%>.toString();
+            <%_ } else if (!field.fieldIsEnum && field.fieldType !== 'bool') { _%>
+          <%= field.fieldName %>Controller.text = loaded<%= entityClass %>.<%= field.fieldName %><%_ if(field.fieldValidateRules != 'required') { _%>!<%_ } _%>;
+          <%_ } _%>
+          <%_ }); _%>
+        }
+      },
+    );
   }
 
   <%_ fields.forEach(field => { _%>

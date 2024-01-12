@@ -12,6 +12,7 @@ _%>
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_model.dart';
 import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
@@ -66,7 +67,10 @@ class <%= entityClass %>ListScreen extends StatelessWidget {
         key: scaffoldKey,
         appBar: AppBar(
           centerTitle: true,
-          title: const Text('<%= entityClass %>'),
+          title: const Text(
+            '<%= entityClassPlural %>',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
         body: const <%= entityClass %>View(),
         drawer: const <%= camelizedUpperFirstBaseName %>Drawer(),
@@ -91,7 +95,7 @@ class <%= entityClass %>View extends StatelessWidget {
       if (state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.loading) {
         return const LoadingIndicator();
       }
-      return const CircularProgressIndicator();
+      return ErrorView(message: state.generalNotificationKey);
     });
   }
 }

@@ -33,7 +33,7 @@ class <%= entityClass %>Table extends StatelessWidget {
   final BuildContext blocContext;
   final ScrollController horizontalScroll = ScrollController();
   final ScrollController verticalScroll = ScrollController();
-  final double widthScrollbar = 20.0;
+  final double widthScrollbar = 10.0;
 
   @override
   Widget build(BuildContext context) {
@@ -169,43 +169,57 @@ class <%= entityClass %>Table extends StatelessWidget {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 5),
-          child: SizedBox(
-            width: widthSize < 1300 ? (widthSize * 0.5) : (widthSize * 0.3),
-            child: Card(
-                margin: EdgeInsets.zero,
-                elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Pager(
-                    currentPage:
-                        blocContext.read<<%= entityClass %>Bloc>().state.currentPage,
-                    totalPages: cantidadDePaginas(
-                      blocContext.read<<%= entityClass %>Bloc>().state.totalRow,
-                      blocContext.read<<%= entityClass %>Bloc>().state.rowsPerPage,
+        SizedBox(
+          width: widthSize < 1300 ? (widthSize * 0.8) : (widthSize * 0.5),
+          child: Card(
+              margin: EdgeInsets.zero,
+              elevation: 4,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text(
+                      'Total <%= entityClassPluralLowered %>: ${blocContext.read<<%= entityClass %>Bloc>().state.totalRow}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    onPageChanged: (page) {
-                      int pageQuery = page - 1;
-                      blocContext
-                          .read<<%= entityClass %>Bloc>()
-                          .add(CurrentPageChanged(currentPage: page));
-                      String columnName =
-                          blocContext.read<<%= entityClass %>Bloc>().state.columnName;
-                      var order =
-                          blocContext.read<<%= entityClass %>Bloc>().state.sortAscending
-                              ? 'asc'
-                              : 'desc';
-                      blocContext.read<<%= entityClass %>Bloc>().add(Load<%= entityClass %>List(
-                            page: pageQuery,
-                            sort: columnName,
-                            ascending: order,
-                          ));
-                    },
-                    numberButtonSelectedColor: Theme.of(context).primaryColor,
-                    numberTextUnselectedColor: Colors.grey,
-                  ),
-                )),
+                    Text(
+                      'Total paginas: ${cantidadDePaginas(
+                        blocContext.read<<%= entityClass %>Bloc>().state.totalRow,
+                        blocContext.read<<%= entityClass %>Bloc>().state.rowsPerPage,
+                      )}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Pager(
+                      currentPage:
+                          blocContext.read<<%= entityClass %>Bloc>().state.currentPage,
+                      totalPages: cantidadDePaginas(
+                        blocContext.read<<%= entityClass %>Bloc>().state.totalRow,
+                        blocContext.read<<%= entityClass %>Bloc>().state.rowsPerPage,
+                      ),
+                      onPageChanged: (page) {
+                        int pageQuery = page - 1;
+                        blocContext
+                            .read<<%= entityClass %>Bloc>()
+                            .add(CurrentPageChanged(currentPage: page));
+                        String columnName =
+                            blocContext.read<<%= entityClass %>Bloc>().state.columnName;
+                        var order =
+                            blocContext.read<<%= entityClass %>Bloc>().state.sortAscending
+                                ? 'asc'
+                                : 'desc';
+                        blocContext.read<<%= entityClass %>Bloc>().add(Load<%= entityClass %>List(
+                              page: pageQuery,
+                              sort: columnName,
+                              ascending: order,
+                            ));
+                      },
+                      numberButtonSelectedColor: Theme.of(context).primaryColor,
+                      numberTextUnselectedColor: Colors.grey,
+                    ),
+                  ],
+                ),
+             ),
           ),
         ),
       ],

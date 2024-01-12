@@ -9,9 +9,13 @@ const entityClassCamelCase = context.entityClassCamelCase;
 const entityClassKebabCase = context.entityClassKebabCase;
 const entityClassKebabCasePlural = context.entityClassKebabCasePlural;
 _%>
+import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
+import 'package:<%= baseName %>/core/exceptions/exception.dart';
+import 'package:<%= baseName %>/core/exceptions/failure.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_models.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_response.dart';
+import 'package:<%= baseName %>/shared/exceptions/app_exception.dart';
 import 'package:<%= baseName %>/shared/models/error_response.dart';
 import 'package:<%= baseName %>/shared/utils/http_utils.dart';
 import 'package:dart_json_mapper/dart_json_mapper.dart';
@@ -21,49 +25,108 @@ class <%= entityClass %>Repository {
 
   static const String uriEndpoint = '/<%= entityClassKebabCasePlural %>';
 
-  Future<<%= entityClass %>Response> getAll<%= entityClassPlural %>({
+  Future<Either<Failure, <%= entityClass %>Response>> getAll<%= entityClassPlural %>({
     required int page,
     required String sort,
     required String ascending,
   }) async {
     final newUriEndpoint = '$uriEndpoint?sort=$sort%2C$ascending&page=$page&size=20';
-    final Response all<%= entityClassPlural %>Request = await HttpUtils.getRequest(newUriEndpoint);
+    try {
+      final Response response = await HttpUtils.getRequest(newUriEndpoint);
 
-    int count = int.parse(all<%= entityClassPlural %>Request.headers['x-total-count']!);
-    String link = all<%= entityClassPlural %>Request.headers['link'] as String;
+      int count = int.parse(response.headers['x-total-count']!);
+      String link = response.headers['link'] as String;
+      List<<%= entityClass %>>? <%= entityClassPluralLowered %> =
+          JsonMapper.deserialize<List<<%= entityClass %>>>(response.body);
 
-    List<<%= entityClass %>>? <%= entityClassPluralLowered %> =
-        JsonMapper.deserialize<List<<%= entityClass %>>>(all<%= entityClassPlural %>Request.body);
+          <%= entityClass %>Response <%= entityInstance %>Response = <%= entityClass %>Response(
+            <%= entityClassPluralLowered %>: <%= entityClassPluralLowered %>!, totalCount: count, link: link);
 
-        <%= entityClass %>Response <%= entityInstance %>Response =
-        <%= entityClass %>Response(<%= entityClassPluralLowered %>: <%= entityClassPluralLowered %>!, totalCount: count, link: link);
-    return <%= entityInstance %>Response;
-  }
-
-  Future<<%= entityClass %>?> get<%= entityClass %>(int? id) async {
-    final <%= entityInstance %>Request = await HttpUtils.getRequest('$uriEndpoint/$id');
-    return JsonMapper.deserialize<<%= entityClass %>>(<%= entityInstance %>Request.body);
-  }
-
-  Future<<%= entityClass %>?> create(<%= entityClass %> <%= entityInstance %>) async {
-    final <%= entityInstance %>Request = await HttpUtils.postRequest(uriEndpoint, <%= entityInstance %>);
-    return JsonMapper.deserialize<<%= entityClass %>>(<%= entityInstance %>Request.body);
-  }
-
-  Future<<%= entityClass %>?> update(<%= entityClass %> <%= entityInstance %>, int id) async {
-    final <%= entityInstance %>Request = await HttpUtils.putRequest('$uriEndpoint/$id', <%= entityInstance %>);
-    return JsonMapper.deserialize<<%= entityClass %>>(<%= entityInstance %>Request.body);
-  }
-
-  Future<String> delete(int id) async {
-	final <%= entityInstance %>Request = await HttpUtils.deleteRequest('$uriEndpoint/$id');
-    if (<%= entityInstance %>Request.statusCode >= 300 && <%= entityInstance %>Request.statusCode < 600) {
-      ErrorResponse? errorResponse =
-          JsonMapper.deserialize<ErrorResponse>(<%= entityInstance %>Request.body);
-      if (errorResponse != null) {
-        return errorResponse.detail!;
-      }
+      return Right(<%= entityInstance %>Response);
+    } on ServerException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: e.errorMessage),
+      );
+    } on FetchDataException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: '${e.prefix} ${e.message}'),
+      );
     }
-    return 'OK';
+  }
+
+  Future<Either<Failure, <%= entityClass %>?>> get<%= entityClass %>(int? id) async {
+    try {
+      final Response response = await HttpUtils.getRequest('$uriEndpoint/$id');
+      <%= entityClass %>? <%= entityInstance %> = JsonMapper.deserialize<<%= entityClass %>>(response.body);
+      return Right(<%= entityInstance %>);
+    } on ServerException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: e.errorMessage),
+      );
+    } on FetchDataException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: '${e.prefix} ${e.message}'),
+      );
+    }
+  }
+
+  Future<Either<Failure, <%= entityClass %>?>> create(<%= entityClass %> <%= entityInstance %>) async {
+    try {
+      final Response response =
+          await HttpUtils.postRequest(uriEndpoint, <%= entityInstance %>);
+          <%= entityClass %>? new<%= entityClass %> = JsonMapper.deserialize<<%= entityClass %>>(response.body);
+      return Right(new<%= entityClass %>);
+    } on ServerException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: e.errorMessage),
+      );
+    } on FetchDataException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: '${e.prefix} ${e.message}'),
+      );
+    }
+  }
+
+  Future<Either<Failure, <%= entityClass %>?>> update(<%= entityClass %> <%= entityInstance %>, int id) async {
+    try {
+      final Response response =
+          await HttpUtils.putRequest('$uriEndpoint/$id', <%= entityInstance %>);
+          <%= entityClass %>? updated<%= entityClass %> =
+          JsonMapper.deserialize<<%= entityClass %>>(response.body);
+      return Right(updated<%= entityClass %>);
+    } on ServerException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: e.errorMessage),
+      );
+    } on FetchDataException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: '${e.prefix} ${e.message}'),
+      );
+    }
+  }
+
+  Future<Either<Failure, String>> delete(int id) async {
+    try {
+      final Response response =
+          await HttpUtils.deleteRequest('$uriEndpoint/$id');
+      if (response.statusCode >= 300 && response.statusCode < 600) {
+        ErrorResponse? errorResponse =
+            JsonMapper.deserialize<ErrorResponse>(response.body);
+        if (errorResponse != null) {
+          return Left(
+            ServerFailure(errorMessage: errorResponse.detail!),
+          );
+        }
+      }
+      return const Right("OK");
+    } on ServerException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: e.errorMessage),
+      );
+    } on FetchDataException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: '${e.prefix} ${e.message}'),
+      );
+    }
   }
 }

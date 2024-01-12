@@ -234,10 +234,17 @@ class Submit extends StatelessWidget {
               onPressed: state.isValid
                   ? () => context.read<SettingsBloc>().add(FormSubmitted())
                   : null,
+              style: ButtonStyle(
+                backgroundColor:
+                    MaterialStatePropertyAll(Theme.of(context).primaryColor),
+              ),
               child: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.2,
                 height: 50,
-                child: const Center(child: Text('SAVE')),
+                child: const Center(child: Text(
+                  'SAVE',
+                  style: TextStyle(color: Colors.white),
+                )),
               ),
             ),
           ],

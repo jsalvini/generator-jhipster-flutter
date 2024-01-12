@@ -9,6 +9,7 @@ const entityClassCamelCase = context.entityClassCamelCase;
 const entityClassKebabCase = context.entityClassKebabCase;
 const entityClassKebabCasePlural = context.entityClassKebabCasePlural;
 const camelizedUpperFirstBaseName = context.camelizedUpperFirstBaseName;
+const relationships = context.relationships;
 _%>
 
 import 'package:flutter/material.dart';
@@ -19,6 +20,13 @@ import 'package:<%= baseName %>/entities/<%= entityFileName %>/views/<%= entityF
 import 'bloc/<%= entityFileName %>_bloc.dart';
 import 'views/<%= entityFileName %>_list_screen.dart';
 import '<%= entityFileName %>_repository.dart';
+<%_ relationships.forEach(relationship => { %>
+<%_ if(!relationship.isList) { _%>
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityName %>/bloc/<%= relationship.otherEntityName %>_bloc.dart';
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityName %>/models/<%= relationship.otherEntityName %>_models.dart';
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityName %>/<%= relationship.otherEntityName %>_repository.dart';
+<%_ } _%>
+<%_ }); _%>
 
 class <%= entityClass %>Routes {
   static const list = '/<%= entityInstance %>';
@@ -39,7 +47,7 @@ class <%= entityClass %>Routes {
         child: BlocProvider<<%= entityClass %>Bloc>(
           create: (context) => <%= entityClass %>Bloc(
             <%= entityInstance %>Repository: <%= entityClass %>Repository(),
-          )..add(Load<%= entityClass %>List(page: 0, sort: 'id', ascending: 'asc')),
+          )..add(const Load<%= entityClass %>List(page: 0, sort: 'id', ascending: 'asc')),
           child: <%= entityClass %>ListScreen(),
         ),
       ),
@@ -48,25 +56,74 @@ class <%= entityClass %>Routes {
       name: '<%= entityInstance %>create',
       path: create,
       pageBuilder: (context, state) => MaterialPage(
-        child: BlocProvider<<%= entityClass %>Bloc>(
-          create: (context) => <%= entityClass %>Bloc(
-            <%= entityInstance %>Repository: <%= entityClass %>Repository(),
+        <%_ if (relationships != null) { _%>
+          child: MultiBlocProvider(
+            providers: [
+              <%_ relationships.forEach(relationship => { %>
+                <%_ if(!relationship.isList) { _%>
+              BlocProvider<<%= relationship.otherEntityNameCapitalized %>Bloc>(
+                create: (context) => <%= relationship.otherEntityNameCapitalized %>Bloc(
+                  <%= relationship.otherEntityName %>Repository: <%= relationship.otherEntityNameCapitalized %>Repository(),
+                )..add(const Load<%= relationship.otherEntityNameCapitalized %>List(
+                    page: 0, sort: 'id', ascending: 'asc')),
+                lazy: false,
+              ),
+                <%_ } _%>
+              <%_ }); _%>
+              BlocProvider<<%= entityClass %>Bloc>(
+                create: (context) => <%= entityClass %>Bloc(
+                  <%= entityInstance %>Repository: <%= entityClass %>Repository(),
+                ),
+              ),
+            ],
+            child: const <%= entityClass %>UpdateScreen(),
           ),
-          child: const <%= entityClass %>UpdateScreen(),
-        ),
+        <%_ } else { _%>
+          child: BlocProvider<<%= entityClass %>Bloc>(
+            create: (context) => <%= entityClass %>Bloc(
+              <%= entityInstance %>Repository: <%= entityClass %>Repository(),
+            ),
+            child: const <%= entityClass %>UpdateScreen(),
+          ),
+        <%_ } _%>
       ),
     ),
     GoRoute(
         name: '<%= entityInstance %>edit',
         path: edit,
         pageBuilder: (context, state) => MaterialPage(
-              child: BlocProvider<<%= entityClass %>Bloc>(
-                create: (context) => <%= entityClass %>Bloc(
-                  <%= entityInstance %>Repository: <%= entityClass %>Repository(),
-                )..add(Load<%= entityClass %>ByIdForEdit(id: state.extra as int)),
-                child: const <%= entityClass %>UpdateScreen(),
-              ),
-            )),
+          <%_ if (relationships != null) { _%>
+            child: MultiBlocProvider(
+              providers: [
+                <%_ relationships.forEach(relationship => { %>
+                  <%_ if(!relationship.isList) { _%>
+                BlocProvider<<%= relationship.otherEntityNameCapitalized %>Bloc>(
+                  create: (context) => <%= relationship.otherEntityNameCapitalized %>Bloc(
+                    <%= relationship.otherEntityName %>Repository: <%= relationship.otherEntityNameCapitalized %>Repository(),
+                  )..add(const Load<%= relationship.otherEntityNameCapitalized %>List(
+                      page: 0, sort: 'id', ascending: 'asc')),
+                  lazy: false,
+                ),
+                  <%_ } _%>
+                <%_ }); _%>
+                BlocProvider<<%= entityClass %>Bloc>(
+                  create: (context) => <%= entityClass %>Bloc(
+                    <%= entityInstance %>Repository: <%= entityClass %>Repository(),
+                  )..add(Load<%= entityClass %>ByIdForEdit(id: state.extra as int)),
+                )
+              ],
+              child: const <%= entityClass %>UpdateScreen(),
+            ),
+          <%_ } else { _%>
+            child: BlocProvider<<%= entityClass %>Bloc>(
+              create: (context) => <%= entityClass %>Bloc(
+                <%= entityInstance %>Repository: <%= entityClass %>Repository(),
+              )..add(Load<%= entityClass %>ByIdForEdit(id: state.extra as int)),
+              child: const <%= entityClass %>UpdateScreen(),
+            ),
+          <%_ } _%>
+            ),
+        ),
     GoRoute(
       name: '<%= entityInstance %>view',
       path: view,

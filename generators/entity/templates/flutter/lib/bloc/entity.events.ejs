@@ -73,6 +73,19 @@ class <%= entityClass %><%= field.fieldNameCapitalized %>Changed extends <%= ent
 }
 <%_ }); _%>
 
+<%_ relationships.forEach(relationship => { %>
+<%_ if(!relationship.isList) { _%>
+class <%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed extends <%= entityClass %>Event {
+  final <%= relationship.otherEntityNameCapitalized %> <%= relationship.otherEntityName %>;
+
+  const <%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed({required this.<%= relationship.otherEntityName %>});
+
+  @override
+  List<Object> get props => [<%= relationship.otherEntityName %>];
+}
+<%_ } _%>
+<%_ }); _%>
+
 class <%= entityClass %>FormSubmitted extends <%= entityClass %>Event {}
 
 class Load<%= entityClass %>ByIdForEdit extends <%= entityClass %>Event {

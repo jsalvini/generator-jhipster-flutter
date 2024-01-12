@@ -19,7 +19,6 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
         accountRepository: RepositoryProvider.of<AccountRepository>(context),
       )..add(Init()),
       child: Drawer(
-        backgroundColor: Theme.of(context).colorScheme.background,
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
@@ -29,17 +28,11 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                   accountName: Text(
                     '${state.currentUser.firstName}, ${state.currentUser.lastName}',
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 22,
-                    ),
+                    style: const TextStyle(fontSize: 22),
                   ),
                   accountEmail: Text(
                     '${state.currentUser.email}',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 16,
-                    ),
+                    style: const TextStyle(fontSize: 16),
                   ),
                   currentAccountPicture: Padding(
                     padding: const EdgeInsets.only(bottom: 10),
@@ -50,12 +43,12 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                         radius: 70,
                         backgroundColor: Colors.white,
                         backgroundImage:
-                            AssetImage('assets/images/logo_menu.png'),
+                            AssetImage('assets/images/user.png'),
                       ),
                     ),
                   ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onPrimary,
+                    color: Theme.of(context).primaryColor,
                   ),
                 );
               },
@@ -107,6 +100,32 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                 ),
                 const Text('Theme Dark'),
               ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 304,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      border: Border.all(color: Theme.of(context).primaryColor),
+                    ),
+                    child: const Center(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 10, bottom: 10),
+                        child: Text(
+                          'Template Version 20240110.',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ],
         ),
