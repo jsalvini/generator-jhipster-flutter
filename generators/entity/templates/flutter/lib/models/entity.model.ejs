@@ -27,7 +27,7 @@ class <%= entityClass %> extends Equatable {
   final <%= %> <%_ if(field.fieldValidateRules != 'required' ) { _%><%= field.fieldType %>?<%=  %><%_ } else { _%><%=  %> <%= field.fieldType %><%_ } _%>  <%=  %> <%= field.fieldName %>;
 <%_ }); _%>
 <%_ relationships.forEach(relationship => { %>
-  @JsonProperty(name: '<%- relationship.relationshipFieldName _%>')
+  @JsonProperty(name: '<%- relationship.relationshipFieldName _%>', ignoreIfNull: true)
   <%_ if(relationship.isList) { _%>
   final List<<%- relationship.otherEntityNameCapitalized %>>? <%- relationship.relationshipFieldName _%>;
   <%_ } else { _%>

@@ -21,6 +21,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 <%_ if(hasDateTime) { _%>
 import 'package:intl/intl.dart';
+import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
 <%_ } _%>
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_model.dart';
@@ -29,6 +30,7 @@ import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
 <%_ if(!relationship.isList) { _%>
 import 'package:<%= baseName %>/entities/<%= relationship.otherEntityName %>/bloc/<%= relationship.otherEntityName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= relationship.otherEntityName %>/models/<%= relationship.otherEntityName %>_models.dart';
+import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
 <%_ } _%>
 <%_ }); _%>
 import '../<%= entityFileName %>_routes.dart';
@@ -80,6 +82,11 @@ class Form<%= entityClass %> extends StatelessWidget {
               children: <Widget>[
                 <%_ fields.forEach(field => { _%>
                 <%= field.fieldNameCapitalized %>Field(),
+                <%_ }); _%>
+                <%_ relationships.forEach(relationship => { %>
+                <%_ if(!relationship.isList) { _%>
+                <%= relationship.otherEntityNameCapitalized %>Field(),
+                <%_ } _%>
                 <%_ }); _%>
                 EditButton(),
               ],
@@ -146,7 +153,19 @@ class EditButton extends StatelessWidget {
           readOnly: true,
           format: DateFormat("yyyy-MM-dd"),
           keyboardType: TextInputType.datetime,
-          decoration: const InputDecoration(labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldName %>'<%_ } _%>,),
+          decoration: const InputDecoration(
+              labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
+              labelStyle: TextStyle(
+                  height: 0.5,
+                 fontWeight: FontWeight.bold,
+                  fontSize: 16,
+              ),
+              floatingLabelStyle: TextStyle(
+                  height: 0.5,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+              ),
+          ),
           onShowPicker: (context, currentValue) async {
             return await showDatePicker(
               locale: const Locale(<%_ if(enableTranslation) { _%>S.of(context).locale<%_ } else { _%>'en'<%_ } _%>),
@@ -309,3 +328,77 @@ class EditButton extends StatelessWidget {
     }
   <%_ } _%>
 <%_ }); _%>
+
+<%_ relationships.forEach(relationship => { %>
+  <%_ if(!relationship.isList) { _%>
+  class <%= relationship.otherEntityNameCapitalized %>Field extends StatelessWidget {
+    const <%= relationship.otherEntityNameCapitalized %>Field({super.key});
+
+    @override
+    Widget build(BuildContext context) {
+      return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(
+              width: 250,
+              child: DropdownButtonFormField<<%= relationship.otherEntityNameCapitalized %>>(
+                dropdownColor: Colors.white,
+                icon: Icon(
+                  Icons.arrow_drop_down,
+                  color: Theme.of(context).primaryColor,
+                ),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Color(0xff49454f),
+                ),
+                decoration: const InputDecoration(
+                  labelStyle: TextStyle(
+                    height: 0.5,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                value: state
+                      .<%= relationship.otherEntityName %>
+                      .id !=
+                    null
+                  ? state
+                    .<%= relationship.otherEntityName %>
+                  : null,
+                onChanged: null,
+                items: [
+                  if (state.<%= relationship.otherEntityName %>.id != null)
+                    DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>(
+                      value: state.<%= relationship.otherEntityName %>,
+                      child: Text('${state.<%= relationship.otherEntityName %>.<%=relationship.otherEntityField %>}'),
+                    )
+                ],
+                ),
+            ),
+          ],
+          ),
+        );
+      },
+      );
+    }
+    List<DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>> createDropdown<%= relationship.otherEntityNameCapitalizedPlural %>Items(
+      List<<%= relationship.otherEntityNameCapitalized %>> <%= relationship.otherEntityNamePlural %>) {
+      List<DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>> <%= relationship.otherEntityName %>DropDown = [];
+
+      for (<%= relationship.otherEntityNameCapitalized %> <%= relationship.otherEntityName %> in <%= relationship.otherEntityNamePlural %>) {
+      DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>> dropdown = DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>(
+        value: <%= relationship.otherEntityName %>,
+        child: Text('{<%= relationship.otherEntityName %>.<%=relationship.otherEntityField %>}'),
+      );
+      <%= relationship.otherEntityName %>DropDown.add(dropdown);
+      }
+      return <%= relationship.otherEntityName %>DropDown;
+    }
+    }
+  <%_ } _%>
+  <%_ }); _%>

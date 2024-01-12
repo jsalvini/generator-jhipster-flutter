@@ -252,6 +252,9 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
           <%_ }); _%>
           emit(state.copyWith(
             loaded<%= entityClass %>: loaded<%= entityClass %>,
+            <%_ relationships.forEach(relationship => { _%>
+              <%= relationship.relationshipFieldName %>: loaded<%= entityClass %>.<%= relationship.relationshipFieldName %>,
+            <%_ }); _%>
             editMode: true,
             <%_ fields.forEach(field => { _%>
               <%= field.fieldName %>: <%= field.fieldName %>,
@@ -327,6 +330,9 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
           <%_ }); _%>
           emit(state.copyWith(
             loaded<%= entityClass %>: loaded<%= entityClass %>,
+            <%_ relationships.forEach(relationship => { _%>
+              <%= relationship.relationshipFieldName %>: loaded<%= entityClass %>.<%= relationship.relationshipFieldName %>,
+            <%_ }); _%>
             <%_ fields.forEach(field => { _%>
               <%= field.fieldName %>: <%= field.fieldName %>,
             <%_ }); _%>

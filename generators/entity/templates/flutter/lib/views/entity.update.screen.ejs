@@ -162,7 +162,19 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 				},
 				format: DateFormat("yyyy-MM-dd"),
 				keyboardType: TextInputType.datetime,
-				decoration: const InputDecoration(labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldName %>'<%_ } _%>,),
+				decoration: const InputDecoration(
+					labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
+					labelStyle: TextStyle(
+						height: 0.5,
+						fontWeight: FontWeight.bold,
+						fontSize: 16,
+					  ),
+					  floatingLabelStyle: TextStyle(
+						height: 0.5,
+						fontWeight: FontWeight.bold,
+						fontSize: 18,
+					  ),
+					),
 				onShowPicker: (context, currentValue) async {
 				  return await showDatePicker(
 					  locale: const Locale(<%_ if(enableTranslation) { _%>S.of(context).locale<%_ } else { _%>'en'<%_ } _%>),
@@ -353,31 +365,51 @@ class <%= relationship.otherEntityNameCapitalized %>Field extends StatelessWidge
 				List<<%= relationship.otherEntityNameCapitalized %>> <%= relationship.otherEntityName %>List = state.<%= relationship.otherEntityNamePlural %>;
 
 				return Padding(
-				  padding: const EdgeInsets.only(left: 3.0),
+					padding: const EdgeInsets.only(top: 10),
 				  child: Row(
 					mainAxisAlignment: MainAxisAlignment.start,
 					children: <Widget>[
-					  Text(
-						'<%= relationship.otherEntityNameCapitalized %>',
-						style: Theme.of(context).textTheme.bodyLarge,
-					  ),
-					  const SizedBox(width: 10),
-					  DropdownButton<<%= relationship.otherEntityNameCapitalized %>>(
-						value: BlocProvider.of<<%= entityClass %>Bloc>(context)
+					  SizedBox(
+						width: 250,
+						child: DropdownButtonFormField<<%= relationship.otherEntityNameCapitalized %>>(
+							dropdownColor: Colors.white,
+							icon: Icon(
+							Icons.arrow_drop_down,
+							color: Theme.of(context).primaryColor,
+							),
+							style: const TextStyle(
+							fontWeight: FontWeight.bold,
+							fontSize: 16,
+							color: Color(0xff49454f),
+							),
+							decoration: const InputDecoration(
+							labelText: 'Seleccione <%= relationship.otherEntityName %>',
+							labelStyle: TextStyle(
+								height: 0.5,
+								fontWeight: FontWeight.bold,
+								fontSize: 16,
+							),
+							floatingLabelStyle: TextStyle(
+								height: 0.5,
+								fontSize: 18,
+							),
+							),
+							value: BlocProvider.of<<%= entityClass %>Bloc>(context)
+										.state
+										.<%= relationship.otherEntityName %>
+										.id !=
+									null
+								? BlocProvider.of<<%= entityClass %>Bloc>(context)
 									.state
 									.<%= relationship.otherEntityName %>
-									.id !=
-								null
-							? BlocProvider.of<<%= entityClass %>Bloc>(context)
-								.state
-								.<%= relationship.otherEntityName %>
-							: null,
-						onChanged: (value) {
-						  BlocProvider.of<<%= entityClass %>Bloc>(context)
-							  .add(<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed(<%= relationship.otherEntityName %>: value!));
-						},
-						items: createDropdown<%= relationship.otherEntityNameCapitalizedPlural %>Items(<%= relationship.otherEntityName %>List),
-					  ),
+								: null,
+							onChanged: (value) {
+							BlocProvider.of<<%= entityClass %>Bloc>(context)
+								.add(<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed(<%= relationship.otherEntityName %>: value!));
+							},
+							items: createDropdown<%= relationship.otherEntityNameCapitalizedPlural %>Items(<%= relationship.otherEntityName %>List),
+						),
+				  	  ),
 					],
 				  ),
 				);
@@ -399,7 +431,7 @@ class <%= relationship.otherEntityNameCapitalized %>Field extends StatelessWidge
 	  for (<%= relationship.otherEntityNameCapitalized %> <%= relationship.otherEntityName %> in <%= relationship.otherEntityNamePlural %>) {
 		DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>> dropdown = DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>(
 		  value: <%= relationship.otherEntityName %>,
-		  child: Text('{<%= relationship.otherEntityName %>.<%=relationship.otherEntityField %>}'),
+		  child: Text('${<%= relationship.otherEntityName %>.<%=relationship.otherEntityField %>}'),
 		);
 		<%= relationship.otherEntityName %>DropDown.add(dropdown);
 	  }
