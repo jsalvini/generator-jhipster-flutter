@@ -606,7 +606,7 @@ module.exports = class extends BaseGenerator {
                 field.defaultValue = false;
             } else if (field.fieldIsEnum) {
                 field.defaultValue = 'null';
-            } else if (field.fieldType === 'Double' || field.fieldType === 'Float') {
+            } else if (field.fieldType === 'Double' || field.fieldType === 'Float' || field.fieldType === 'BigDecimal') {
                 field.fieldType = 'double';
                 field.defaultValue = 0;
             } else {
