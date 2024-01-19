@@ -143,6 +143,7 @@ class SubmitForm extends StatelessWidget {
 }
 
 <%_ fields.forEach(field => { _%>
+<%_ const fieldOptions = field.options || {};_%>
 <%_ if(field.fieldType === 'DateTime') { _%>
 class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 
@@ -155,6 +156,9 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			builder: (context, state) {
 			  return DateTimeField(
 				controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+				<%_ if(fieldOptions.readonly != null) { %>
+				enabled: <%= fieldOptions.readonly %>,
+				<%_ } _%>
 				onChanged: (value) {
 				  context
 					  .read<<%= entityClass %>Bloc>()
@@ -197,20 +201,51 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 		return BlocBuilder<<%= entityClass %>Bloc,<%= entityClass %>State>(
 		buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
 		builder: (context, state) {
-		  return Padding(
-			padding: const EdgeInsets.only(left: 3.0),
-			child: Row(
-			  mainAxisAlignment: MainAxisAlignment.start,
-			  children: <Widget>[
-				Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>, style: Theme.of(context).textTheme.bodyLarge,),
-				const SizedBox(width: 20),
-				DropdownButton<<%= field.fieldType %>>(
-					value: state.<%= field.fieldName %>.value,
-					onChanged: (value) { context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value!)); },
-					items: createDropdown<%= field.fieldType %>Items(<%= field.fieldType %>.values)),
-			  ],
-			),
-		  );
+			return Padding(
+				padding: const EdgeInsets.only(top: 10),
+				child: Row(
+				  mainAxisAlignment: MainAxisAlignment.start,
+				  children: [
+					SizedBox(
+					  width: 250,
+					  child: DropdownButtonFormField<<%= field.fieldType %>>(
+						  value: state.<%= field.fieldName %>.value,
+						  dropdownColor: Colors.white,
+						  icon: Icon(
+							Icons.arrow_drop_down,
+							color: Theme.of(context).primaryColor,
+						  ),
+						  style: const TextStyle(
+							fontWeight: FontWeight.bold,
+							fontSize: 16,
+							color: Color(0xff49454f),
+						  ),
+						  decoration: const InputDecoration(
+							labelText: 'Seleccione <%= field.fieldName %>',
+							labelStyle: TextStyle(
+							  height: 0.5,
+							  fontWeight: FontWeight.bold,
+							  fontSize: 16,
+							),
+							floatingLabelStyle: TextStyle(
+							  height: 0.5,
+							  fontSize: 18,
+							),
+						  ),
+						  <%_ if(fieldOptions.readonly != null) { %>
+						  <%_ if(fieldOptions.readonly) { %>
+						  onChanged: null,
+						  <%_ } else {_%>
+					  	  onChanged: (value) { context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value!)); },
+						  <%_ } _%>
+						  <%_ } else { _%>
+						  onChanged: (value) { context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value!)); },
+						  <%_ } _%>
+						  items: createDropdown<%= field.fieldType %>Items(<%= field.fieldType %>.values)),
+					),
+				  ],
+				),
+			);
 		});
 	}
 
@@ -251,7 +286,15 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			  const SizedBox(width: 20),
 			  Switch(
 				  value: state.<%= field.fieldName %>.value,
+				  <%_ if(fieldOptions.readonly != null) { %>
+				  <%_ if(fieldOptions.readonly) { %>
+				  onChanged: null,
+				  <%_ } else {_%>
 				  onChanged: (value) { context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value)); },
+				  <%_ } _%>
+				  <%_ } else { _%>
+				  onChanged: (value) { context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value)); },
+				  <%_ } _%>
 				  activeColor: Theme.of(context).primaryColor,
 				  ),
 			],
@@ -272,12 +315,21 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 		builder: (context, state) {
 		return TextFormField(
 		  controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+		  <%_ if(fieldOptions.readonly != null) { %>
+		  enabled: <%= fieldOptions.readonly %>,
+		  <%_ } _%>
 		  onChanged: (value) { context.read<<%= entityClass %>Bloc>()
 			.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: <%_ if(field.fieldType === 'int') { _%> int.tryParse(value) ?? -1 <%_ } else { _%> value <%_ } _%>)); },
 		  keyboardType: TextInputType.number,
 		  decoration: InputDecoration(
 			  labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
+			  <%_ if(fieldOptions.readonly != null) { %>
+			  <%_ if(!fieldOptions.readonly) { %>
 			  helperText: MessageValidation.numerosEnteros,
+			  <%_ }_%>
+			  <%_ } else { _%>
+			  helperText: MessageValidation.numerosEnteros,
+			  <%_ } _%>
 			  labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
 		      contentPadding: const EdgeInsets.symmetric(vertical: 10),
 			  errorText: state.<%= field.fieldName %>.displayError != null
@@ -301,12 +353,21 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			builder: (context, state) {
 			return TextFormField(
 			  controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+			  <%_ if(fieldOptions.readonly != null) { %>
+			  enabled: <%= fieldOptions.readonly %>,
+			  <%_ } _%>
 			  onChanged: (value) { context.read<<%= entityClass %>Bloc>()
 				.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: <%_ if(field.fieldType === 'double') { _%> double.tryParse(value) ?? -1 <%_ } else { _%> value <%_ } _%>)); },
 			  keyboardType: TextInputType.number,
 			  decoration: InputDecoration(
 				  labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
+				  <%_ if(fieldOptions.readonly != null) { %>
+				  <%_ if(!fieldOptions.readonly) { %>
 				  helperText: MessageValidation.numerosDecimales,
+				  <%_ }_%>
+				  <%_ } else { _%>
+				  helperText: MessageValidation.numerosDecimales,
+				  <%_ } _%>
 				  labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
 				  contentPadding: const EdgeInsets.symmetric(vertical: 10),
 				  errorText: state.<%= field.fieldName %>.displayError != null
@@ -330,12 +391,17 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 		builder: (context, state) {
 		return TextFormField(
 			controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+			<%_ if(fieldOptions.readonly != null) { %>
+			enabled: <%= fieldOptions.readonly %>,
+			<%_ } _%>
 			onChanged: (value) { context.read<<%= entityClass %>Bloc>()
 			.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value)); },
 			keyboardType: TextInputType.text,
+			<%_ if(field.fieldValidateRules == 'maxlength') { _%>
+			maxLength: <%= field.fieldValidateRulesMaxlength %>,
+			<%_ } _%>
 			decoration: InputDecoration(
 				labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
-				helperText: '${MessageValidation.soloLetras}\n${MessageValidation.minimoCaracteres}',
 				labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
 				contentPadding: const EdgeInsets.symmetric(vertical: 10),
 				errorText: state.<%= field.fieldName %>.displayError != null
@@ -351,6 +417,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 <%_ }); _%>
 
 <%_ relationships.forEach(relationship => { %>
+<%_ const fieldOptions = relationship.options || {};_%>
 <%_ if(!relationship.isList) { _%>
 class <%= relationship.otherEntityNameCapitalized %>Field extends StatelessWidget {
 	const <%= relationship.otherEntityNameCapitalized %>Field({super.key});
@@ -383,16 +450,16 @@ class <%= relationship.otherEntityNameCapitalized %>Field extends StatelessWidge
 							color: Color(0xff49454f),
 							),
 							decoration: const InputDecoration(
-							labelText: 'Seleccione <%= relationship.otherEntityName %>',
-							labelStyle: TextStyle(
-								height: 0.5,
-								fontWeight: FontWeight.bold,
-								fontSize: 16,
-							),
-							floatingLabelStyle: TextStyle(
-								height: 0.5,
-								fontSize: 18,
-							),
+								labelText: 'Seleccione <%= relationship.otherEntityName %>',
+								labelStyle: TextStyle(
+									height: 0.5,
+									fontWeight: FontWeight.bold,
+									fontSize: 16,
+								),
+								floatingLabelStyle: TextStyle(
+									height: 0.5,
+									fontSize: 18,
+								),
 							),
 							value: BlocProvider.of<<%= entityClass %>Bloc>(context)
 										.state
@@ -403,10 +470,21 @@ class <%= relationship.otherEntityNameCapitalized %>Field extends StatelessWidge
 									.state
 									.<%= relationship.otherEntityName %>
 								: null,
+						    <%_ if(fieldOptions.readonly != null) { %>
+							<%_ if(fieldOptions.readonly) { %>
+							onChanged: null,
+							<%_ } else {_%>
 							onChanged: (value) {
-							BlocProvider.of<<%= entityClass %>Bloc>(context)
-								.add(<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed(<%= relationship.otherEntityName %>: value!));
-							},
+								BlocProvider.of<<%= entityClass %>Bloc>(context)
+									.add(<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed(<%= relationship.otherEntityName %>: value!));
+								},
+							<%_ } _%>
+							<%_ } else { _%>
+							onChanged: (value) {
+								BlocProvider.of<<%= entityClass %>Bloc>(context)
+									.add(<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed(<%= relationship.otherEntityName %>: value!));
+								},
+							<%_ } _%>
 							items: createDropdown<%= relationship.otherEntityNameCapitalizedPlural %>Items(<%= relationship.otherEntityName %>List),
 						),
 				  	  ),

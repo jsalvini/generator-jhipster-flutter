@@ -97,7 +97,7 @@ class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInpu
       String invalidMessage() {
         switch (this) {
           case <%= field.fieldNameCapitalized %>ValidationError.invalid:
-            return 'El <%= field.fieldNameHumanized %> no es valido:\n\t${MessageValidation.soloLetras}';
+            return 'El <%= field.fieldNameHumanized %> no es valido:\n\t${MessageValidation.invalidValue}';
           case <%= field.fieldNameCapitalized %>ValidationError.minLength:
             return 'El <%= field.fieldNameHumanized %> no es valido:\n\t${MessageValidation.minimoCaracteres}';
           case <%= field.fieldNameCapitalized %>ValidationError.maxLength:
@@ -111,15 +111,21 @@ class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInpu
       const <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty([<%= field.fieldType %> value = <%- field.defaultValue %>]) : super.dirty(value);
 
       <%_ if(field.fieldValidateRules == 'required') { _%>
-      static const minLength = 3;
+      static const minLength = 1;
+      <%_ } _%>
+      <%_ if(field.fieldValidateRules == 'minlength') { _%>
+      static const minLength = <%= field.fieldValidateRulesMinlength %>;
       <%_ } _%>
       <%_ if(field.fieldValidateRules == 'maxlength') { _%>
       static const maxLength = <%= field.fieldValidateRulesMaxlength %>;
       <%_ } _%>
 
+      static String pattern = r'''^[a-zA-Z0-9!@#$%^&*()-_+=~{}:"\';,./|\\[\]<>?áéíóúÁÉÍÓÚüÜñÑ ]+$''';
+      static RegExp regExp = RegExp(pattern);
+
       @override
       <%= field.fieldNameCapitalized %>ValidationError? validator(<%= field.fieldType %> value) {
-        <%_ if(field.fieldValidateRules == 'required') { _%>
+        <%_ if(field.fieldValidateRules == 'required' || field.fieldValidateRules == 'minlength') { _%>
         if (value.length < minLength) {
           return <%= field.fieldNameCapitalized %>ValidationError.minLength;
         }
@@ -129,7 +135,7 @@ class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInpu
           return <%= field.fieldNameCapitalized %>ValidationError.maxLength;
         }
         <%_ } _%>
-        if(!value.isAlphabet()){
+        if(!regExp.hasMatch(value)){
           return <%= field.fieldNameCapitalized %>ValidationError.invalid;
         }
         return null;

@@ -76,6 +76,7 @@ class AppView extends StatefulWidget {
 class _AppViewState extends State<AppView> {
   @override
   Widget build(BuildContext context) {
+    precacheImage(const AssetImage('assets/images/banner.png'), context);
     return BlocListener<AuthenticationBloc, AuthenticationState>(
       listener: (context, state) {
         AppRouter.router.refresh();

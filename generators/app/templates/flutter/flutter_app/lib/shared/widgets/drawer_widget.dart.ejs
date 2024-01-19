@@ -19,9 +19,8 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
         accountRepository: RepositoryProvider.of<AccountRepository>(context),
       )..add(Init()),
       child: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
+        child: Column(
+          children: [
             BlocBuilder<HomeBloc, HomeState>(
               builder: (context, state) {
                 return UserAccountsDrawerHeader(
@@ -53,78 +52,83 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                 );
               },
             ),
-            ListTile(
-              leading: const Icon(
-                Icons.home,
-                size: iconSize,
-              ),
-              title: const Text('Home'),
-              onTap: () => context.pushNamed(<%= camelizedUpperFirstBaseName %>Routes.home),
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.settings,
-                size: iconSize,
-              ),
-              title: const Text('Settings'),
-              onTap: () => context.pushNamed(<%= camelizedUpperFirstBaseName %>Routes.settings),
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.exit_to_app,
-                size: iconSize,
-              ),
-              title: const Text('Sign out'),
-              onTap: () {
-                context
-                    .read<AuthenticationBloc>()
-                    .add(AuthenticationLogoutRequested());
-              },
-            ),
-            const Divider(thickness: 2),
-            // jhipster-merlin-needle-menu-entry-add
-            const Divider(thickness: 2),
-			      Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('Theme Light'),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Switch(
-                      value: context.read<ThemeBloc>().state == ThemeMode.dark,
-                      onChanged: (value) {
-                        context
-                            .read<ThemeBloc>()
-                            .add(ThemeChanged(isDark: value));
-                      }),
-                ),
-                const Text('Theme Dark'),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 304,
-                    decoration: BoxDecoration(
+            Expanded(
+              flex: 8,
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: <Widget>[
+                  ListTile(
+                    leading: const Icon(
+                      Icons.home,
+                      size: iconSize,
+                    ),
+                    title: const Text('Inicio'),
+                    onTap: () => context.pushNamed(<%= camelizedUpperFirstBaseName %>Routes.home),
+                  ),
+                  ListTile(
+                    leading: const Icon(
+                      Icons.settings,
+                      size: iconSize,
+                    ),
+                    title: const Text('Perfil'),
+                    onTap: () => context.pushNamed(<%= camelizedUpperFirstBaseName %>Routes.settings),
+                  ),
+                  ListTile(
+                    leading: const Icon(
+                      Icons.exit_to_app,
+                      size: iconSize,
+                    ),
+                    title: const Text('Cerrar sesión'),
+                    onTap: () {
+                      context
+                          .read<AuthenticationBloc>()
+                          .add(AuthenticationLogoutRequested());
+                    },
+                  ),
+                  AboutListTile(
+                    icon: const Icon(
+                      Icons.info,
+                      size: iconSize,
+                    ),
+                    applicationIcon: Icon(
+                      Icons.local_play,
                       color: Theme.of(context).primaryColor,
-                      border: Border.all(color: Theme.of(context).primaryColor),
                     ),
-                    child: const Center(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 10, bottom: 10),
-                        child: Text(
-                          'Template Version 20240110.',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
+                    applicationName: 'Template',
+                    applicationVersion: 'Versión 20240119',
+                    applicationLegalese: 'Tipre 2024 ©',
+                    aboutBoxChildren: const [
+                      ///Content goes here...
+                    ],
+                    child: const Text('Información'),
+                  ),
+                  const Divider(thickness: 2),
+                  // jhipster-merlin-needle-menu-entry-add
+                  const Divider(thickness: 2),
                 ],
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Theme Light'),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Switch(
+                          value: context.read<ThemeBloc>().state == ThemeMode.dark,
+                          onChanged: (value) {
+                            context
+                                .read<ThemeBloc>()
+                                .add(ThemeChanged(isDark: value));
+                          }),
+                    ),
+                    const Text('Theme Dark'),
+                  ],
+                ),
               ),
             ),
           ],

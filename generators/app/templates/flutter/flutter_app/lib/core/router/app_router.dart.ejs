@@ -37,6 +37,7 @@ abstract class AppRouter {
           irA.compareTo(LoginRoutes.path) == 0) {
         return HomeRoutes.path;
       } else if (authenticationBloc == AuthenticationStatus.unauthenticated) {
+        await Future.delayed(const Duration(milliseconds: 2600));
         return LoginRoutes.path;
       }
       return null;

@@ -150,7 +150,7 @@ class EditButton extends StatelessWidget {
         builder: (context, state) {
           return DateTimeField(
           controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-          readOnly: true,
+          enabled: false,
           format: DateFormat("yyyy-MM-dd"),
           keyboardType: TextInputType.datetime,
           decoration: const InputDecoration(
