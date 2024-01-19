@@ -94,17 +94,30 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                       Icons.local_play,
                       color: Theme.of(context).primaryColor,
                     ),
-                    applicationName: 'Template',
+                    applicationName: 'Template App',
                     applicationVersion: 'Versión 20240119',
                     applicationLegalese: 'Tipre 2024 ©',
-                    aboutBoxChildren: const [
-                      ///Content goes here...
-                    ],
                     child: const Text('Información'),
                   ),
                   const Divider(thickness: 2),
-                  // jhipster-merlin-needle-menu-entry-add
-                  const Divider(thickness: 2),
+                  Theme(
+                    data: theme,
+                    child: ExpansionTile(
+                      leading: const Icon(
+                        Icons.list_alt_rounded,
+                        size: iconSize,
+                      ),
+                      textColor: Theme.of(context).primaryColor,
+                      iconColor: Theme.of(context).primaryColor,
+                      title: const Text(
+                        'Entidades',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      children: [
+                        // jhipster-merlin-needle-menu-entry-add
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

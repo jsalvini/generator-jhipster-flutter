@@ -85,22 +85,8 @@ class _AppViewState extends State<AppView> {
         builder: (context, state) {
           return MaterialApp.router(
             debugShowCheckedModeBanner: false,
-            theme: Themes.lightTheme.copyWith(
-              iconTheme: const IconThemeData(color: Colors.white),
-              appBarTheme: AppBarTheme(
-                iconTheme: const IconThemeData(color: Colors.white),
-                titleTextStyle: const TextStyle(color: Colors.white),
-                backgroundColor: Theme.of(context).primaryColor,
-              ),
-            ),
-            darkTheme: Themes.darkTheme.copyWith(
-              iconTheme: const IconThemeData(color: Colors.white),
-              appBarTheme: AppBarTheme(
-                iconTheme: const IconThemeData(color: Colors.white),
-                titleTextStyle: const TextStyle(color: Colors.white),
-                backgroundColor: Theme.of(context).primaryColor,
-              ),
-            ),
+            theme: Themes.lightTheme,
+            darkTheme: Themes.darkTheme,
             themeMode: state,
             routeInformationParser: AppRouter.router.routeInformationParser,
             routerDelegate: AppRouter.router.routerDelegate,

@@ -690,10 +690,13 @@ module.exports = class extends BaseGenerator {
             }, this);
 
             const drawerClassPath = 'lib/shared/widgets/drawer_widget.dart';
-            const newMenuEntry = `ListTile(
-                leading: const Icon(Icons.label, size: iconSize,),
-                title: const Text('${entityClass}'),
-                onTap: () => context.pushNamed('${entityInstance}'),
+            const newMenuEntry = `Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: ListTile(
+                    leading: const Icon(Icons.label, size: iconSize,),
+                    title: const Text('${entityClass}'),
+                    onTap: () => context.pushNamed('${entityInstance}'),
+                ),
             ),`;
             utils.rewriteFile({
                 file: drawerClassPath,
