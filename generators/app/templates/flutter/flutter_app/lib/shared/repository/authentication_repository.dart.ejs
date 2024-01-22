@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:<%= baseName %>/shared/models/jwt_token.dart';
@@ -20,6 +21,12 @@ class AuthenticationRepository {
   }
 
   Future<bool> authenticate(LoginRequest userJWT) async {
+    String? jwt = await _storage.read(key: HttpUtils.keyForJWTToken);
+    if (jwt != null) {
+      log('Token vencido');
+      await _storage.delete(key: HttpUtils.keyForJWTToken);
+    }
+
     final authenticateResponse =
         await HttpUtils.postRequest<LoginRequest>("/authenticate", userJWT);
     JWTToken? token;

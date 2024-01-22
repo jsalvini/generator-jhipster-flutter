@@ -148,6 +148,7 @@ const FLUTTER_FILES = {
                 { file: 'assets/images/logo_menu.png', method: 'copy' },
                 { file: 'assets/images/banner.png', method: 'copy' },
                 { file: 'assets/images/user.png', method: 'copy' },
+                { file: 'assets/images/progress_indicator.png', method: 'copy' },
                 { file: 'assets/lotties/error_1.json', method: 'copy' },
                 { file: 'assets/lotties/error_2.json', method: 'copy' },
                 { file: 'assets/lotties/tipre.json', method: 'copy' },

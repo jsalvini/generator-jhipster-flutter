@@ -9,15 +9,18 @@ const camelizedUpperFirstBaseName = context.camelizedUpperFirstBaseName;
 const enableTranslation = context.enableTranslation;
 const fields = context.fields;
 const idField = context.idField;
+const relationships = context.relationships;
 let filtro = 1;
 _%>
 import 'package:adaptive_scrollbar/adaptive_scrollbar.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pager/pager.dart';
+import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_model.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/views/widgets/<%= entityFileName %>_delete_dialog.dart';
@@ -44,7 +47,7 @@ class <%= entityClass %>Table extends StatelessWidget {
       children: [
         Padding(
           padding:
-              const EdgeInsets.only(top: 10, bottom: 5, right: 16, left: 16),
+              const EdgeInsets.only(top: 10, right: 16, left: 16),
           child: Card(
             margin: EdgeInsets.zero,
             elevation: 4,
@@ -53,6 +56,24 @@ class <%= entityClass %>Table extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  ElevatedButton.icon(
+                    onPressed: () => context.pushNamed('<%= entityInstance %>create'),
+                    style: ButtonStyle(
+                      elevation: const MaterialStatePropertyAll(5.0),
+                      minimumSize:
+                          const MaterialStatePropertyAll(Size(250, 50)),
+                      backgroundColor: MaterialStatePropertyAll(
+                        context.read<ThemeBloc>().state == ThemeMode.dark
+                            ? Theme.of(context).colorScheme.primaryContainer
+                            : Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    icon: const Icon(Icons.add, color: Colors.white),
+                    label: const Text(
+                      'Agregar <%= entityInstance %>',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
                   TextButton.icon(
                     onPressed: () => context.pushNamed('<%= entityInstance %>create'),
                     icon: const Icon(Icons.add, color: Colors.white),
@@ -280,6 +301,14 @@ class <%= entityClass %>Table extends StatelessWidget {
         onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
       ),
     <%_ }); _%>
+    <%_ relationships.forEach(relationship => { %>
+      <%_ if(!relationship.isList) { _%>
+      DataColumn2(
+        label: const Text('<%= relationship.otherEntityNameCapitalized %>'),
+        onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
+      ),
+      <%_ } _%>
+    <%_ }); _%>
     ];
   }
 
@@ -378,6 +407,30 @@ class <%= entityClass %>Table extends StatelessWidget {
         Text('${<%= entityInstance %>.<%- field.fieldName -%>}'),
       <%_ } _%>
       ),
+    <%_ }); _%>
+    <%_ relationships.forEach(relationship => { %>
+      <%_ if(!relationship.isList) { _%>
+      DataCell(
+        <%= entityInstance %>.<%= relationship.otherEntityName %> != null
+            ? RichText(
+                text: TextSpan(
+                    text: '${<%= entityInstance %>.<%= relationship.otherEntityName %>?.<%=relationship.otherEntityField %>}',
+                    style: TextStyle(
+                      color: Theme.of(blocContext).primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => blocContext.pushNamed('<%= relationship.otherEntityName %>view', extra: <%= entityInstance %>.<%= relationship.otherEntityName %>?.id),
+                  ),
+              )
+            : const Text(
+                'Sin asignar',
+                style: TextStyle(
+                  color: Colors.black87,
+                ),
+              ),
+      ),
+      <%_ } _%>
     <%_ }); _%>
     ];
   }

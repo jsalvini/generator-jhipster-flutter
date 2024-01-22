@@ -8,15 +8,21 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xff191918),
+      backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Image(
+              image: const AssetImage('assets/images/progress_indicator.png'),
+              fit: BoxFit.fill,
+              width: MediaQuery.of(context).size.width * 0.4,
+            ),
+            const SizedBox(height: 30),
             Lottie.asset(
               'assets/lotties/tipre.json',
-              width: 200,
-              height: 200,
+              width: 150,
+              height: 150,
               fit: BoxFit.fill,
               repeat: false,
             ),

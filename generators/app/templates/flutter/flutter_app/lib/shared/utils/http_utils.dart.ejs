@@ -45,9 +45,9 @@ class HttpUtils {
       response = await http.post(Uri.parse('${Constants.api}$endpoint'), headers: headers, body: json,
           encoding: Encoding.getByName('utf-8')).timeout(Duration(seconds: timeout));
     } on SocketException {
-      throw FetchDataException('No Internet connection');
+      throw FetchDataException('No hay conexión con el servidor.');
     } on TimeoutException {
-      throw FetchDataException('Request timeout');
+      throw FetchDataException('Supero el tiempo de espera.');
     }
     return response;
   }
@@ -58,9 +58,9 @@ class HttpUtils {
       return await http.get(Uri.parse('${Constants.api}$endpoint'), headers: headers)
           .timeout(Duration(seconds: timeout));
     } on SocketException {
-      throw FetchDataException('No Internet connection');
+      throw FetchDataException('No hay conexión con el servidor.');
     } on TimeoutException {
-      throw FetchDataException('Request timeout');
+      throw FetchDataException('Supero el tiempo de espera.');
     }
   }
 
@@ -72,9 +72,9 @@ class HttpUtils {
       response = await http.put(Uri.parse('${Constants.api}$endpoint'), headers: headers, body: json,
           encoding: Encoding.getByName('utf-8')).timeout(Duration(seconds: timeout));
     } on SocketException {
-      throw FetchDataException('No Internet connection');
+      throw FetchDataException('No hay conexión con el servidor.');
     } on TimeoutException {
-      throw FetchDataException('Request timeout');
+      throw FetchDataException('Supero el tiempo de espera.');
     }
     return response;
   }
@@ -85,9 +85,9 @@ class HttpUtils {
       return await http.delete(Uri.parse('${Constants.api}$endpoint'), headers: headers)
           .timeout(Duration(seconds: timeout));
     } on SocketException {
-      throw FetchDataException('No Internet connection');
+      throw FetchDataException('No hay conexión con el servidor.');
     } on TimeoutException {
-      throw FetchDataException('Request timeout');
+      throw FetchDataException('Supero el tiempo de espera.');
     }
   }
 
@@ -103,7 +103,7 @@ class HttpUtils {
       case 500:
       default:
         throw FetchDataException(
-            'Error occured while Communication with Server with StatusCode : ${response
+            'Se produjo un error durante la comunicación con el servidor con codígo de estado: ${response
                 .statusCode}');
     }
   }

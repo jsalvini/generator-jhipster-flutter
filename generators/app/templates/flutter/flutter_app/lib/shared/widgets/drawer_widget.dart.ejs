@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:<%= baseName %>/core/core.dart';
+import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/account/authentication/authentication.dart';
 import 'package:<%= baseName %>/core/router/routes.dart';
 import 'package:<%= baseName %>/home/bloc/home_bloc.dart';
@@ -14,6 +15,9 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).copyWith(
+      dividerColor: Colors.transparent,
+    );
     return BlocProvider<HomeBloc>(
       create: (context) => HomeBloc(
         accountRepository: RepositoryProvider.of<AccountRepository>(context),
@@ -73,18 +77,6 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                     title: const Text('Perfil'),
                     onTap: () => context.pushNamed(<%= camelizedUpperFirstBaseName %>Routes.settings),
                   ),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.exit_to_app,
-                      size: iconSize,
-                    ),
-                    title: const Text('Cerrar sesión'),
-                    onTap: () {
-                      context
-                          .read<AuthenticationBloc>()
-                          .add(AuthenticationLogoutRequested());
-                    },
-                  ),
                   AboutListTile(
                     icon: const Icon(
                       Icons.info,
@@ -92,7 +84,9 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                     ),
                     applicationIcon: Icon(
                       Icons.local_play,
-                      color: Theme.of(context).primaryColor,
+                      color: context.read<ThemeBloc>().state == ThemeMode.dark
+                        ? Colors.white
+                        : Colors.black,
                     ),
                     applicationName: 'Template App',
                     applicationVersion: 'Versión 20240119',
@@ -107,15 +101,52 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                         Icons.list_alt_rounded,
                         size: iconSize,
                       ),
-                      textColor: Theme.of(context).primaryColor,
-                      iconColor: Theme.of(context).primaryColor,
+                      textColor: context.read<ThemeBloc>().state == ThemeMode.dark
+                        ? Theme.of(context).colorScheme.primaryContainer
+                        : Theme.of(context).colorScheme.primary,
+                      iconColor: context.read<ThemeBloc>().state == ThemeMode.dark
+                        ? Theme.of(context).colorScheme.primaryContainer
+                        : Theme.of(context).colorScheme.primary,
                       title: const Text(
                         'Entidades',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      children: [
+                      children: const [
                         // jhipster-merlin-needle-menu-entry-add
                       ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    key: const Key('cerrarSesion_elevatedButton'),
+                    onPressed: () =>
+                      context
+                          .read<AuthenticationBloc>()
+                          .add(AuthenticationLogoutRequested())
+                    ,
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStatePropertyAll(
+                        context.read<ThemeBloc>().state == ThemeMode.dark
+                          ? Theme.of(context).colorScheme.primaryContainer
+                          : Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    child: const SizedBox(
+                      width: 200,
+                      height: 50,
+                      child: Center(
+                        child: Text(
+                          'Cerrar sesión',
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        ),
+                      ),
                     ),
                   ),
                 ],
