@@ -43,8 +43,8 @@ class <%= entityClass %>UpdateScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<<%= entityClass %>Bloc, <%= entityClass %>State>(
       listener: (context, state) {
-        if (state.<%= entityInstance %>StatusUI == <%= entityInstance %>StatusUI.done ||
-            state.<%= entityInstance %>StatusUI == <%= entityInstance %>StatusUI.error) {
+        if (state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.done ||
+            state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.error) {
           Color colorBackground = Colors.green;
           IconData iconData = Icons.info_outline_rounded;
           if (state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.error) {
@@ -417,9 +417,9 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			  <%_ } _%>
 			  onChanged: (value) {
 				<%_ if(field.fieldType === 'double') { _%>
-				int valueDouble = value.isEmpty ? -1 : double.tryParse(value) ?? -2;
+				double valueDouble = value.isEmpty ? -1 : double.tryParse(value) ?? -2;
 				<%_ } else { _%> value <%_ } _%>
-				context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: valueInt));
+				context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: valueDouble));
 			  },
 			  keyboardType: TextInputType.number,
 			  decoration: InputDecoration(
