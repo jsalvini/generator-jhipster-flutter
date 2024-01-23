@@ -33,73 +33,14 @@ class HomeBody extends StatelessWidget {
           children: <Widget>[
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.80,
-              child: const Text('Welcome to your flutter app',
+              child: const Text('Welcome to <%= baseName %>',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white, fontSize: 24),
-				  ),
+				        ),
             ),
-            const SizedBox(height: 20),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-            ),
-            LinkWidget(
-              text: 'Jhipster Docs',
-              url: Uri.parse('https://www.jhipster.tech/'),
-            ),
-            LinkWidget(
-              text: 'Stackoverflow',
-              url: Uri.parse('http://stackoverflow.com/tags/jhipster/info'),
-            ),
-            LinkWidget(
-              text: 'Open issues',
-              url: Uri.parse(
-                  'https://github.com/merlinofcha0s/generator-jhipster-flutter/issues?state=open'),
-            ),
-            LinkWidget(
-              text: 'Gitter',
-              url: Uri.parse('https://gitter.im/jhipster/generator-jhipster'),
-            ),
-            LinkWidget(
-              text: 'Jhipster twitter',
-              url: Uri.parse('https://twitter.com/jhipster'),
-            )
           ],
         ),
       ],
     );
-  }
-}
-
-class LinkWidget extends StatelessWidget {
-  final String text;
-  final Uri url;
-
-  const LinkWidget({
-    super.key,
-    required this.text,
-    required this.url,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: ElevatedButton(
-        onPressed: () => _launchUrl(url),
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.5,
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _launchUrl(Uri url) async {
-    if (!await launchUrl(url)) {
-      throw Exception('Could not launch $url');
-    }
   }
 }

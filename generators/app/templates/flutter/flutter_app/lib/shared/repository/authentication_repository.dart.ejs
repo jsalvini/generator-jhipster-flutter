@@ -23,7 +23,7 @@ class AuthenticationRepository {
   Future<bool> authenticate(LoginRequest userJWT) async {
     String? jwt = await _storage.read(key: HttpUtils.keyForJWTToken);
     if (jwt != null) {
-      log('Token vencido');
+      log('Se renueva token');
       await _storage.delete(key: HttpUtils.keyForJWTToken);
     }
 

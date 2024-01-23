@@ -74,15 +74,6 @@ class <%= entityClass %>Table extends StatelessWidget {
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
-                  TextButton.icon(
-                    onPressed: () => context.pushNamed('<%= entityInstance %>create'),
-                    icon: const Icon(Icons.add, color: Colors.white),
-                    label: const Text('Agregar <%= entityInstance %>',
-                        style: TextStyle(color: Colors.white)),
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(
-                            Theme.of(context).colorScheme.primary)),
-                  ),
                 ],
               ),
             ),

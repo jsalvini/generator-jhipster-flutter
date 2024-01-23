@@ -198,7 +198,7 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
           <%= field.fieldName %>: state.<%= field.fieldName %>.value,
           <%_ }); _%>
           <%_ relationships.forEach(relationship => { _%>
-          <%= relationship.relationshipFieldName %>: state.<%= relationship.relationshipFieldName %>,
+          <%= relationship.relationshipFieldName %>: state.<%= relationship.relationshipFieldName %>.id != null ? state.<%= relationship.relationshipFieldName %> : null,
           <%_ }); _%>
           );
         result = await _<%= entityInstance %>Repository.create(new<%= entityClass %>);
@@ -208,14 +208,14 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
           emit(
             state.copyWith(
               <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.error,
-                generalNotificationKey: failure.errorMessage),
+              generalNotificationKey: failure.errorMessage),
           );
         },
         (<%= entityClass %>? data) {
           add(const Load<%= entityClass %>List(page: 0, sort: 'id', ascending: 'asc'));
           emit(state.copyWith(
-                formStatus: FormzSubmissionStatus.success,
-                generalNotificationKey: HttpUtils.successResult,
+                <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.done,
+                generalNotificationKey: state.editMode ? '<%= entityClass %> actualizada correctamente.' : '<%= entityClass %> agregada correctamente.',
           ));
         },
       );

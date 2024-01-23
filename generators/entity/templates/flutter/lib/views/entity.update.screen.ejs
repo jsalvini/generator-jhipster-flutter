@@ -43,9 +43,40 @@ class <%= entityClass %>UpdateScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<<%= entityClass %>Bloc, <%= entityClass %>State>(
       listener: (context, state) {
-        if(state.formStatus == FormzSubmissionStatus.success){
-		  context.pushNamed('<%= entityInstance %>');
+        if (state.<%= entityInstance %>StatusUI == <%= entityInstance %>StatusUI.done ||
+            state.<%= entityInstance %>StatusUI == <%= entityInstance %>StatusUI.error) {
+          Color colorBackground = Colors.green;
+          IconData iconData = Icons.info_outline_rounded;
+          if (state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.error) {
+            colorBackground = Colors.red;
+            iconData = Icons.dangerous_outlined;
+          }
+
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    Icon(iconData, color: Colors.white),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: Text(
+                        state.generalNotificationKey,
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: colorBackground,
+              ),
+            );
+			context.pushNamed('<%= entityInstance %>');
         }
+
+
       },
       child: Scaffold(
           appBar: AppBar(
@@ -107,37 +138,61 @@ class SubmitForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
 		builder: (context, state) {
-		  return Padding(
-			padding: const EdgeInsets.only(top: 30),
-			child: Row(
-			  mainAxisAlignment: MainAxisAlignment.center,
-			  children: [
-				ElevatedButton(
-				  onPressed: state.isValid
-					  ? () =>
-						  context.read<<%= entityClass %>Bloc>().add(<%= entityClass %>FormSubmitted())
-					  : null,
-				  style: ButtonStyle(
-						backgroundColor:
-							MaterialStatePropertyAll(Theme.of(context).primaryColor),
-				  ),
-				  child: SizedBox(
-					  width: MediaQuery.of(context).size.width * 0.2,
-					  height: 50,
-					  child: Center(
-						child: Visibility(
-						  replacement: const CircularProgressIndicator(),
-						  visible: !(state.formStatus == FormzSubmissionStatus.inProgress),
-						  child: const Text(
-							'SAVE',
-							style: TextStyle(color: Colors.white),
-						  ),
-						),
-					  )),
-				),
-			  ],
-			),
-		  );
+			return state.formStatus.isInProgress
+            ? const Padding(
+                padding: EdgeInsets.only(top: 30),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                  ],
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.only(top: 30),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      key: const Key('<%= entityInstance %>Form_elevatedButton'),
+                      onPressed: state.isValid
+                          ? () => context.read<<%= entityClass %>Bloc>().add(<%= entityClass %>FormSubmitted())
+                          : null,
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStatePropertyAll(
+                          state.isValid
+                              ? context.read<ThemeBloc>().state ==
+                                      ThemeMode.dark
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .secondaryContainer
+                                  : Theme.of(context).colorScheme.primary
+                              : context.read<ThemeBloc>().state ==
+                                      ThemeMode.dark
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .primary
+                                      .withOpacity(0.3)
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .secondary
+                                      .withOpacity(0.3),
+                        ),
+                      ),
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.2,
+                        height: 50,
+                        child: const Center(
+                          child: Text(
+                            'Guardar',
+                            style: TextStyle(color: Colors.white, fontSize: 18),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
     });
   }
 }
@@ -318,8 +373,12 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 		  <%_ if(fieldOptions.readonly != null) { %>
 		  enabled: <%= !fieldOptions.readonly %>,
 		  <%_ } _%>
-		  onChanged: (value) { context.read<<%= entityClass %>Bloc>()
-			.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: <%_ if(field.fieldType === 'int') { _%> int.tryParse(value) ?? -1 <%_ } else { _%> value <%_ } _%>)); },
+		  onChanged: (value) {
+			<%_ if(field.fieldType === 'int') { _%>
+			int valueInt = value.isEmpty ? -1 : int.tryParse(value) ?? -2;
+			<%_ } else { _%> value <%_ } _%>
+			context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: valueInt));
+		  },
 		  keyboardType: TextInputType.number,
 		  decoration: InputDecoration(
 			  labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
@@ -356,8 +415,12 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			  <%_ if(fieldOptions.readonly != null) { %>
 			  enabled: <%= !fieldOptions.readonly %>,
 			  <%_ } _%>
-			  onChanged: (value) { context.read<<%= entityClass %>Bloc>()
-				.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: <%_ if(field.fieldType === 'double') { _%> double.tryParse(value) ?? -1 <%_ } else { _%> value <%_ } _%>)); },
+			  onChanged: (value) {
+				<%_ if(field.fieldType === 'double') { _%>
+				int valueDouble = value.isEmpty ? -1 : double.tryParse(value) ?? -2;
+				<%_ } else { _%> value <%_ } _%>
+				context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: valueInt));
+			  },
 			  keyboardType: TextInputType.number,
 			  decoration: InputDecoration(
 				  labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,

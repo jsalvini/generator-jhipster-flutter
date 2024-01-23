@@ -58,11 +58,20 @@ class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInpu
   const <%= entityClass %><%= field.fieldNameCapitalized %>Input.pure() : super.pure(<%- field.defaultValue %>);
   const <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty([<%= field.fieldType %> value = <%- field.defaultValue %>]) : super.dirty(value);
 
+  <%_ if(field.fieldValidateRules == 'required') { _%>
+  static const isOptional = false;
+  <%_ } else { _%>
+  static const isOptional = true;
+  <%_ } _%>
+
   @override
   <%= field.fieldNameCapitalized %>ValidationError? validator(<%= field.fieldType %> value) {
+    if (isOptional && !value.isNegative) {
+      return null;
+    }
     if (!value.isFinite) {
       return <%= field.fieldNameCapitalized %>ValidationError.invalid;
-    } else if (value.isNegative) {
+    } else if (value.isNegative && value == -2) {
       return <%= field.fieldNameCapitalized %>ValidationError.invalid;
     }
     return null;
@@ -80,11 +89,20 @@ class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInpu
     const <%= entityClass %><%= field.fieldNameCapitalized %>Input.pure() : super.pure(<%- field.defaultValue %>);
     const <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty([<%= field.fieldType %> value = <%- field.defaultValue %>]) : super.dirty(value);
 
+    <%_ if(field.fieldValidateRules == 'required') { _%>
+    static const isOptional = false;
+    <%_ } else { _%>
+    static const isOptional = true;
+    <%_ } _%>
+
     @override
     <%= field.fieldNameCapitalized %>ValidationError? validator(<%= field.fieldType %> value) {
-      if (!value.isFinite) {
+      if (isOptional && !value.isNegative) {
+        return null;
+      }
+      if (!value.isInfinite) {
         return <%= field.fieldNameCapitalized %>ValidationError.invalid;
-      } else if (value.isNegative) {
+      } else if (value.isNegative && value == -2) {
         return <%= field.fieldNameCapitalized %>ValidationError.invalid;
       }
       return null;
@@ -112,6 +130,9 @@ class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInpu
 
       <%_ if(field.fieldValidateRules == 'required') { _%>
       static const minLength = 1;
+      static const isOptional = false;
+      <%_ } else { _%>
+      static const isOptional = true;
       <%_ } _%>
       <%_ if(field.fieldValidateRules == 'minlength') { _%>
       static const minLength = <%= field.fieldValidateRulesMinlength %>;
@@ -130,6 +151,9 @@ class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInpu
           return <%= field.fieldNameCapitalized %>ValidationError.minLength;
         }
         <%_ } _%>
+        if (isOptional && value.isEmpty) {
+          return null;
+        }
         <%_ if(field.fieldValidateRules == 'maxlength') { _%>
         if (value.length > maxLength) {
           return <%= field.fieldNameCapitalized %>ValidationError.maxLength;

@@ -20,20 +20,20 @@ import '../../<%- relation.otherEntityFolderName %>/models/<%- relation.otherEnt
 @jsonSerializable
 class <%= entityClass %> extends Equatable {
 
-  @JsonProperty(name: '<%- idField.fieldName _%>')
+  @JsonProperty(name: '<%- idField.fieldName _%>', ignoreIfNull: true)
   final <%= idField.fieldType %>? <%= idField.fieldName %>;
-<%_ fields.forEach(field => { %>
-  @JsonProperty(name: '<%- field.fieldName _%>' <%_ if(field.fieldType === 'DateTime') { _%>, converterParams: {'format': 'yyyy-MM-dd\'T\'HH:mm:ss\'Z\''}<%_ }  _%>)
+  <%_ fields.forEach(field => { %>
+  @JsonProperty(name: '<%- field.fieldName _%>' <%_ if(field.fieldType === 'DateTime') { _%>, converterParams: {'format': 'yyyy-MM-dd\'T\'HH:mm:ss\'Z\''}<%_ }  _%>, ignoreIfNull: true)
   final <%= %> <%_ if(field.fieldValidateRules != 'required' ) { _%><%= field.fieldType %>?<%=  %><%_ } else { _%><%=  %> <%= field.fieldType %><%_ } _%>  <%=  %> <%= field.fieldName %>;
-<%_ }); _%>
-<%_ relationships.forEach(relationship => { %>
+  <%_ }); _%>
+  <%_ relationships.forEach(relationship => { %>
   @JsonProperty(name: '<%- relationship.relationshipFieldName _%>', ignoreIfNull: true)
   <%_ if(relationship.isList) { _%>
   final List<<%- relationship.otherEntityNameCapitalized %>>? <%- relationship.relationshipFieldName _%>;
   <%_ } else { _%>
   final <%= relationship.otherEntityNameCapitalized %>? <%= relationship.relationshipFieldName %>;
   <%_ } _%>
-<%_ }); _%>
+  <%_ }); _%>
 
   @JsonProperty(ignoreForDeserialization: true, ignoreForSerialization: true)
   final bool selected;

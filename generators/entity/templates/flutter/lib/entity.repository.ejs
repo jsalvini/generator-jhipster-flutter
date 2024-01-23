@@ -34,6 +34,16 @@ class <%= entityClass %>Repository {
     try {
       final Response response = await HttpUtils.getRequest(newUriEndpoint);
 
+      if (response.statusCode >= 300 && response.statusCode < 600) {
+        ErrorResponse? errorResponse =
+            JsonMapper.deserialize<ErrorResponse>(response.body);
+        if (errorResponse != null) {
+          return Left(
+            ServerFailure(errorMessage: errorResponse.detail!),
+          );
+        }
+      }
+
       int count = int.parse(response.headers['x-total-count']!);
       String link = response.headers['link'] as String;
       List<<%= entityClass %>>? <%= entityClassPluralLowered %> =
@@ -57,6 +67,15 @@ class <%= entityClass %>Repository {
   Future<Either<Failure, <%= entityClass %>?>> get<%= entityClass %>(int? id) async {
     try {
       final Response response = await HttpUtils.getRequest('$uriEndpoint/$id');
+      if (response.statusCode >= 300 && response.statusCode < 600) {
+        ErrorResponse? errorResponse =
+            JsonMapper.deserialize<ErrorResponse>(response.body);
+        if (errorResponse != null) {
+          return Left(
+            ServerFailure(errorMessage: errorResponse.detail!),
+          );
+        }
+      }
       <%= entityClass %>? <%= entityInstance %> = JsonMapper.deserialize<<%= entityClass %>>(response.body);
       return Right(<%= entityInstance %>);
     } on ServerException catch (e) {
@@ -74,7 +93,16 @@ class <%= entityClass %>Repository {
     try {
       final Response response =
           await HttpUtils.postRequest(uriEndpoint, <%= entityInstance %>);
-          <%= entityClass %>? new<%= entityClass %> = JsonMapper.deserialize<<%= entityClass %>>(response.body);
+      if (response.statusCode >= 300 && response.statusCode < 600) {
+        ErrorResponse? errorResponse =
+            JsonMapper.deserialize<ErrorResponse>(response.body);
+        if (errorResponse != null) {
+          return Left(
+            ServerFailure(errorMessage: errorResponse.detail!),
+          );
+        }
+      }
+      <%= entityClass %>? new<%= entityClass %> = JsonMapper.deserialize<<%= entityClass %>>(response.body);
       return Right(new<%= entityClass %>);
     } on ServerException catch (e) {
       return Left(
@@ -91,7 +119,16 @@ class <%= entityClass %>Repository {
     try {
       final Response response =
           await HttpUtils.putRequest('$uriEndpoint/$id', <%= entityInstance %>);
-          <%= entityClass %>? updated<%= entityClass %> =
+      if (response.statusCode >= 300 && response.statusCode < 600) {
+        ErrorResponse? errorResponse =
+            JsonMapper.deserialize<ErrorResponse>(response.body);
+        if (errorResponse != null) {
+          return Left(
+            ServerFailure(errorMessage: errorResponse.detail!),
+          );
+        }
+      }
+      <%= entityClass %>? updated<%= entityClass %> =
           JsonMapper.deserialize<<%= entityClass %>>(response.body);
       return Right(updated<%= entityClass %>);
     } on ServerException catch (e) {
