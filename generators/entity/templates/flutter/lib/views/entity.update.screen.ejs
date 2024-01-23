@@ -157,7 +157,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			  return DateTimeField(
 				controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
 				<%_ if(fieldOptions.readonly != null) { %>
-				enabled: <%= fieldOptions.readonly %>,
+				enabled: <%= !fieldOptions.readonly %>,
 				<%_ } _%>
 				onChanged: (value) {
 				  context
@@ -316,7 +316,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 		return TextFormField(
 		  controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
 		  <%_ if(fieldOptions.readonly != null) { %>
-		  enabled: <%= fieldOptions.readonly %>,
+		  enabled: <%= !fieldOptions.readonly %>,
 		  <%_ } _%>
 		  onChanged: (value) { context.read<<%= entityClass %>Bloc>()
 			.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: <%_ if(field.fieldType === 'int') { _%> int.tryParse(value) ?? -1 <%_ } else { _%> value <%_ } _%>)); },
@@ -354,7 +354,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			return TextFormField(
 			  controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
 			  <%_ if(fieldOptions.readonly != null) { %>
-			  enabled: <%= fieldOptions.readonly %>,
+			  enabled: <%= !fieldOptions.readonly %>,
 			  <%_ } _%>
 			  onChanged: (value) { context.read<<%= entityClass %>Bloc>()
 				.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: <%_ if(field.fieldType === 'double') { _%> double.tryParse(value) ?? -1 <%_ } else { _%> value <%_ } _%>)); },
@@ -392,7 +392,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 		return TextFormField(
 			controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
 			<%_ if(fieldOptions.readonly != null) { %>
-			enabled: <%= fieldOptions.readonly %>,
+			enabled: <%= !fieldOptions.readonly %>,
 			<%_ } _%>
 			onChanged: (value) { context.read<<%= entityClass %>Bloc>()
 			.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value)); },
