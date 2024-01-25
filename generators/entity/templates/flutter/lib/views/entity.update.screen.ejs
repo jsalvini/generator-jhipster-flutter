@@ -380,7 +380,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 		  controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
 		  enabled: <%= !fieldOptions.readonly %>,
 		  onChanged: (value) {
-			context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value.isNotEmpty ? value : '0'));
+			context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value));
 		  },
 		  keyboardType: const TextInputType.numberWithOptions(
 			signed: false,
@@ -422,7 +422,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			  controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
 			  enabled: <%= !fieldOptions.readonly %>,
 			  onChanged: (value) {
-				context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value.isNotEmpty ? value : '0.0'));
+				context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value));
 			  },
 			  keyboardType: const TextInputType.numberWithOptions(
 				decimal: true,

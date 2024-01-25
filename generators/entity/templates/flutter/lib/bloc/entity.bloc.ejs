@@ -182,9 +182,17 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
           <%= idField.fieldName %>: state.loaded<%= entityClass %>.id,
           <%_ fields.forEach(field => { _%>
             <%_ if(field.fieldType === 'double') { _%>
-            <%= field.fieldName %>: state.<%= field.fieldName %>.value.isNotEmpty ? double.parse(state.<%= field.fieldName %>.value) : null,
+              <%= field.fieldName %>: <%_ if(field.fieldValidateRules != 'required') { _%>
+              state.<%= field.fieldName %>.value.isNotEmpty ? double.parse(state.<%= field.fieldName %>.value) : null,
+              <%_ } else { _%>
+              double.parse(state.<%= field.fieldName %>.value),
+              <%_ } _%>
             <%_ } else if(field.fieldType === 'int') { _%>
-            <%= field.fieldName %>: state.<%= field.fieldName %>.value.isNotEmpty ? int.parse(state.<%= field.fieldName %>.value) : null,
+              <%= field.fieldName %>: <%_ if(field.fieldValidateRules != 'required') { _%>
+              state.<%= field.fieldName %>.value.isNotEmpty ? int.parse(state.<%= field.fieldName %>.value) : null,
+              <%_ } else { _%>
+              int.parse(state.<%= field.fieldName %>.value),
+              <%_ } _%>
             <%_ } else { _%>
             <%= field.fieldName %>: state.<%= field.fieldName %>.value,
             <%_ } _%>
@@ -202,9 +210,17 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
           <%= idField.fieldName %>: null,
           <%_ fields.forEach(field => { _%>
             <%_ if(field.fieldType === 'double') { _%>
-            <%= field.fieldName %>: double.parse(state.<%= field.fieldName %>.value),
+              <%= field.fieldName %>: <%_ if(field.fieldValidateRules != 'required') { _%>
+              state.<%= field.fieldName %>.value.isNotEmpty ? double.parse(state.<%= field.fieldName %>.value) : null,
+              <%_ } else { _%>
+              double.parse(state.<%= field.fieldName %>.value),
+              <%_ } _%>
             <%_ } else if(field.fieldType === 'int') { _%>
-            <%= field.fieldName %>: int.parse(state.<%= field.fieldName %>.value),
+              <%= field.fieldName %>: <%_ if(field.fieldValidateRules != 'required') { _%>
+              state.<%= field.fieldName %>.value.isNotEmpty ? int.parse(state.<%= field.fieldName %>.value) : null,
+              <%_ } else { _%>
+              int.parse(state.<%= field.fieldName %>.value),
+              <%_ } _%>
             <%_ } else { _%>
             <%= field.fieldName %>: state.<%= field.fieldName %>.value,
             <%_ } _%>

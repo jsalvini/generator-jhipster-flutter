@@ -54,8 +54,8 @@ extension <%= field.fieldNameCapitalized %>ValidationErrorMessage on <%= field.f
 }
 
 class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInput<String, <%= field.fieldNameCapitalized %>ValidationError> {
-  const <%= entityClass %><%= field.fieldNameCapitalized %>Input.pure() : super.pure('0');
-  const <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty([String value = '0']) : super.dirty(value);
+  const <%= entityClass %><%= field.fieldNameCapitalized %>Input.pure() : super.pure('');
+  const <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty([String value = '']) : super.dirty(value);
 
   <%_ if(field.fieldValidateRules == 'required') { _%>
   static const isOptional = false;
@@ -68,6 +68,9 @@ class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInpu
   <%= field.fieldNameCapitalized %>ValidationError? validator(String value) {
     if (isOptional && value.isEmpty) {
       return null;
+    }
+    if (value.isEmpty) {
+      return <%= field.fieldNameCapitalized %>ValidationError.invalid;
     }
     if (!_integerRegExp.hasMatch(value)) {
       return <%= field.fieldNameCapitalized %>ValidationError.invalid;
@@ -83,8 +86,8 @@ class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInpu
   }
 
   class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInput<String, <%= field.fieldNameCapitalized %>ValidationError> {
-    const <%= entityClass %><%= field.fieldNameCapitalized %>Input.pure() : super.pure('0.0');
-    const <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty([String value = '0.0']) : super.dirty(value);
+    const <%= entityClass %><%= field.fieldNameCapitalized %>Input.pure() : super.pure('');
+    const <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty([String value = '']) : super.dirty(value);
 
     <%_ if(field.fieldValidateRules == 'required') { _%>
     static const isOptional = false;
@@ -97,6 +100,9 @@ class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInpu
     <%= field.fieldNameCapitalized %>ValidationError? validator(String value) {
       if (isOptional && value.isEmpty) {
         return null;
+      }
+      if (value.isEmpty) {
+        return <%= field.fieldNameCapitalized %>ValidationError.invalid;
       }
       if (!_decimalRegExp.hasMatch(value)) {
         return <%= field.fieldNameCapitalized %>ValidationError.invalid;
