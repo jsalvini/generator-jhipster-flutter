@@ -1,10 +1,13 @@
 class MessageValidation {
-    static String minimoCaracteresUsername = '- Puede comenzar con @ mínimo 3 caracteres.';
-    static String caracteresPermitidos = '- Se permite utilizar caracteres alfanuméricos, guiones bajos ("_"), guiones ("-") y puntos (".").';
-    static String numerosEnteros = '- Solo se permiten números enteros.';
-    static String numerosDecimales = '- Solo se permiten números decimales.';
-    static String soloLetras = '- Solo se permiten letras.';
-    static String minimoCaracteres = '- Debe tener como mínimo 3 caracteres.';
-    static String maximoCaracteres = '- Supera la cantidad maxima de caracteres.';
-    static String invalidValue = '- El valor ingresado es invalido.';
-  }
+  static String campoRequerido = '* El campo es requerido.';
+  static String minimoCaracteresUsername =
+      '- Puede comenzar con @ mínimo 3 caracteres.';
+  static String caracteresPermitidos =
+      '- Se permite utilizar caracteres alfanuméricos, guiones bajos ("_"), guiones ("-") y puntos (".").';
+  static String numerosEnteros = '- El valor ingresado no es valido, solo se permiten números enteros.';
+  static String numerosDecimales = '- El valor ingresado no es valido, solo se permiten números decimales, presición 2 digitos.';
+  static String soloLetras = '- Solo se permiten letras.';
+  static String minimoCaracteres = '- Debe tener como mínimo 3 caracteres.';
+  static String maximoCaracteres = '- Supera la cantidad maxima de caracteres.';
+  static String invalidValue = '- El valor ingresado no es valido.';
+}

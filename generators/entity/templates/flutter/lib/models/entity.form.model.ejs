@@ -50,28 +50,26 @@ class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInpu
 enum <%= field.fieldNameCapitalized %>ValidationError { invalid }
 
 extension <%= field.fieldNameCapitalized %>ValidationErrorMessage on <%= field.fieldNameCapitalized %>ValidationError {
-  String invalidMessage() =>
-      'El <%= field.fieldNameHumanized %> no es valido:\n\t${MessageValidation.numerosEnteros}';
+  String invalidMessage() => MessageValidation.numerosEnteros;
 }
 
-class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldType %>, <%= field.fieldNameCapitalized %>ValidationError> {
-  const <%= entityClass %><%= field.fieldNameCapitalized %>Input.pure() : super.pure(<%- field.defaultValue %>);
-  const <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty([<%= field.fieldType %> value = <%- field.defaultValue %>]) : super.dirty(value);
+class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInput<String, <%= field.fieldNameCapitalized %>ValidationError> {
+  const <%= entityClass %><%= field.fieldNameCapitalized %>Input.pure() : super.pure('0');
+  const <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty([String value = '0']) : super.dirty(value);
 
   <%_ if(field.fieldValidateRules == 'required') { _%>
   static const isOptional = false;
   <%_ } else { _%>
   static const isOptional = true;
   <%_ } _%>
+  static final RegExp _integerRegExp = RegExp(ExpresionesRegulares.soloEnteros);
 
   @override
-  <%= field.fieldNameCapitalized %>ValidationError? validator(<%= field.fieldType %> value) {
-    if (isOptional && !value.isNegative) {
+  <%= field.fieldNameCapitalized %>ValidationError? validator(String value) {
+    if (isOptional && value.isEmpty) {
       return null;
     }
-    if (!value.isFinite) {
-      return <%= field.fieldNameCapitalized %>ValidationError.invalid;
-    } else if (value.isNegative && value == -2) {
+    if (!_integerRegExp.hasMatch(value)) {
       return <%= field.fieldNameCapitalized %>ValidationError.invalid;
     }
     return null;
@@ -81,28 +79,26 @@ class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInpu
   enum <%= field.fieldNameCapitalized %>ValidationError { invalid }
 
   extension <%= field.fieldNameCapitalized %>ValidationErrorMessage on <%= field.fieldNameCapitalized %>ValidationError {
-    String invalidMessage() =>
-        'El <%= field.fieldNameHumanized %> no es valido:\n\t${MessageValidation.numerosDecimales}';
+    String invalidMessage() => MessageValidation.numerosDecimales;
   }
 
-  class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInput<<%= field.fieldType %>, <%= field.fieldNameCapitalized %>ValidationError> {
-    const <%= entityClass %><%= field.fieldNameCapitalized %>Input.pure() : super.pure(<%- field.defaultValue %>);
-    const <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty([<%= field.fieldType %> value = <%- field.defaultValue %>]) : super.dirty(value);
+  class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInput<String, <%= field.fieldNameCapitalized %>ValidationError> {
+    const <%= entityClass %><%= field.fieldNameCapitalized %>Input.pure() : super.pure('0.0');
+    const <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty([String value = '0.0']) : super.dirty(value);
 
     <%_ if(field.fieldValidateRules == 'required') { _%>
     static const isOptional = false;
     <%_ } else { _%>
     static const isOptional = true;
     <%_ } _%>
+    static final RegExp _decimalRegExp = RegExp(ExpresionesRegulares.soloDecimales);
 
     @override
-    <%= field.fieldNameCapitalized %>ValidationError? validator(<%= field.fieldType %> value) {
-      if (isOptional && !value.isNegative) {
+    <%= field.fieldNameCapitalized %>ValidationError? validator(String value) {
+      if (isOptional && value.isEmpty) {
         return null;
       }
-      if (!value.isInfinite) {
-        return <%= field.fieldNameCapitalized %>ValidationError.invalid;
-      } else if (value.isNegative && value == -2) {
+      if (!_decimalRegExp.hasMatch(value)) {
         return <%= field.fieldNameCapitalized %>ValidationError.invalid;
       }
       return null;

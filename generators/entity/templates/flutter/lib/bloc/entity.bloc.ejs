@@ -181,10 +181,16 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
         new<%= entityClass %> = <%= entityClass %>(
           <%= idField.fieldName %>: state.loaded<%= entityClass %>.id,
           <%_ fields.forEach(field => { _%>
+            <%_ if(field.fieldType === 'double') { _%>
+            <%= field.fieldName %>: state.<%= field.fieldName %>.value.isNotEmpty ? double.parse(state.<%= field.fieldName %>.value) : null,
+            <%_ } else if(field.fieldType === 'int') { _%>
+            <%= field.fieldName %>: state.<%= field.fieldName %>.value.isNotEmpty ? int.parse(state.<%= field.fieldName %>.value) : null,
+            <%_ } else { _%>
             <%= field.fieldName %>: state.<%= field.fieldName %>.value,
+            <%_ } _%>
           <%_ }); _%>
           <%_ relationships.forEach(relationship => { _%>
-            <%= relationship.relationshipFieldName %>: state.<%= relationship.relationshipFieldName %>,
+            <%= relationship.relationshipFieldName %>: state.<%= relationship.relationshipFieldName %>.id != null ? state.<%= relationship.relationshipFieldName %> : null,
           <%_ }); _%>
         );
         result = await _<%= entityInstance %>Repository.update(
@@ -195,7 +201,13 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
         new<%= entityClass %> = <%= entityClass %>(
           <%= idField.fieldName %>: null,
           <%_ fields.forEach(field => { _%>
-          <%= field.fieldName %>: state.<%= field.fieldName %>.value,
+            <%_ if(field.fieldType === 'double') { _%>
+            <%= field.fieldName %>: double.parse(state.<%= field.fieldName %>.value),
+            <%_ } else if(field.fieldType === 'int') { _%>
+            <%= field.fieldName %>: int.parse(state.<%= field.fieldName %>.value),
+            <%_ } else { _%>
+            <%= field.fieldName %>: state.<%= field.fieldName %>.value,
+            <%_ } _%>
           <%_ }); _%>
           <%_ relationships.forEach(relationship => { _%>
           <%= relationship.relationshipFieldName %>: state.<%= relationship.relationshipFieldName %>.id != null ? state.<%= relationship.relationshipFieldName %> : null,
@@ -214,7 +226,7 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
         (<%= entityClass %>? data) {
           add(const Load<%= entityClass %>List(page: 0, sort: 'id', ascending: 'asc'));
           emit(state.copyWith(
-                <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.done,
+                <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.ok,
                 generalNotificationKey: state.editMode ? '<%= entityClass %> actualizada correctamente.' : '<%= entityClass %> agregada correctamente.',
           ));
         },
@@ -242,13 +254,15 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
 
         if (loaded<%= entityClass %> != null) {
           <%_ fields.forEach(field => { _%>
-            <%_ if(field.fieldType === 'DateTime') { _%>
-              final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> <%_ if(field.fieldValidateRules != 'required') { _%>?? DateTime.now()<%_ } _%>));
+              <%_ if(field.fieldType === 'DateTime') { _%>
+              final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> <%_ if(field.fieldValidateRules != 'required') { _%> ?? DateTime.now()<%_ } _%>));
               <%_ } else if (field.fieldIsEnum) {_%>
               final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> ?? <%= field.fieldType %>.<%= field.fieldValues.split(',')[0] %>));
-              <%_  } else { _%>
-              final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> <%_ if(field.fieldValidateRules != 'required') { _%>?? <%- field.defaultValue %><%_ } _%>));
-            <%_ } _%>
+              <%_ } else if(field.fieldType === 'double' || field.fieldType === 'int') { _%>
+              final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((<%_ if(field.fieldValidateRules != 'required') { _%> loaded<%= entityClass %>.<%= field.fieldName %>?.toString() ?? ''<%_ } else { _%> loaded<%= entityClass %>.<%= field.fieldName %>.toString() <%_ } _%> ));
+              <%_ } else { _%>
+              final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> <%_ if(field.fieldValidateRules != 'required') { _%> ?? <%- field.defaultValue %><%_ } _%>));
+              <%_ } _%>
           <%_ }); _%>
           emit(state.copyWith(
             loaded<%= entityClass %>: loaded<%= entityClass %>,
@@ -263,11 +277,11 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
           ));
           <%_ fields.forEach(field => { _%>
           <%_ if(field.fieldType === 'DateTime') { _%>
-          <%= field.fieldName %>Controller.text = DateFormat("yyyy-MM-dd").format(loaded<%= entityClass %>.<%= field.fieldName %><%_ if(field.fieldValidateRules != 'required') { _%>!<%_ } _%>);
-            <%_  } else if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
-          <%= field.fieldName %>Controller.text = loaded<%= entityClass %>.<%= field.fieldName %><%_ if(field.fieldValidateRules != 'required') { _%>!<%_ } _%>.toString();
-            <%_ } else if (!field.fieldIsEnum && field.fieldType !== 'bool') { _%>
-          <%= field.fieldName %>Controller.text = loaded<%= entityClass %>.<%= field.fieldName %><%_ if(field.fieldValidateRules != 'required') { _%>!<%_ } _%>;
+          <%= field.fieldName %>Controller.text = DateFormat("yyyy-MM-dd").format(loaded<%= entityClass %>.<%= field.fieldName %> ?? DateTime.now());
+          <%_  } else if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
+          <%= field.fieldName %>Controller.text = <%_ if(field.fieldValidateRules != 'required') { _%>loaded<%= entityClass %>.<%= field.fieldName %> != null ? loaded<%= entityClass %>.<%= field.fieldName %>!.toString() : ''<%_ } else { _%> loaded<%= entityClass %>.<%= field.fieldName %>.toString()<%_ } _%>;
+          <%_ } else if (!field.fieldIsEnum && field.fieldType !== 'bool') { _%>
+          <%= field.fieldName %>Controller.text = loaded<%= entityClass %>.<%= field.fieldName %> ?? '';
           <%_ } _%>
           <%_ }); _%>
         }
@@ -324,6 +338,8 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
               final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> <%_ if(field.fieldValidateRules != 'required') { _%>?? DateTime.now()<%_ } _%>));
               <%_ } else if (field.fieldIsEnum) {_%>
               final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> ?? <%= field.fieldType %>.<%= field.fieldValues.split(',')[0] %>));
+              <%_ } else if (field.fieldType === 'int' || field.fieldType === 'double') { _%>
+              final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((<%_ if(field.fieldValidateRules != 'required') { _%> loaded<%= entityClass %>.<%= field.fieldName %>?.toString() ?? ''<%_ } else { _%> loaded<%= entityClass %>.<%= field.fieldName %>.toString() <%_ } _%> ));
               <%_  } else { _%>
               final <%= field.fieldName %> = <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty((loaded<%= entityClass %>.<%= field.fieldName %> <%_ if(field.fieldValidateRules != 'required') { _%>?? <%- field.defaultValue %><%_ } _%>));
             <%_ } _%>
@@ -340,11 +356,11 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
           ));
           <%_ fields.forEach(field => { _%>
           <%_ if(field.fieldType === 'DateTime') { _%>
-          <%= field.fieldName %>Controller.text = DateFormat("yyyy-MM-dd").format(loaded<%= entityClass %>.<%= field.fieldName %><%_ if(field.fieldValidateRules != 'required') { _%>!<%_ } _%>);
-            <%_  } else if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
-          <%= field.fieldName %>Controller.text = loaded<%= entityClass %>.<%= field.fieldName %><%_ if(field.fieldValidateRules != 'required') { _%>!<%_ } _%>.toString();
-            <%_ } else if (!field.fieldIsEnum && field.fieldType !== 'bool') { _%>
-          <%= field.fieldName %>Controller.text = loaded<%= entityClass %>.<%= field.fieldName %><%_ if(field.fieldValidateRules != 'required') { _%>!<%_ } _%>;
+          <%= field.fieldName %>Controller.text = DateFormat("yyyy-MM-dd").format(loaded<%= entityClass %>.<%= field.fieldName %> ?? DateTime.now());
+          <%_  } else if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
+          <%= field.fieldName %>Controller.text = <%_ if(field.fieldValidateRules != 'required') { _%>loaded<%= entityClass %>.<%= field.fieldName %> != null ? loaded<%= entityClass %>.<%= field.fieldName %>!.toString() : ''<%_ } else { _%> loaded<%= entityClass %>.<%= field.fieldName %>.toString()<%_ } _%>;
+          <%_ } else if (!field.fieldIsEnum && field.fieldType !== 'bool') { _%>
+          <%= field.fieldName %>Controller.text = loaded<%= entityClass %>.<%= field.fieldName %> ?? '';
           <%_ } _%>
           <%_ }); _%>
         }

@@ -64,8 +64,11 @@ class Load<%= entityClass %>List extends <%= entityClass %>Event {
 
 <%_ fields.forEach(field => { _%>
 class <%= entityClass %><%= field.fieldNameCapitalized %>Changed extends <%= entityClass %>Event {
+  <%_ if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
+  final String <%= field.fieldName %>;
+  <%_ } else { _%>
   final <%= field.fieldType %> <%= field.fieldName %>;
-
+  <%_ } _%>
   const <%= entityClass %><%= field.fieldNameCapitalized %>Changed({required this.<%= field.fieldName %>});
 
   @override

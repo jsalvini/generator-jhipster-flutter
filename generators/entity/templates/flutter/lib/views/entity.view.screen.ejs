@@ -15,14 +15,16 @@ const primaryKeyType = context.primaryKeyType;
 const enableTranslation = context.enableTranslation;
 const hasDateTime = context.hasDateTime;
 _%>
-import 'package:<%= baseName %>/core/core.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 <%_ if(hasDateTime) { _%>
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
 <%_ } _%>
+import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_model.dart';
 import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
@@ -53,9 +55,14 @@ class <%= entityClass %>ViewScreen extends StatelessWidget {
             return Visibility(
               visible: state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.done,
               replacement: const LoadingIndicator(),
-              child: const Column(
+              child: Column(
                   children: <Widget>[
-                    Form<%= entityClass %>(),
+                    Card(
+                      elevation: 5,
+                      margin: const EdgeInsets.all(20),
+                      shadowColor: Theme.of(context).colorScheme.primary,
+                      child: const Form<%= entityClass %>(),
+                    ),
                   ],
               ),
             );
@@ -72,7 +79,7 @@ class Form<%= entityClass %> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.only(top: 30),
+      padding: EdgeInsets.only(top: 30, bottom: 30),
       child: Center(
         child: SizedBox(
           width: 600,
@@ -154,6 +161,7 @@ class EditButton extends StatelessWidget {
           format: DateFormat("yyyy-MM-dd"),
           keyboardType: TextInputType.datetime,
           decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.date_range_rounded),
               labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
               labelStyle: TextStyle(
                   height: 0.5,
@@ -189,19 +197,40 @@ class EditButton extends StatelessWidget {
       buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
       builder: (context, state) {
         return Padding(
-        padding: const EdgeInsets.only(left: 3.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>, style: Theme.of(context).textTheme.bodyLarge,),
-            const SizedBox(width: 20),
-            DropdownButton<<%= field.fieldType %>>(
-              value: state.<%= field.fieldName %>.value,
-              onChanged: null,
-              items: createDropdown<%= field.fieldType %>Items(<%= field.fieldType %>.values),
+          padding: const EdgeInsets.only(top: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+            SizedBox(
+              width: 250,
+              child: DropdownButtonFormField<<%= field.fieldType %>>(
+                value: state.<%= field.fieldName %>.value,
+                dropdownColor: Colors.white,
+                icon: Icon(
+                Icons.arrow_drop_down,
+                color: Theme.of(context).primaryColor,
+                ),
+                style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Color(0xff49454f),
+                ),
+                decoration: const InputDecoration(
+                  labelStyle: TextStyle(
+                    height: 0.5,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  floatingLabelStyle: TextStyle(
+                      height: 0.5,
+                      fontSize: 18,
+                    ),
+                  ),
+                onChanged: null,
+                items: createDropdown<%= field.fieldType %>Items(<%= field.fieldType %>.values)),
             ),
-          ],
-        ),
+            ],
+          ),
         );
       });
     }
@@ -233,21 +262,27 @@ class EditButton extends StatelessWidget {
       return BlocBuilder<<%= entityClass %>Bloc,<%= entityClass %>State>(
       buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
       builder: (context, state) {
-      return Padding(
-        padding: const EdgeInsets.only(left: 3.0),
-        child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>, style: Theme.of(context).textTheme.bodyLarge,),
-          const SizedBox(width: 20),
-          Switch(
-            value: state.<%= field.fieldName %>.value,
-            onChanged: null,
-            activeColor: Theme.of(context).primaryColor,
-            ),
-        ],
-        ),
-      );
+        return Padding(
+          padding: const EdgeInsets.only(left: 3.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>, 
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(width: 20),
+              Switch(
+                value: state.<%= field.fieldName %>.value,
+                onChanged: null,
+                activeColor: Theme.of(context).primaryColor,
+                ),
+            ],
+          ),
+        );
       });
     }
   }
@@ -263,11 +298,18 @@ class EditButton extends StatelessWidget {
       builder: (context, state) {
       return TextFormField(
         controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-        readOnly: true,
-        keyboardType: TextInputType.number,
+        enabled: false,
+        keyboardType: const TextInputType.numberWithOptions(
+          signed: false,
+          decimal: false,
+          ),
+        maxLength: 15,
+        inputFormatters: <TextInputFormatter>[
+          LengthLimitingTextInputFormatter(15),
+        ],
         decoration: InputDecoration(
+          prefixIcon: const Icon(Icons.numbers_rounded),
           labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
-          helperText: MessageValidation.numerosEnteros,
           labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
             contentPadding: const EdgeInsets.symmetric(vertical: 10),
           ),
@@ -288,11 +330,18 @@ class EditButton extends StatelessWidget {
           builder: (context, state) {
             return TextFormField(
               controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-              readOnly: true,
-              keyboardType: TextInputType.number,
+              enabled: false,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+                signed: true,
+                ),
+              maxLength: 15,
+              inputFormatters: <TextInputFormatter>[
+                LengthLimitingTextInputFormatter(15),
+              ],
               decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.numbers_rounded),
                 labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
-                helperText: MessageValidation.numerosDecimales,
                 labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
                 contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 ),
@@ -313,11 +362,12 @@ class EditButton extends StatelessWidget {
         builder: (context, state) {
           return TextFormField(
             controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-            readOnly: true,
+            enabled: false,
             keyboardType: TextInputType.text,
+            maxLength: <%= field.fieldValidateRulesMaxlength %>,
             decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.text_fields_rounded),
               labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
-              helperText: '${MessageValidation.soloLetras}\n${MessageValidation.minimoCaracteres}',
               labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
               contentPadding: const EdgeInsets.symmetric(vertical: 10),
               ),

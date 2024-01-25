@@ -17,6 +17,7 @@ const hasDateTime = context.hasDateTime;
 _%>
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,7 +44,7 @@ class <%= entityClass %>UpdateScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<<%= entityClass %>Bloc, <%= entityClass %>State>(
       listener: (context, state) {
-        if (state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.done ||
+        if (state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.ok ||
             state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.error) {
           Color colorBackground = Colors.green;
           IconData iconData = Icons.info_outline_rounded;
@@ -89,11 +90,16 @@ class <%= entityClass %>UpdateScreen extends StatelessWidget {
                 }
             ),
           ),
-          body: const SingleChildScrollView(
-            padding: EdgeInsets.all(15.0),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(15.0),
             child: Column(
 				children: <Widget>[
-					Form<%= entityClass %>(),
+					Card(
+						elevation: 5,
+						margin: const EdgeInsets.all(20),
+						shadowColor: Theme.of(context).colorScheme.primary,
+						child: const Form<%= entityClass %>(),
+					),
 				],
 			),
           ),
@@ -108,7 +114,7 @@ class Form<%= entityClass %> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 	return const Padding(
-		padding: EdgeInsets.only(top: 30),
+		padding: EdgeInsets.only(top: 30, bottom: 30),
 		child: Center(
 		  child: SizedBox(
 			width: 600,
@@ -192,8 +198,9 @@ class SubmitForm extends StatelessWidget {
                     ),
                   ],
                 ),
-              );
-    });
+            );
+        },
+	);
   }
 }
 
@@ -211,9 +218,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			builder: (context, state) {
 			  return DateTimeField(
 				controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-				<%_ if(fieldOptions.readonly != null) { %>
 				enabled: <%= !fieldOptions.readonly %>,
-				<%_ } _%>
 				onChanged: (value) {
 				  context
 					  .read<<%= entityClass %>Bloc>()
@@ -222,7 +227,12 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 				format: DateFormat("yyyy-MM-dd"),
 				keyboardType: TextInputType.datetime,
 				decoration: const InputDecoration(
+					prefixIcon: Icon(Icons.date_range_rounded),
 					labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
+					<%_ if(!(field.fieldValidateRules != 'required')) { _%>
+					helperText: MessageValidation.campoRequerido,
+					<%_ } _%>
+					hintText: 'Ejemplo: 2024-01-24',
 					labelStyle: TextStyle(
 						height: 0.5,
 						fontWeight: FontWeight.bold,
@@ -287,14 +297,10 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 							  fontSize: 18,
 							),
 						  ),
-						  <%_ if(fieldOptions.readonly != null) { %>
 						  <%_ if(fieldOptions.readonly) { %>
 						  onChanged: null,
 						  <%_ } else {_%>
 					  	  onChanged: (value) { context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value!)); },
-						  <%_ } _%>
-						  <%_ } else { _%>
-						  onChanged: (value) { context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value!)); },
 						  <%_ } _%>
 						  items: createDropdown<%= field.fieldType %>Items(<%= field.fieldType %>.values)),
 					),
@@ -337,17 +343,19 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 		  child: Row(
 			mainAxisAlignment: MainAxisAlignment.start,
 			children: <Widget>[
-			  Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>, style: Theme.of(context).textTheme.bodyLarge,),
+			  Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
+				style: TextStyle(
+					fontSize: 18,
+					fontWeight: FontWeight.bold,
+					color: Theme.of(context).colorScheme.onSurfaceVariant,
+				),
+			  ),
 			  const SizedBox(width: 20),
 			  Switch(
 				  value: state.<%= field.fieldName %>.value,
-				  <%_ if(fieldOptions.readonly != null) { %>
 				  <%_ if(fieldOptions.readonly) { %>
 				  onChanged: null,
 				  <%_ } else {_%>
-				  onChanged: (value) { context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value)); },
-				  <%_ } _%>
-				  <%_ } else { _%>
 				  onChanged: (value) { context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value)); },
 				  <%_ } _%>
 				  activeColor: Theme.of(context).primaryColor,
@@ -370,25 +378,25 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 		builder: (context, state) {
 		return TextFormField(
 		  controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-		  <%_ if(fieldOptions.readonly != null) { %>
 		  enabled: <%= !fieldOptions.readonly %>,
-		  <%_ } _%>
 		  onChanged: (value) {
-			<%_ if(field.fieldType === 'int') { _%>
-			int valueInt = value.isEmpty ? -1 : int.tryParse(value) ?? -2;
-			<%_ } else { _%> value <%_ } _%>
-			context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: valueInt));
+			context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value.isNotEmpty ? value : '0'));
 		  },
-		  keyboardType: TextInputType.number,
+		  keyboardType: const TextInputType.numberWithOptions(
+			signed: false,
+			decimal: false,
+		  ),
+		  maxLength: 15,
+		  inputFormatters: <TextInputFormatter>[
+			LengthLimitingTextInputFormatter(15),
+		  ],
 		  decoration: InputDecoration(
+			  prefixIcon: const Icon(Icons.numbers_rounded),
 			  labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
-			  <%_ if(fieldOptions.readonly != null) { %>
-			  <%_ if(!fieldOptions.readonly) { %>
-			  helperText: MessageValidation.numerosEnteros,
-			  <%_ }_%>
-			  <%_ } else { _%>
-			  helperText: MessageValidation.numerosEnteros,
+			  <%_ if(!(field.fieldValidateRules != 'required')) { _%>
+			  helperText: MessageValidation.campoRequerido,
 			  <%_ } _%>
+			  hintText: 'Ejemplo: 99',
 			  labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
 		      contentPadding: const EdgeInsets.symmetric(vertical: 10),
 			  errorText: state.<%= field.fieldName %>.displayError != null
@@ -412,32 +420,32 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			builder: (context, state) {
 			return TextFormField(
 			  controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-			  <%_ if(fieldOptions.readonly != null) { %>
 			  enabled: <%= !fieldOptions.readonly %>,
-			  <%_ } _%>
 			  onChanged: (value) {
-				<%_ if(field.fieldType === 'double') { _%>
-				double valueDouble = value.isEmpty ? -1 : double.tryParse(value) ?? -2;
-				<%_ } else { _%> value <%_ } _%>
-				context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: valueDouble));
+				context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value.isNotEmpty ? value : '0.0'));
 			  },
-			  keyboardType: TextInputType.number,
+			  keyboardType: const TextInputType.numberWithOptions(
+				decimal: true,
+				signed: true,
+			  ),
+			  maxLength: 15,
+			  inputFormatters: <TextInputFormatter>[
+				LengthLimitingTextInputFormatter(15),
+			  ],
 			  decoration: InputDecoration(
+				  prefixIcon: const Icon(Icons.numbers_rounded),
 				  labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
-				  <%_ if(fieldOptions.readonly != null) { %>
-				  <%_ if(!fieldOptions.readonly) { %>
-				  helperText: MessageValidation.numerosDecimales,
-				  <%_ }_%>
-				  <%_ } else { _%>
-				  helperText: MessageValidation.numerosDecimales,
+				  <%_ if(!(field.fieldValidateRules != 'required')) { _%>
+				  helperText: MessageValidation.campoRequerido,
 				  <%_ } _%>
+				  hintText: 'Ejemplo: 99.99',
 				  labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
 				  contentPadding: const EdgeInsets.symmetric(vertical: 10),
 				  errorText: state.<%= field.fieldName %>.displayError != null
 					  ? '${state.<%= field.fieldName %>.error?.invalidMessage()}'
 					  : null,
 				  ),
-				);
+			  );
 			}
 		);
 	}
@@ -454,9 +462,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 		builder: (context, state) {
 		return TextFormField(
 			controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-			<%_ if(fieldOptions.readonly != null) { %>
 			enabled: <%= !fieldOptions.readonly %>,
-			<%_ } _%>
 			onChanged: (value) { context.read<<%= entityClass %>Bloc>()
 			.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value)); },
 			keyboardType: TextInputType.text,
@@ -464,6 +470,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			maxLength: <%= field.fieldValidateRulesMaxlength %>,
 			<%_ } _%>
 			decoration: InputDecoration(
+				prefixIcon: const Icon(Icons.text_fields_rounded),
 				labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
 				labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
 				contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -533,16 +540,9 @@ class <%= relationship.otherEntityNameCapitalized %>Field extends StatelessWidge
 									.state
 									.<%= relationship.otherEntityName %>
 								: null,
-						    <%_ if(fieldOptions.readonly != null) { %>
 							<%_ if(fieldOptions.readonly) { %>
 							onChanged: null,
 							<%_ } else {_%>
-							onChanged: (value) {
-								BlocProvider.of<<%= entityClass %>Bloc>(context)
-									.add(<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed(<%= relationship.otherEntityName %>: value!));
-								},
-							<%_ } _%>
-							<%_ } else { _%>
 							onChanged: (value) {
 								BlocProvider.of<<%= entityClass %>Bloc>(context)
 									.add(<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed(<%= relationship.otherEntityName %>: value!));

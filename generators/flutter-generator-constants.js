@@ -40,6 +40,7 @@ const FLUTTER_FILES = {
             path: MAIN_SRC_DIR,
             templates: [
                 'core/constants/message_validation.dart',
+                'core/constants/expresiones_regulares.dart',
                 'core/exceptions/exception.dart',
                 'core/exceptions/failure.dart',
                 'core/router/routes.dart',

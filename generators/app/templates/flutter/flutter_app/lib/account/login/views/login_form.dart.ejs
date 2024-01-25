@@ -28,17 +28,16 @@ class LoginForm extends StatelessWidget {
             );
         }
       },
-      child: Container(
-        color: const Color(0xff191918),
-        height: double.infinity,
-        alignment: Alignment.center,
-        child: const SingleChildScrollView(
+      child: const SingleChildScrollView(
+        child: Center(
           child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                SizedBox(height: 100),
                 LoginHeader(),
                 FormView(),
-              ]),
+              ],
+          ),
         ),
       ),
     );
