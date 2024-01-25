@@ -51,11 +51,16 @@ class SettingsScreen extends StatelessWidget {
             }
           },
           builder: (context, state) {
-            return const SingleChildScrollView(
-              padding: EdgeInsets.all(15.0),
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(15.0),
               child: Column(
                 children: <Widget>[
-                  SettingsForm(),
+                  Card(
+                    elevation: 5,
+                    margin: const EdgeInsets.all(20),
+                    shadowColor: Theme.of(context).colorScheme.primary,
+                    child: const SettingsForm(),
+                  ),
                 ],
               ),
             );
@@ -73,7 +78,7 @@ class SettingsForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.only(top: 30),
+      padding: EdgeInsets.only(top: 30, bottom: 30),
       child: Center(
         child:  SizedBox(
           width: 600,
