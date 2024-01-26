@@ -25,7 +25,7 @@ import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entity
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/<%= entityFileName %>_repository.dart';
 <%_ relationships.forEach(relationship => { %>
 <%_ if(!relationship.isList) { _%>
-import 'package:<%= baseName %>/entities/<%= relationship.otherEntityName %>/models/<%= relationship.otherEntityName %>_models.dart';
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/models/<%= relationship.otherEntityFileName %>_models.dart';
 <%_ } _%>
 <%_ }); _%>
 <%_ if(enableTranslation) { _%>

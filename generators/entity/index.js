@@ -330,7 +330,9 @@ module.exports = class extends BaseGenerator {
         context.relationships.forEach((relationship) => {
             const relationshipOptions = relationship.options || {};
             const otherEntityName = relationship.otherEntityName;
+            // const otherEntityNameFileName = _.snakeCase(otherEntityName);
             const otherEntityData = this.getEntityJson(otherEntityName);
+
             if (otherEntityData) {
                 if (otherEntityData.microserviceName && !otherEntityData.clientRootFolder) {
                     otherEntityData.clientRootFolder = otherEntityData.microserviceName;

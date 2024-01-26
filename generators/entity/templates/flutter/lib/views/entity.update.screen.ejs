@@ -30,8 +30,8 @@ import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFi
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_models.dart';
 <%_ relationships.forEach(relationship => { %>
 <%_ if(!relationship.isList) { _%>
-import 'package:<%= baseName %>/entities/<%= relationship.otherEntityName %>/bloc/<%= relationship.otherEntityName %>_bloc.dart';
-import 'package:<%= baseName %>/entities/<%= relationship.otherEntityName %>/models/<%= relationship.otherEntityName %>_models.dart';
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/bloc/<%= relationship.otherEntityFileName %>_bloc.dart';
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/models/<%= relationship.otherEntityFileName %>_models.dart';
 import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
 <%_ } _%>
 <%_ }); _%>

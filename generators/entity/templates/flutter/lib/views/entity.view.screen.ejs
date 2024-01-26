@@ -30,8 +30,8 @@ import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entity
 import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
 <%_ relationships.forEach(relationship => { %>
 <%_ if(!relationship.isList) { _%>
-import 'package:<%= baseName %>/entities/<%= relationship.otherEntityName %>/bloc/<%= relationship.otherEntityName %>_bloc.dart';
-import 'package:<%= baseName %>/entities/<%= relationship.otherEntityName %>/models/<%= relationship.otherEntityName %>_models.dart';
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/bloc/<%= relationship.otherEntityFileName %>_bloc.dart';
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/models/<%= relationship.otherEntityFileName %>_models.dart';
 import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
 <%_ } _%>
 <%_ }); _%>
@@ -364,7 +364,9 @@ class EditButton extends StatelessWidget {
             controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
             enabled: false,
             keyboardType: TextInputType.text,
+            <%_ if(field.fieldValidateRules == 'maxlength') { _%>
             maxLength: <%= field.fieldValidateRulesMaxlength %>,
+            <%_ } _%>
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.text_fields_rounded),
               labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,

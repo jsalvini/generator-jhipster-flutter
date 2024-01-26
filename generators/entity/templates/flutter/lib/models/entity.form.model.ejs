@@ -141,6 +141,8 @@ class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInpu
       <%_ } _%>
       <%_ if(field.fieldValidateRules == 'maxlength') { _%>
       static const maxLength = <%= field.fieldValidateRulesMaxlength %>;
+      <%_ } else { _%>
+      static const maxLength = 250;
       <%_ } _%>
 
       static String pattern = r'''^[a-zA-Z0-9!@#$%^&*()-_+=~{}:"\';,./|\\[\]<>?áéíóúÁÉÍÓÚüÜñÑ ]+$''';
