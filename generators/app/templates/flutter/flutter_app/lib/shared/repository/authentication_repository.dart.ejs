@@ -31,7 +31,7 @@ class AuthenticationRepository {
         await HttpUtils.postRequest<LoginRequest>("/authenticate", userJWT);
     JWTToken? token;
     if (authenticateResponse.statusCode == 200) {
-      token = JsonMapper.deserialize<JWTToken>(authenticateResponse.body);
+      token = JsonMapper.deserialize<JWTToken>(utf8.decode(authenticateResponse.bodyBytes));
       if (token != null) {
         await _storage.delete(key: HttpUtils.keyForJWTToken);
         await _storage.write(

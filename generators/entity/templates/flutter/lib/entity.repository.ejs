@@ -9,6 +9,7 @@ const entityClassCamelCase = context.entityClassCamelCase;
 const entityClassKebabCase = context.entityClassKebabCase;
 const entityClassKebabCasePlural = context.entityClassKebabCasePlural;
 _%>
+import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
 import 'package:<%= baseName %>/core/exceptions/exception.dart';
@@ -36,7 +37,7 @@ class <%= entityClass %>Repository {
 
       if (response.statusCode >= 300 && response.statusCode < 600) {
         ErrorResponse? errorResponse =
-            JsonMapper.deserialize<ErrorResponse>(response.body);
+            JsonMapper.deserialize<ErrorResponse>(utf8.decode(response.bodyBytes));
         if (errorResponse != null) {
           return Left(
             ServerFailure(errorMessage: errorResponse.detail!),
@@ -47,7 +48,7 @@ class <%= entityClass %>Repository {
       int count = int.parse(response.headers['x-total-count']!);
       String link = response.headers['link'] as String;
       List<<%= entityClass %>>? <%= entityClassPluralLowered %> =
-          JsonMapper.deserialize<List<<%= entityClass %>>>(response.body);
+          JsonMapper.deserialize<List<<%= entityClass %>>>(utf8.decode(response.bodyBytes));
 
           <%= entityClass %>Response <%= entityInstance %>Response = <%= entityClass %>Response(
             <%= entityClassPluralLowered %>: <%= entityClassPluralLowered %>!, totalCount: count, link: link);
@@ -69,14 +70,14 @@ class <%= entityClass %>Repository {
       final Response response = await HttpUtils.getRequest('$uriEndpoint/$id');
       if (response.statusCode >= 300 && response.statusCode < 600) {
         ErrorResponse? errorResponse =
-            JsonMapper.deserialize<ErrorResponse>(response.body);
+            JsonMapper.deserialize<ErrorResponse>(utf8.decode(response.bodyBytes));
         if (errorResponse != null) {
           return Left(
             ServerFailure(errorMessage: errorResponse.detail!),
           );
         }
       }
-      <%= entityClass %>? <%= entityInstance %> = JsonMapper.deserialize<<%= entityClass %>>(response.body);
+      <%= entityClass %>? <%= entityInstance %> = JsonMapper.deserialize<<%= entityClass %>>(utf8.decode(response.bodyBytes));
       return Right(<%= entityInstance %>);
     } on ServerException catch (e) {
       return Left(
@@ -95,14 +96,14 @@ class <%= entityClass %>Repository {
           await HttpUtils.postRequest(uriEndpoint, <%= entityInstance %>);
       if (response.statusCode >= 300 && response.statusCode < 600) {
         ErrorResponse? errorResponse =
-            JsonMapper.deserialize<ErrorResponse>(response.body);
+            JsonMapper.deserialize<ErrorResponse>(utf8.decode(response.bodyBytes));
         if (errorResponse != null) {
           return Left(
             ServerFailure(errorMessage: errorResponse.detail!),
           );
         }
       }
-      <%= entityClass %>? new<%= entityClass %> = JsonMapper.deserialize<<%= entityClass %>>(response.body);
+      <%= entityClass %>? new<%= entityClass %> = JsonMapper.deserialize<<%= entityClass %>>(utf8.decode(response.bodyBytes));
       return Right(new<%= entityClass %>);
     } on ServerException catch (e) {
       return Left(
@@ -121,7 +122,7 @@ class <%= entityClass %>Repository {
           await HttpUtils.putRequest('$uriEndpoint/$id', <%= entityInstance %>);
       if (response.statusCode >= 300 && response.statusCode < 600) {
         ErrorResponse? errorResponse =
-            JsonMapper.deserialize<ErrorResponse>(response.body);
+            JsonMapper.deserialize<ErrorResponse>(utf8.decode(response.bodyBytes));
         if (errorResponse != null) {
           return Left(
             ServerFailure(errorMessage: errorResponse.detail!),
@@ -129,7 +130,7 @@ class <%= entityClass %>Repository {
         }
       }
       <%= entityClass %>? updated<%= entityClass %> =
-          JsonMapper.deserialize<<%= entityClass %>>(response.body);
+          JsonMapper.deserialize<<%= entityClass %>>(utf8.decode(response.bodyBytes));
       return Right(updated<%= entityClass %>);
     } on ServerException catch (e) {
       return Left(
@@ -148,7 +149,7 @@ class <%= entityClass %>Repository {
           await HttpUtils.deleteRequest('$uriEndpoint/$id');
       if (response.statusCode >= 300 && response.statusCode < 600) {
         ErrorResponse? errorResponse =
-            JsonMapper.deserialize<ErrorResponse>(response.body);
+            JsonMapper.deserialize<ErrorResponse>(utf8.decode(response.bodyBytes));
         if (errorResponse != null) {
           return Left(
             ServerFailure(errorMessage: errorResponse.detail!),
