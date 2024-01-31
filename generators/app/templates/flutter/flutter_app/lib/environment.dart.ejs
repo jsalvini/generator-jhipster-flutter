@@ -1,3 +1,5 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 enum Environment { dev, prod }
 
 class Constants {
@@ -6,6 +8,10 @@ class Constants {
   static final Map<String, String> languages = {'en':'English','es':'Español'};
   static final String langStorageKey = 'locale';
   <%_ } _%>
+
+  static Future<void> initEnvironment() async {
+    await dotenv.load(fileName: ".env");
+  }
 
   static void setEnvironment(Environment env) {
     switch (env) {
@@ -26,11 +32,17 @@ class Constants {
 class _Config {
   static get api => "API";
 
+  static String ipApi =
+      dotenv.env['IP_API'] ?? 'No se configuro la ip de la API.';
+
+  static String puertoApi =
+      dotenv.env['PUERTO_API'] ?? 'No se configuro el puerto de la API.';
+
   static Map<String, dynamic> devConstants = {
-    api: "http://127.0.0.1:8080/api",
+    api: "http://$ipApi:$puertoApi/api",
   };
 
   static Map<String, dynamic> prodConstants = {
-    api: "https://production-server/api",
+    api: "https://$ipApi/api",
   };
 }
