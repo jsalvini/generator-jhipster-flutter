@@ -17,9 +17,9 @@ const FLUTTER_FILES = {
         {
             path: MAIN_DIR,
             templates: [
-                '.env',
                 '.gitignore',
                 'build.yaml',
+                'dotenv',
                 'pubspec.yaml',
                 'README.md',
             ],

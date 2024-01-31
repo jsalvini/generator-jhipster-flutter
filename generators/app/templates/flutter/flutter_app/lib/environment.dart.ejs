@@ -9,10 +9,6 @@ class Constants {
   static final String langStorageKey = 'locale';
   <%_ } _%>
 
-  static Future<void> initEnvironment() async {
-    await dotenv.load(fileName: ".env");
-  }
-
   static void setEnvironment(Environment env) {
     switch (env) {
       case Environment.dev:
