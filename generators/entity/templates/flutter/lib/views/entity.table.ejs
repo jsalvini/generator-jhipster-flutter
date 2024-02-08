@@ -24,6 +24,15 @@ import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_model.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/views/widgets/<%= entityFileName %>_delete_dialog.dart';
+<%_ relationships.forEach(relationship => { %>
+<%_ if(!relationship.isList) { _%>
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/bloc/<%= relationship.otherEntityFileName %>_bloc.dart';
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/models/<%= relationship.otherEntityFileName %>_models.dart';
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/<%= relationship.otherEntityFileName %>_repository.dart';
+import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/<%= relationship.otherEntityFileName %>_routes.dart';
+<%_ } _%>
+<%_ }); _%>
+// jhipster-merlin-needle-import-add
 
 class <%= entityClass %>Table extends StatelessWidget {
   <%= entityClass %>Table({
@@ -57,7 +66,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton.icon(
-                    onPressed: () => context.pushNamed('<%= entityInstance %>create'),
+                    onPressed: () => context.go(<%= entityClass %>Routes.create),
                     style: ButtonStyle(
                       elevation: const MaterialStatePropertyAll(5.0),
                       minimumSize:
@@ -221,7 +230,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                         int pageQuery = page - 1;
                         blocContext
                             .read<<%= entityClass %>Bloc>()
-                            .add(CurrentPageChanged(currentPage: page));
+                            .add(<%= entityClass %>CurrentPageChanged(currentPage: page));
                         String columnName =
                             blocContext.read<<%= entityClass %>Bloc>().state.columnName;
                         var order =
@@ -312,7 +321,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                 ?  TextButton.icon(
                     label: const Text('Ver'),
                     onPressed: () {
-                      blocContext.pushNamed('<%= entityInstance %>view', extra: <%= entityInstance %>.id);
+                      blocContext.go('${<%= entityClass %>Routes.viewPath}${<%= entityInstance %>.id}');
                     },
                     icon: const Icon(
                       Icons.remove_red_eye_outlined,
@@ -321,7 +330,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                   )
                 : IconButton(
                     onPressed: () {
-                      blocContext.pushNamed('<%= entityInstance %>view', extra: <%= entityInstance %>.id);
+                      blocContext.go('${<%= entityClass %>Routes.viewPath}${<%= entityInstance %>.id}');
                     },
                     icon: const Icon(
                       Icons.remove_red_eye_outlined,
@@ -332,7 +341,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                 ?  TextButton.icon(
                     label: const Text('Editar'),
                     onPressed: () {
-                      blocContext.pushNamed('<%= entityInstance %>edit', extra: <%= entityInstance %>.id);
+                      blocContext.go('${<%= entityClass %>Routes.editPath}${<%= entityInstance %>.id}');
                     },
                     icon: const Icon(
                       Icons.edit,
@@ -341,7 +350,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                   )
                 : IconButton(
                     onPressed: () {
-                      blocContext.pushNamed('<%= entityInstance %>edit', extra: <%= entityInstance %>.id);
+                      blocContext.go('${<%= entityClass %>Routes.editPath}${<%= entityInstance %>.id}');
                     },
                     icon: const Icon(
                       Icons.edit,
@@ -392,11 +401,13 @@ class <%= entityClass %>Table extends StatelessWidget {
       ),
     <%_ fields.forEach(field => { %>
       DataCell(
-      <%_ if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
+        <%_ if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
         Align(alignment: Alignment.centerLeft, child: Text('${<%= entityInstance %>.<%- field.fieldName -%>}')),
-      <%_ } else {_%>
+        <%_ } else if (field.fieldIsEnum) {_%>
+        Text('${<%= entityInstance %>.<%- field.fieldName -%>?.name}'),
+        <%_ } else { _%>
         Text('${<%= entityInstance %>.<%- field.fieldName -%>}'),
-      <%_ } _%>
+        <%_ } _%>
       ),
     <%_ }); _%>
     <%_ relationships.forEach(relationship => { %>
@@ -411,7 +422,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => blocContext.pushNamed('<%= relationship.otherEntityName %>view', extra: <%= entityInstance %>.<%= relationship.otherEntityName %>?.id),
+                      ..onTap = () => blocContext.go('${<%= relationship.otherEntityNameCapitalized %>Routes.viewPath}${<%= entityInstance %>.<%= relationship.otherEntityName %>?.id}'),
                   ),
               )
             : const Text(
@@ -445,7 +456,7 @@ class <%= entityClass %>Table extends StatelessWidget {
     int pageQuery = blocContext.read<<%= entityClass %>Bloc>().state.currentPage - 1;
     var order = ascending ? 'asc' : 'desc';
 
-    blocContext.read<<%= entityClass %>Bloc>().add(SortChanged(
+    blocContext.read<<%= entityClass %>Bloc>().add(<%= entityClass %>SortChanged(
           sortColumnIndex: columnIndex,
           sortAscending: ascending,
           columnName: columnName,

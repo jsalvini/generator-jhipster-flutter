@@ -1,32 +1,23 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'package:dart_json_mapper/dart_json_mapper.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:<%= baseName %>/shared/storage/secure_storage.dart';
 import 'package:<%= baseName %>/shared/models/jwt_token.dart';
 import 'package:<%= baseName %>/shared/models/login_request.dart';
 import 'package:<%= baseName %>/shared/utils/http_utils.dart';
 
-enum AuthenticationStatus { unknown, authenticated, unauthenticated, updated }
+enum AuthenticationStatus { authenticated, unauthenticated }
 
 class AuthenticationRepository {
   AuthenticationRepository();
 
   final _authenticateController = StreamController<AuthenticationStatus>();
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   Stream<AuthenticationStatus> get status async* {
-    await Future<void>.delayed(const Duration(seconds: 1));
-    yield AuthenticationStatus.unauthenticated;
     yield* _authenticateController.stream;
   }
 
   Future<bool> authenticate(LoginRequest userJWT) async {
-    String? jwt = await _storage.read(key: HttpUtils.keyForJWTToken);
-    if (jwt != null) {
-      log('Se renueva token');
-      await _storage.delete(key: HttpUtils.keyForJWTToken);
-    }
 
     final authenticateResponse =
         await HttpUtils.postRequest<LoginRequest>("/authenticate", userJWT);
@@ -34,8 +25,8 @@ class AuthenticationRepository {
     if (authenticateResponse.statusCode == 200) {
       token = JsonMapper.deserialize<JWTToken>(utf8.decode(authenticateResponse.bodyBytes));
       if (token != null) {
-        await _storage.delete(key: HttpUtils.keyForJWTToken);
-        await _storage.write(
+        await SecureStorage.storage.delete(key: HttpUtils.keyForJWTToken);
+        await SecureStorage.storage.write(
             key: HttpUtils.keyForJWTToken, value: token.idToken);
         _authenticateController.add(AuthenticationStatus.authenticated);
         return true;
@@ -45,7 +36,7 @@ class AuthenticationRepository {
   }
 
   Future<void> logout() async {
-    await _storage.delete(key: HttpUtils.keyForJWTToken);
+    await SecureStorage.storage.delete(key: HttpUtils.keyForJWTToken);
     _authenticateController.add(AuthenticationStatus.unauthenticated);
   }
 

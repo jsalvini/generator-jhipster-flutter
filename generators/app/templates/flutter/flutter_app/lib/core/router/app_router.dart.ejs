@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:<%= baseName %>/shared/storage/secure_storage.dart';
+import 'package:<%= baseName %>/shared/utils/http_utils.dart';
+import 'package:<%= baseName %>/error/views/error_screen.dart';
 
 import 'package:<%= baseName %>/account/authentication/authentication.dart';
 import 'package:<%= baseName %>/account/login/login_routes.dart';
@@ -12,7 +15,7 @@ import 'package:<%= baseName %>/splash/splash_routes.dart';
 
 abstract class AppRouter {
   static GoRouter router = GoRouter(
-    initialLocation: SplashRoutes.path,
+    initialLocation: LoginRoutes.path,
     routes: [
       ...SplashRoutes.splashRoutes,
       ...HomeRoutes.homeRoutes,
@@ -20,26 +23,41 @@ abstract class AppRouter {
       ...SettingsRoutes.settingsRoutes,
       // jhipster-merlin-needle-route-add - JHipster will add new routes here
     ],
-    errorPageBuilder: (context, state) => const MaterialPage(
-      child: Scaffold(
-        body: Center(
-          child: Text('Ruta no encontrada!'),
-        ),
-      ),
-    ),
+    errorPageBuilder: (context, state) {
+      GoException? goException = state.error;
+      return MaterialPage(
+          child: ErrorScreen(
+        message: goException?.message ?? 'Exception page builder.',
+      ));
+    },
     redirect: (context, state) async {
-      final authenticationBloc =
-          context.read<AuthenticationBloc>().state.status;
+      final isAuthenticated =
+          context.read<AuthenticationBloc>().isAuthenticated;
 
+      String? jwt =
+          await SecureStorage.storage.read(key: HttpUtils.keyForJWTToken);
       final irA = state.matchedLocation;
+      bool tokenValid;
 
-      if (authenticationBloc == AuthenticationStatus.authenticated &&
-          irA.compareTo(LoginRoutes.path) == 0) {
-        return HomeRoutes.path;
-      } else if (authenticationBloc == AuthenticationStatus.unauthenticated) {
-        if (irA.compareTo(SplashRoutes.path) == 0) {
-          await Future.delayed(const Duration(milliseconds: 2600));
+      if (jwt != null) {
+        var jwt2 = jwt.split(".");
+        var payload =
+            json.decode(ascii.decode(base64.decode(base64.normalize(jwt2[1]))));
+        if (DateTime.fromMillisecondsSinceEpoch(payload["exp"] * 1000)
+            .isAfter(DateTime.now())) {
+          tokenValid = true;
+        } else {
+          tokenValid = false;
         }
+      } else {
+        tokenValid = false;
+      }
+
+      if (isAuthenticated &&
+          irA.compareTo(LoginRoutes.path) == 0 &&
+          tokenValid) {
+        return HomeRoutes.path;
+      } else if (!isAuthenticated && !tokenValid) {
         return LoginRoutes.path;
       }
       return null;

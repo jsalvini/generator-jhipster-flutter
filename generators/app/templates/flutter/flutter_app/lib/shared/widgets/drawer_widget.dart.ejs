@@ -7,6 +7,7 @@ import 'package:<%= baseName %>/account/authentication/authentication.dart';
 import 'package:<%= baseName %>/core/router/routes.dart';
 import 'package:<%= baseName %>/home/bloc/home_bloc.dart';
 import 'package:<%= baseName %>/shared/repository/account_repository.dart';
+// jhipster-merlin-needle-import-add
 
 class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
   const <%= camelizedUpperFirstBaseName %>Drawer({Key? key}) : super(key: key);
@@ -67,7 +68,7 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                       size: iconSize,
                     ),
                     title: const Text('Inicio'),
-                    onTap: () => context.pushNamed(<%= camelizedUpperFirstBaseName %>Routes.home),
+                    onTap: () => context.go(<%= camelizedUpperFirstBaseName %>Routes.home),
                   ),
                   ListTile(
                     leading: const Icon(
@@ -75,7 +76,7 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                       size: iconSize,
                     ),
                     title: const Text('Perfil'),
-                    onTap: () => context.pushNamed(<%= camelizedUpperFirstBaseName %>Routes.settings),
+                    onTap: () => context.go(<%= camelizedUpperFirstBaseName %>Routes.settings),
                   ),
                   AboutListTile(
                     icon: const Icon(

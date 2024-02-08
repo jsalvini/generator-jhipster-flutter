@@ -31,8 +31,10 @@ import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>
 class <%= entityClass %>Routes {
   static const list = '/<%= entityInstance %>';
   static const create = '/<%= entityInstance %>-create';
-  static const edit = '/<%= entityInstance %>-edit';
-  static const view = '/<%= entityInstance %>-view';
+  static const edit = '/<%= entityInstance %>-edit/:id';
+  static const editPath = '/<%= entityInstance %>-edit/';
+  static const view = '/<%= entityInstance %>-view/:id';
+  static const viewPath = '/<%= entityInstance %>-view/';
 
   static const listScreenKey = Key('__<%= entityInstance %>ListScreen__');
   static const createScreenKey = Key('__<%= entityInstance %>CreateScreen__');
@@ -43,19 +45,21 @@ class <%= entityClass %>Routes {
     GoRoute(
       name: '<%= entityInstance %>',
       path: list,
-      pageBuilder: (context, state) => MaterialPage(
+      pageBuilder: (context, state) => CustomTransitionPage(
         child: BlocProvider<<%= entityClass %>Bloc>(
           create: (context) => <%= entityClass %>Bloc(
             <%= entityInstance %>Repository: <%= entityClass %>Repository(),
           )..add(const Load<%= entityClass %>List(page: 0, sort: 'id', ascending: 'asc')),
           child: <%= entityClass %>ListScreen(),
         ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+          ScaleTransition(scale: animation, child: child),
       ),
     ),
     GoRoute(
       name: '<%= entityInstance %>create',
       path: create,
-      pageBuilder: (context, state) => MaterialPage(
+      pageBuilder: (context, state) => CustomTransitionPage(
         <%_ if (relationships != null) { _%>
           child: MultiBlocProvider(
             providers: [
@@ -86,12 +90,14 @@ class <%= entityClass %>Routes {
             child: const <%= entityClass %>UpdateScreen(),
           ),
         <%_ } _%>
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+          ScaleTransition(scale: animation, child: child),
       ),
     ),
     GoRoute(
         name: '<%= entityInstance %>edit',
         path: edit,
-        pageBuilder: (context, state) => MaterialPage(
+        pageBuilder: (context, state) => CustomTransitionPage(
           <%_ if (relationships != null) { _%>
             child: MultiBlocProvider(
               providers: [
@@ -109,7 +115,7 @@ class <%= entityClass %>Routes {
                 BlocProvider<<%= entityClass %>Bloc>(
                   create: (context) => <%= entityClass %>Bloc(
                     <%= entityInstance %>Repository: <%= entityClass %>Repository(),
-                  )..add(Load<%= entityClass %>ByIdForEdit(id: state.extra as int)),
+                  )..add(Load<%= entityClass %>ByIdForEdit(id: int.parse(state.pathParameters['id']!))),
                 )
               ],
               child: const <%= entityClass %>UpdateScreen(),
@@ -118,22 +124,26 @@ class <%= entityClass %>Routes {
             child: BlocProvider<<%= entityClass %>Bloc>(
               create: (context) => <%= entityClass %>Bloc(
                 <%= entityInstance %>Repository: <%= entityClass %>Repository(),
-              )..add(Load<%= entityClass %>ByIdForEdit(id: state.extra as int)),
+              )..add(Load<%= entityClass %>ByIdForEdit(id: int.parse(state.pathParameters['id']!))),
               child: const <%= entityClass %>UpdateScreen(),
             ),
           <%_ } _%>
-            ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            ScaleTransition(scale: animation, child: child),
+          ),
         ),
     GoRoute(
       name: '<%= entityInstance %>view',
       path: view,
-      pageBuilder: (context, state) => MaterialPage(
+      pageBuilder: (context, state) => CustomTransitionPage(
         child: BlocProvider<<%= entityClass %>Bloc>(
           create: (context) => <%= entityClass %>Bloc(
             <%= entityInstance %>Repository: <%= entityClass %>Repository(),
-          )..add(Load<%= entityClass %>ByIdForView(id: state.extra as int)),
+          )..add(Load<%= entityClass %>ByIdForView(id: int.parse(state.pathParameters['id']!))),
           child: const <%= entityClass %>ViewScreen(),
         ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+          ScaleTransition(scale: animation, child: child),
       ),
     ),
   ];

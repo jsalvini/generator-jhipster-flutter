@@ -120,8 +120,7 @@ class EditButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: () => context.pushNamed('<%= entityInstance %>edit',
-                    extra: state.loaded<%= entityClass %>.id),
+                onPressed: () => context.go('${<%= entityClass %>Routes.editPath}${<%= entityClass %>.id}'),
                 style: ButtonStyle(
                     backgroundColor: MaterialStatePropertyAll(
                         Theme.of(context).primaryColor)),

@@ -65,10 +65,10 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
 	<%_ fields.forEach(field => { _%>
     on<<%= entityClass %><%= field.fieldNameCapitalized %>Changed> (on<%= entityClass %><%= field.fieldNameCapitalized %>Changed);
 	<%_ }); _%>
-    on<RowsPerPageChanged>(onRowsPerPageChanged);
-    on<InitialRowChanged>(onInitialRowChanged);
-    on<SortChanged>(onSortChanged);
-    on<CurrentPageChanged>(onCurrentPageChanged);
+    on<<%= entityClass %>RowsPerPageChanged>(onRowsPerPageChanged);
+    on<<%= entityClass %>InitialRowChanged>(onInitialRowChanged);
+    on<<%= entityClass %>SortChanged>(onSortChanged);
+    on<<%= entityClass %>CurrentPageChanged>(onCurrentPageChanged);
     <%_ relationships.forEach(relationship => { %>
     <%_ if(!relationship.isList) { _%>
     on<<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed>(on<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed);
@@ -91,7 +91,7 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
   <%_ }); _%>
 
   void onRowsPerPageChanged(
-    RowsPerPageChanged event,
+    <%= entityClass %>RowsPerPageChanged event,
     Emitter<<%= entityClass %>State> emit,
   ) {
     emit(
@@ -100,7 +100,7 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
   }
 
   void onInitialRowChanged(
-    InitialRowChanged event,
+    <%= entityClass %>InitialRowChanged event,
     Emitter<<%= entityClass %>State> emit,
   ) {
     emit(
@@ -109,7 +109,7 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
   }
 
   void onSortChanged(
-    SortChanged event,
+    <%= entityClass %>SortChanged event,
     Emitter<<%= entityClass %>State> emit,
   ) {
     emit(
@@ -122,7 +122,7 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
   }
 
   void onCurrentPageChanged(
-    CurrentPageChanged event,
+    <%= entityClass %>CurrentPageChanged event,
     Emitter<<%= entityClass %>State> emit,
   ) {
     emit(

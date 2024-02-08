@@ -67,9 +67,19 @@ const FLUTTER_FILES = {
                 'shared/repository/account_repository.dart',
                 'shared/repository/authentication_repository.dart',
                 'shared/repository/repository.dart',
+                'shared/storage/secure_storage.dart',
                 'shared/utils/http_utils.dart',
                 'shared/widgets/loading_indicator_widget.dart',
                 'shared/widgets/drawer_widget.dart',
+            ],
+        },
+    ],
+    error: [
+        {
+            path: MAIN_SRC_DIR,
+            templates: [
+                'error/views/error_screen.dart',
+                'error/error.dart',
             ],
         },
     ],
@@ -154,6 +164,7 @@ const FLUTTER_FILES = {
                 { file: 'assets/lotties/error_1.json', method: 'copy' },
                 { file: 'assets/lotties/error_2.json', method: 'copy' },
                 { file: 'assets/lotties/tipre.json', method: 'copy' },
+                { file: 'assets/lotties/not_found.json', method: 'copy' },
             ],
         },
     ],

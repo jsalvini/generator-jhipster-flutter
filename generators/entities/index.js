@@ -22,7 +22,7 @@ module.exports = class extends BaseGenerator {
                         this.context.searchAutoBackendFolder = false;
                         this.warning('No JHipster project detected !');
                     } else {
-                        this.log(chalk.green(`Detected existing project : ${this.jhipsterAppConfig.packageName}`));
+                        this.log(chalk.green(`Detected existing project: ${this.jhipsterAppConfig.packageName}`));
                         this.context.searchAutoBackendFolder = true;
                         this.setupEntityOptions(this, this, this.context);
                     }
@@ -133,11 +133,11 @@ module.exports = class extends BaseGenerator {
     writing() {
         this.context.entitiesToGenerate.forEach((entity) => {
             this.log(chalk.green(`Generate ${entity}...`));
-            this.spawnCommandSync('yo', ['jhipster-flutter-merlin:entity', entity, '--fromCLI', '--force']);
+            this.spawnCommandSync('yo', ['jhipster-flutter-merlin:entity', entity, this.context.backendPath, '--fromCLI', '--force']);
         });
     }
 
-    install() {
+    /* install() {
         // Generate Reflection
         this.log(chalk.green('Generate reflection for the new entities...'));
         this.spawnCommandSync('dart', ['run', 'build_runner', 'build', '--delete-conflicting-outputs']);
@@ -147,9 +147,9 @@ module.exports = class extends BaseGenerator {
             this.log(chalk.green('Generate I18n code for the new entities...'));
             this.spawnCommandSync('flutter', ['pub', 'global', 'run', 'intl_utils:generate']);
         }
-    }
+    } */
 
     end() {
-        this.log(chalk.green.bold('Entities generation done !!\n'));
+        this.log(chalk.green.bold('Entities generation done!!\n'));
     }
 };

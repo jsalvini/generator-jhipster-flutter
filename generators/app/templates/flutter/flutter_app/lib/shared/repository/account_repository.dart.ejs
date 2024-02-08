@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:<%= baseName %>/shared/models/user.dart';
 import 'package:<%= baseName %>/shared/utils/http_utils.dart';
 
@@ -10,7 +9,7 @@ class AccountRepository {
 
   Future<User?> getAccount() async {
     final response = await HttpUtils.getRequest("/account");
-    _user = JsonMapper.deserialize<User>(utf8.decode(response.bodyBytes));
+    _user = User.fromJson(utf8.decode(response.bodyBytes));
     return _user;
   }
 

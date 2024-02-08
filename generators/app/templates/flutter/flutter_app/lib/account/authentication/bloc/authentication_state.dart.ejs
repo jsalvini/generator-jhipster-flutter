@@ -4,25 +4,40 @@ class AuthenticationState extends Equatable {
   final AuthenticationStatus status;
   final User user;
 
-  const AuthenticationState._({
-    this.status = AuthenticationStatus.unknown,
+  const AuthenticationState({
+    this.status = AuthenticationStatus.unauthenticated,
     this.user = User.empty,
   });
 
-  const AuthenticationState.unknown() : this._();
-
-  const AuthenticationState.authenticated(User user)
-      : this._(
-          status: AuthenticationStatus.authenticated,
-          user: user,
-        );
-
-  const AuthenticationState.unauthenticated()
-      : this._(
-          status: AuthenticationStatus.unauthenticated,
-          user: User.empty,
-        );
+  AuthenticationState copyWith({
+    AuthenticationStatus? status,
+    User? user,
+  }) {
+    return AuthenticationState(
+      status: status ?? this.status,
+      user: user ?? this.user,
+    );
+  }
 
   @override
   List<Object> get props => [status, user];
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'status': status.index,
+      'user': user.toMap(),
+    };
+  }
+
+  factory AuthenticationState.fromMap(Map<String, dynamic> map) {
+    return AuthenticationState(
+      status: AuthenticationStatus.values[map['status']],
+      user: User.fromJson(map['user']),
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory AuthenticationState.fromJson(String source) =>
+      AuthenticationState.fromMap(json.decode(source) as Map<String, dynamic>);
 }

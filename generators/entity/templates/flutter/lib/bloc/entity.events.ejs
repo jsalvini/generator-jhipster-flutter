@@ -21,33 +21,33 @@ abstract class <%= entityClass %>Event extends Equatable {
   bool get stringify => true;
 }
 
-class RowsPerPageChanged extends <%= entityClass %>Event {
+class <%= entityClass %>RowsPerPageChanged extends <%= entityClass %>Event {
   final int rowsPerPage;
 
-  const RowsPerPageChanged({required this.rowsPerPage});
+  const <%= entityClass %>RowsPerPageChanged({required this.rowsPerPage});
 }
 
-class InitialRowChanged extends <%= entityClass %>Event {
+class <%= entityClass %>InitialRowChanged extends <%= entityClass %>Event {
   final int initialRow;
 
-  const InitialRowChanged({required this.initialRow});
+  const <%= entityClass %>InitialRowChanged({required this.initialRow});
 }
 
-class SortChanged extends <%= entityClass %>Event {
+class <%= entityClass %>SortChanged extends <%= entityClass %>Event {
   final String columnName;
   final int sortColumnIndex;
   final bool sortAscending;
 
-  const SortChanged(
+  const <%= entityClass %>SortChanged(
       {required this.sortColumnIndex,
       required this.sortAscending,
       required this.columnName});
 }
 
-class CurrentPageChanged extends <%= entityClass %>Event {
+class <%= entityClass %>CurrentPageChanged extends <%= entityClass %>Event {
   final int currentPage;
 
-  const CurrentPageChanged({required this.currentPage});
+  const <%= entityClass %>CurrentPageChanged({required this.currentPage});
 }
 
 class Load<%= entityClass %>List extends <%= entityClass %>Event {

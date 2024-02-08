@@ -1,0 +1,11 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+class SecureStorage {
+  static late FlutterSecureStorage _storage;
+
+  static void initSecureStorage() {
+    _storage = const FlutterSecureStorage();
+  }
+
+  static FlutterSecureStorage get storage => _storage;
+}

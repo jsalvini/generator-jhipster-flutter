@@ -682,6 +682,15 @@ module.exports = class extends BaseGenerator {
                 ]
             }, this);
 
+            const viewPathTable = `lib/entities/${entityFileName}/views/${entityFileName}_table.dart`;
+            utils.rewriteFile({
+                file: viewPathTable,
+                needle: 'jhipster-merlin-needle-import-add',
+                splicable: [
+                    this.stripMargin(routeImport)
+                ]
+            }, this);
+
             const addRoute = `...${entityClass}Routes.${entityInstance}Routes,`;
             utils.rewriteFile({
                 file: routersClassPath,
@@ -692,12 +701,13 @@ module.exports = class extends BaseGenerator {
             }, this);
 
             const drawerClassPath = 'lib/shared/widgets/drawer_widget.dart';
+
             const newMenuEntry = `Padding(
                 padding: const EdgeInsets.only(left: 20),
                 child: ListTile(
                     leading: const Icon(Icons.label, size: iconSize,),
                     title: const Text('${entityClass}'),
-                    onTap: () => context.pushNamed('${entityInstance}'),
+                    onTap: () => context.go(${entityClass}Routes.list),
                 ),
             ),`;
             utils.rewriteFile({
@@ -705,6 +715,14 @@ module.exports = class extends BaseGenerator {
                 needle: 'jhipster-merlin-needle-menu-entry-add',
                 splicable: [
                     this.stripMargin(newMenuEntry)
+                ]
+            }, this);
+
+            utils.rewriteFile({
+                file: drawerClassPath,
+                needle: 'jhipster-merlin-needle-import-add',
+                splicable: [
+                    this.stripMargin(routeImport)
                 ]
             }, this);
 
