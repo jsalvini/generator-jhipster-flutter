@@ -85,14 +85,15 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
       SettingsAction action = SettingsAction.none;
       try {
+
         User newCurrentUser = User(
-          state.currentUser.id,
-          state.currentUser.login,
-          state.email.value,
-          state.currentUser.imageUrl,
-          true,
-          state.firstname.value,
-          state.lastname.value,
+          id: state.currentUser.id,
+          login: state.currentUser.login,
+          email: state.email.value,
+          imageUrl: state.currentUser.imageUrl,
+          firstName: state.firstname.value,
+          lastName: state.lastname.value,
+          activated: true,
         );
 
         String? result = await _accountRepository.saveAccount(newCurrentUser);

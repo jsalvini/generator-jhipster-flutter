@@ -66,7 +66,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton.icon(
-                    onPressed: () => context.go(<%= entityClass %>Routes.create),
+                    onPressed: () => context.push(<%= entityClass %>Routes.create),
                     style: ButtonStyle(
                       elevation: const MaterialStatePropertyAll(5.0),
                       minimumSize:
@@ -321,7 +321,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                 ?  TextButton.icon(
                     label: const Text('Ver'),
                     onPressed: () {
-                      blocContext.go('${<%= entityClass %>Routes.viewPath}${<%= entityInstance %>.id}');
+                      blocContext.push('${<%= entityClass %>Routes.viewPath}${<%= entityInstance %>.id}');
                     },
                     icon: const Icon(
                       Icons.remove_red_eye_outlined,
@@ -330,7 +330,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                   )
                 : IconButton(
                     onPressed: () {
-                      blocContext.go('${<%= entityClass %>Routes.viewPath}${<%= entityInstance %>.id}');
+                      blocContext.push('${<%= entityClass %>Routes.viewPath}${<%= entityInstance %>.id}');
                     },
                     icon: const Icon(
                       Icons.remove_red_eye_outlined,
@@ -341,7 +341,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                 ?  TextButton.icon(
                     label: const Text('Editar'),
                     onPressed: () {
-                      blocContext.go('${<%= entityClass %>Routes.editPath}${<%= entityInstance %>.id}');
+                      blocContext.push('${<%= entityClass %>Routes.editPath}${<%= entityInstance %>.id}');
                     },
                     icon: const Icon(
                       Icons.edit,
@@ -350,7 +350,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                   )
                 : IconButton(
                     onPressed: () {
-                      blocContext.go('${<%= entityClass %>Routes.editPath}${<%= entityInstance %>.id}');
+                      blocContext.push('${<%= entityClass %>Routes.editPath}${<%= entityInstance %>.id}');
                     },
                     icon: const Icon(
                       Icons.edit,
@@ -422,7 +422,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => blocContext.go('${<%= relationship.otherEntityNameCapitalized %>Routes.viewPath}${<%= entityInstance %>.<%= relationship.otherEntityName %>?.id}'),
+                      ..onTap = () => blocContext.push('${<%= relationship.otherEntityNameCapitalized %>Routes.viewPath}${<%= entityInstance %>.<%= relationship.otherEntityName %>?.id}'),
                   ),
               )
             : const Text(

@@ -1,40 +1,36 @@
-import 'package:dart_json_mapper/dart_json_mapper.dart';
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
+
 import 'package:equatable/equatable.dart';
 
-@jsonSerializable
 class User extends Equatable {
-  @JsonProperty(name: 'id')
   final int? id;
-
-  @JsonProperty(name: 'login')
   final String? login;
-
-  @JsonProperty(name: 'firstName')
   final String? firstName;
-
-  @JsonProperty(name: 'lastName')
   final String? lastName;
-
-  @JsonProperty(name: 'email')
   final String? email;
-
-  @JsonProperty(name: 'imageUrl')
   final String? imageUrl;
-
-  @JsonProperty(name: 'activated')
   final bool? activated;
 
-  const User(
-    this.id,
-    this.login,
-    this.email,
-    this.imageUrl,
-    this.activated,
-    this.firstName,
-    this.lastName,
-  );
+  const User({
+    this.id = 0,
+    this.login = '',
+    this.firstName = '',
+    this.lastName = '',
+    this.email = '',
+    this.imageUrl = '',
+    this.activated = false,
+  });
 
-  static const empty = User(0, '', '', '', false, '', '');
+  static const empty = User(
+    id: 0,
+    login: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    imageUrl: '',
+    activated: false,
+  );
 
   @override
   String toString() {
@@ -48,20 +44,6 @@ class User extends Equatable {
   }
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is User &&
-          runtimeType == other.runtimeType &&
-          login == other.login &&
-          email == other.email &&
-          imageUrl == other.imageUrl &&
-          activated == other.activated;
-
-  @override
-  int get hashCode =>
-      login.hashCode ^ email.hashCode ^ imageUrl.hashCode ^ activated.hashCode;
-
-  @override
   List<Object?> get props => [
         id,
         login,
@@ -71,4 +53,53 @@ class User extends Equatable {
         firstName,
         lastName,
       ];
+
+  User copyWith({
+    int? id,
+    String? login,
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? imageUrl,
+    bool? activated,
+  }) {
+    return User(
+      id: id ?? this.id,
+      login: login ?? this.login,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      email: email ?? this.email,
+      imageUrl: imageUrl ?? this.imageUrl,
+      activated: activated ?? this.activated,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'id': id,
+      'login': login,
+      'firstName': firstName,
+      'lastName': lastName,
+      'email': email,
+      'imageUrl': imageUrl,
+      'activated': activated,
+    };
+  }
+
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
+      id: map['id'] != null ? map['id'] as int : 0,
+      login: map['login'] != null ? map['login'] as String : '',
+      firstName: map['firstName'] != null ? map['firstName'] as String : '',
+      lastName: map['lastName'] != null ? map['lastName'] as String : '',
+      email: map['email'] != null ? map['email'] as String : '',
+      imageUrl: map['imageUrl'] != null ? map['imageUrl'] as String : '',
+      activated: map['activated'] != null ? map['activated'] as bool : false,
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory User.fromJson(String source) =>
+      User.fromMap(json.decode(source));
 }

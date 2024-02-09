@@ -20,7 +20,7 @@ class SettingsState extends Equatable {
     this.formStatus = FormzSubmissionStatus.initial,
     this.isValid = false,
     this.generalNotificationKey = HttpUtils.generalNoErrorKey,
-    this.currentUser = const User(0, '', '', '', false, '', ''),
+    this.currentUser = const User(),
   });
 
   SettingsState copyWith(

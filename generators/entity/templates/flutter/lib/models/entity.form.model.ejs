@@ -55,7 +55,7 @@ extension <%= field.fieldNameCapitalized %>ValidationErrorMessage on <%= field.f
 
 class <%= entityClass %><%= field.fieldNameCapitalized %>Input extends FormzInput<String, <%= field.fieldNameCapitalized %>ValidationError> {
   const <%= entityClass %><%= field.fieldNameCapitalized %>Input.pure() : super.pure('');
-  const <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty([String value = '']) : super.dirty(value);
+  const <%= entityClass %><%= field.fieldNameCapitalized %>Input.dirty([super.value = '']) : super.dirty();
 
   <%_ if(field.fieldValidateRules == 'required') { _%>
   static const isOptional = false;

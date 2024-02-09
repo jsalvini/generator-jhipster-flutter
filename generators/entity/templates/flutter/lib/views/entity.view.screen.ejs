@@ -32,7 +32,6 @@ import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
 <%_ if(!relationship.isList) { _%>
 import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/bloc/<%= relationship.otherEntityFileName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/models/<%= relationship.otherEntityFileName %>_models.dart';
-import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
 <%_ } _%>
 <%_ }); _%>
 import '../<%= entityFileName %>_routes.dart';
@@ -120,7 +119,7 @@ class EditButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: () => context.go('${<%= entityClass %>Routes.editPath}${<%= entityClass %>.id}'),
+                onPressed: () => context.push('${<%= entityClass %>Routes.editPath}${ state.loaded<%= entityClass %>.id}'),
                 style: ButtonStyle(
                     backgroundColor: MaterialStatePropertyAll(
                         Theme.of(context).primaryColor)),

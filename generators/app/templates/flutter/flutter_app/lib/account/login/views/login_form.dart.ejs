@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:<%= baseName %>/account/login/models/models.dart';
@@ -31,11 +32,14 @@ class LoginForm extends StatelessWidget {
       child: const SingleChildScrollView(
         child: Center(
           child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                LoginHeader(),
-                FormView(),
-              ],
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              LoginHeader(),
+              FormView(),
+              LoginFooter(),
+            ],
           ),
         ),
       ),
@@ -49,16 +53,52 @@ class LoginHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 50),
-      child: FadeInDown(
-        delay: const Duration(milliseconds: 800),
-        child: Image(
-          image: const AssetImage('assets/images/banner.png'),
-          fit: BoxFit.fill,
-          width: width > 1200
-              ? MediaQuery.of(context).size.width * 0.3
-              : MediaQuery.of(context).size.width * 0.5,
+    return FadeInDown(
+      delay: const Duration(milliseconds: 800),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 30),
+        child: SizedBox(
+          height: 250,
+          child: Icon(
+            Icons.play_arrow_rounded,
+            color: const Color(0xffdc2a20),
+            shadows: [
+              Shadow(
+                blurRadius: 3.0,
+                color: Theme.of(context).primaryColor,
+                offset: const Offset(0.0, 3.0),
+              )
+            ],
+            size: width > 1200
+                ? MediaQuery.of(context).size.width * 0.20
+                : MediaQuery.of(context).size.width * 0.40,
+          )
+              .animate(onPlay: (controller) => controller.repeat())
+              .shimmer(duration: 3200.ms, color: Colors.white.withOpacity(0.4))
+              .animate()
+              .fadeIn(duration: 1200.ms, curve: Curves.easeInCirc)
+              .slide(),
+        ),
+      ),
+    );
+  }
+}
+
+class LoginFooter extends StatelessWidget {
+  const LoginFooter({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeInDown(
+      delay: const Duration(milliseconds: 800),
+      child: const SizedBox(
+        child: Padding(
+          padding: EdgeInsets.only(top: 30.0),
+          child: Image(
+            image: AssetImage('assets/images/banner.png'),
+            width: 150,
+            height: 100,
+          ),
         ),
       ),
     );
@@ -73,12 +113,12 @@ class FormView extends StatelessWidget {
     return FadeInUp(
       delay: const Duration(milliseconds: 800),
       child: Container(
-        width: double.infinity,
+        height: 280,
         constraints: const BoxConstraints(
           maxWidth: 570.0,
         ),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primaryContainer,
+          color: Theme.of(context).colorScheme.onPrimary,
           boxShadow: [
             BoxShadow(
               blurRadius: 3.0,
@@ -124,8 +164,10 @@ class _UsernameInput extends StatelessWidget {
           },
           keyboardType: TextInputType.text,
           decoration: InputDecoration(
+              fillColor: Colors.white,
               labelText: 'Username',
-              labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
+              labelStyle:
+                  const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               filled: true,
@@ -156,8 +198,10 @@ class _PasswordInput extends StatelessWidget {
           },
           obscureText: true,
           decoration: InputDecoration(
+              fillColor: Colors.white,
               labelText: 'Password',
-              labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
+              labelStyle:
+                  const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               filled: true,
@@ -180,11 +224,11 @@ class _LoginButton extends StatelessWidget {
       builder: (context, state) {
         return state.status.isInProgress
             ? const Padding(
-                padding:  EdgeInsets.only(top: 30, bottom: 20),
+                padding: EdgeInsets.only(top: 30, bottom: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                     CircularProgressIndicator(),
+                    CircularProgressIndicator(),
                   ],
                 ),
               )
@@ -202,8 +246,8 @@ class _LoginButton extends StatelessWidget {
                       style: ButtonStyle(
                         backgroundColor: MaterialStatePropertyAll(
                           state.isValid
-                          ? const Color(0xff191918)
-                          : const Color(0xff191918).withOpacity(0.3),
+                              ? const Color(0xff191918)
+                              : const Color(0xff191918).withOpacity(0.3),
                         ),
                       ),
                       child: SizedBox(
