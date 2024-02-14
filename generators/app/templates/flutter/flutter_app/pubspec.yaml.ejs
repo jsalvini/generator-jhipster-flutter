@@ -1,5 +1,5 @@
-name: finaltest
-description: finaltest flutter project.
+name: <%= baseName %>
+description: <%= baseName %> flutter project.
 
 version: 1.0.0+1
 
@@ -9,6 +9,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  <%_ if (enableTranslation) { _%>
+  flutter_localizations:
+    sdk: flutter
+  <%_ } _%>
   cupertino_icons: 1.0.6
   http: 1.2.0
   dart_json_mapper: ^2.2.10
@@ -87,3 +91,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+<%_ if (enableTranslation) { _%>
+flutter_intl:
+  enabled: true
+<%_ } _%>
