@@ -62,11 +62,16 @@ class LoginHeader extends StatelessWidget {
           child: Icon(
             Icons.play_arrow_rounded,
             color: const Color(0xffdc2a20),
-            shadows: [
+            shadows: const [
               Shadow(
                 blurRadius: 3.0,
-                color: Theme.of(context).primaryColor,
-                offset: const Offset(0.0, 3.0),
+                color: Color(0xff191918),
+                offset: Offset(0.0, 3.0),
+              ),
+              Shadow(
+                blurRadius: 3.0,
+                color: Color(0xff191918),
+                offset: Offset(0.0, -3.0),
               )
             ],
             size: width > 1200
