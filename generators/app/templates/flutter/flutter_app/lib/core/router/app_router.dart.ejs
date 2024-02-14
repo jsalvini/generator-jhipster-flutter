@@ -49,6 +49,7 @@ abstract class AppRouter {
           tokenValid = true;
         } else {
           tokenValid = false;
+          await SecureStorage.storage.delete(key: HttpUtils.keyForJWTToken);
         }
       } else {
         tokenValid = false;
