@@ -13,33 +13,73 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: BlocProvider<LoginBloc>(
-        create: (context) => LoginBloc(
-          authenticationRepository:
-              RepositoryProvider.of<AuthenticationRepository>(context),
-        ),
-        child: Stack(
-          children: [
-            const Image(
-            image: AssetImage('assets/images/fondo.jpg'),
-            fit: BoxFit.fill,
+    return BlocProvider<LoginBloc>(
+      create: (context) => LoginBloc(
+        authenticationRepository:
+            RepositoryProvider.of<AuthenticationRepository>(context),
+      ),
+      child: Container(
+        alignment: Alignment.center,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/fondo.jpg"),
+            fit: BoxFit.cover,
           ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: ClipPath(
-                clipper: OvalTopBorderClipper(),
-                child: Container(
-                  height: size.height * 0.3,
-                  color: const Color(0xff191918),
+        ),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: SingleChildScrollView(
+            child: Stack(
+              children: [
+                Container(
+                  height: size.height,
                 ),
-              ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: ClipPath(
+                    clipper: OvalTopBorderClipper(),
+                    child: Container(
+                      width: size.width,
+                      height: 130,
+                      color: const Color(0xff191918),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 10,
+                  right: (size.width / 2) - 125,
+                  child: const Center(child: LoginFooter()),
+                ),
+                const LoginForm(),
+              ],
             ),
-            const LoginForm(),
-          ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LoginFooter extends StatelessWidget {
+  const LoginFooter({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeInDown(
+      delay: const Duration(milliseconds: 800),
+      child: Container(
+        height: 90,
+        constraints: const BoxConstraints(
+          maxWidth: 570.0,
+        ),
+        child: const Padding(
+          padding: EdgeInsets.only(top: 20),
+          child: Image(
+            image: AssetImage('assets/images/banner.png'),
+            width: 250,
+          ),
         ),
       ),
     );

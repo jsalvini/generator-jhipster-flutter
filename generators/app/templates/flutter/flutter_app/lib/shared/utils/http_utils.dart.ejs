@@ -17,7 +17,6 @@ class HttpUtils {
   static String badRequestServerKey = 'error.400';
   static String errorServerKey = 'error.500';
   static const String generalNoErrorKey = 'none';
-  static int timeout = 5;
 
   static String encodeUTF8(String toEncode) {
     return utf8.decode(toEncode.runes.toList());
@@ -42,7 +41,7 @@ class HttpUtils {
     Response? response;
     try {
       response = await http.post(Uri.parse('${Constants.api}$endpoint'), headers: headers, body: json,
-          encoding: Encoding.getByName('utf-8')).timeout(Duration(seconds: timeout));
+          encoding: Encoding.getByName('utf-8')).timeout(Duration(seconds: Constants.timeout));
     } on SocketException {
       throw FetchDataException('No hay conexión con el servidor.');
     } on TimeoutException {
@@ -55,7 +54,7 @@ class HttpUtils {
     var headers = await HttpUtils.headers();
     try {
       return await http.get(Uri.parse('${Constants.api}$endpoint'), headers: headers)
-          .timeout(Duration(seconds: timeout));
+          .timeout(Duration(seconds: Constants.timeout));
     } on SocketException {
       throw FetchDataException('No hay conexión con el servidor.');
     } on TimeoutException {
@@ -69,7 +68,7 @@ class HttpUtils {
     Response response;
     try {
       response = await http.put(Uri.parse('${Constants.api}$endpoint'), headers: headers, body: json,
-          encoding: Encoding.getByName('utf-8')).timeout(Duration(seconds: timeout));
+          encoding: Encoding.getByName('utf-8')).timeout(Duration(seconds: Constants.timeout));
     } on SocketException {
       throw FetchDataException('No hay conexión con el servidor.');
     } on TimeoutException {
@@ -82,7 +81,7 @@ class HttpUtils {
     var headers = await HttpUtils.headers();
     try {
       return await http.delete(Uri.parse('${Constants.api}$endpoint'), headers: headers)
-          .timeout(Duration(seconds: timeout));
+          .timeout(Duration(seconds: Constants.timeout));
     } on SocketException {
       throw FetchDataException('No hay conexión con el servidor.');
     } on TimeoutException {

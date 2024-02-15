@@ -23,10 +23,15 @@ class Constants {
   static get api {
     return _config![_Config.api];
   }
+
+  static int get timeout {
+    return int.tryParse(_config![_Config.timeout]) ?? 5;
+  }
 }
 
 class _Config {
   static get api => "API";
+  static get timeout => "TIMEOUT";
 
   static String ipApi =
       dotenv.env['IP_API'] ?? 'No se configuro la ip de la API.';
@@ -34,11 +39,15 @@ class _Config {
   static String puertoApi =
       dotenv.env['PUERTO_API'] ?? 'No se configuro el puerto de la API.';
 
+  static String timeoutRequest = dotenv.env['TIMEOUT'] ?? '5';
+
   static Map<String, dynamic> devConstants = {
     api: "http://$ipApi:$puertoApi/api",
+    timeout: timeoutRequest,
   };
 
   static Map<String, dynamic> prodConstants = {
     api: "https://$ipApi/api",
+    timeout: timeoutRequest,
   };
 }
