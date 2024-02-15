@@ -1,6 +1,5 @@
 class ExpresionesRegulares {
-  static String coordenadas =
-      r'^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)\s*,\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$';
+  static String coordenadas = r'^[-+]?(\d{1,2}|1[0-7]\d|180)(\.\d+)?$';
   static String alfanumericoSimbolos =
       r'''^[a-zA-Z0-9!@#$%^&*()-_+=~{}:"\';,./|\\[\]<>?áéíóúÁÉÍÓÚüÜñÑ ]+$''';
   static String soloDecimales = r'^-?\d+(\.\d{1,2})?$';
