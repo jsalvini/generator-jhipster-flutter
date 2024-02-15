@@ -18,6 +18,9 @@ class LoginForm extends StatelessWidget {
             ..hideCurrentSnackBar()
             ..showSnackBar(
               SnackBar(
+                showCloseIcon: true,
+                closeIconColor: Colors.white,
+                duration: const Duration(seconds: 10),
                 content: Text(
                   state.generalNotificationKey,
                   style: const TextStyle(

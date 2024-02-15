@@ -57,6 +57,9 @@ class <%= entityClass %>UpdateScreen extends StatelessWidget {
             ..hideCurrentSnackBar()
             ..showSnackBar(
               SnackBar(
+				showCloseIcon: true,
+                closeIconColor: Colors.white,
+                duration: const Duration(seconds: 10),
                 content: Row(
                   children: [
                     Icon(iconData, color: Colors.white),
