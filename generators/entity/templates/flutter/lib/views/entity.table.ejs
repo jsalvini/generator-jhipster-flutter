@@ -63,7 +63,7 @@ class <%= entityClass %>Table extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   ElevatedButton.icon(
                     onPressed: () => context.push(<%= entityClass %>Routes.create),
@@ -80,6 +80,40 @@ class <%= entityClass %>Table extends StatelessWidget {
                     icon: const Icon(Icons.add, color: Colors.white),
                     label: const Text(
                       'Agregar <%= entityInstance %>',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      int pageQuery =
+                          blocContext.read<<%= entityClass %>Bloc>().state.currentPage - 1;
+                      String columnName =
+                          blocContext.read<<%= entityClass %>Bloc>().state.columnName;
+                      var order =
+                          blocContext.read<<%= entityClass %>Bloc>().state.sortAscending
+                              ? 'asc'
+                              : 'desc';
+                      blocContext.read<<%= entityClass %>Bloc>().add(Load<%= entityClass %>List(
+                            page: pageQuery,
+                            sort: columnName,
+                            ascending: order,
+                          ));
+                    },
+                    style: ButtonStyle(
+                      elevation: const MaterialStatePropertyAll(5.0),
+                      minimumSize:
+                          const MaterialStatePropertyAll(Size(200, 50)),
+                      backgroundColor: MaterialStatePropertyAll(
+                        context.read<ThemeBloc>().state == ThemeMode.dark
+                            ? Theme.of(context).colorScheme.primaryContainer
+                            : Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    icon:
+                        const Icon(Icons.refresh_rounded, color: Colors.white),
+                    label: const Text(
+                      'Actualizar lista',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),

@@ -88,17 +88,20 @@ class <%= entityClass %>View extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(builder: (context, state) {
-      if (state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.done) {
-        List<<%= entityClass %>> <%= entityInstance %>List = state.<%= entityClassPluralLowered %>;
-        return <%= entityClass %>Table(
-          <%= entityClassPluralLowered %>: <%= entityInstance %>List,
-          blocContext: context,
-        );
+      switch (state.<%= entityInstance %>StatusUI) {
+        case <%= entityClass %>StatusUI.done:
+          List<<%= entityClass %>> <%= entityInstance %>List = state.<%= entityClassPluralLowered %>;
+          return <%= entityClass %>Table(
+            <%= entityClassPluralLowered %>: <%= entityInstance %>List,
+            blocContext: context,
+          );
+        case <%= entityClass %>StatusUI.loading:
+          return const LoadingIndicator();
+        case <%= entityClass %>StatusUI.error:
+          return ErrorView(message: state.generalNotificationKey);
+        default:
+          return const LoadingIndicator();
       }
-      if (state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.loading) {
-        return const LoadingIndicator();
-      }
-      return ErrorView(message: state.generalNotificationKey);
     });
   }
 }
