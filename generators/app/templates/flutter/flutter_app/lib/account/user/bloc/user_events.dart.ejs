@@ -1,0 +1,163 @@
+part of 'user_bloc.dart.ejs';
+
+abstract class UserEvent {
+  const UserEvent();
+}
+
+class UserRowsPerPageChanged extends UserEvent {
+  final int rowsPerPage;
+
+  const UserRowsPerPageChanged({required this.rowsPerPage});
+}
+
+class UserInitialRowChanged extends UserEvent {
+  final int initialRow;
+
+  const UserInitialRowChanged({required this.initialRow});
+}
+
+class UserSortChanged extends UserEvent {
+  final String columnName;
+  final int sortColumnIndex;
+  final bool sortAscending;
+
+  const UserSortChanged(
+      {required this.sortColumnIndex,
+      required this.sortAscending,
+      required this.columnName});
+}
+
+class UserCurrentPageChanged extends UserEvent {
+  final int currentPage;
+
+  const UserCurrentPageChanged({required this.currentPage});
+}
+
+class LoadUserList extends UserEvent {
+  final int page;
+  final String sort;
+  final String ascending;
+
+  const LoadUserList(
+      {required this.page, required this.sort, required this.ascending});
+
+  @override
+  List<Object> get props => [page, sort, ascending];
+}
+
+class UserLoginChanged extends UserEvent {
+  final String login;
+  const UserLoginChanged({required this.login});
+
+  @override
+  List<Object> get props => [login];
+}
+
+class UserFirstNameChanged extends UserEvent {
+  final String firstName;
+  const UserFirstNameChanged({required this.firstName});
+
+  @override
+  List<Object> get props => [firstName];
+}
+
+class UserLastNameChanged extends UserEvent {
+  final String lastName;
+  const UserLastNameChanged({required this.lastName});
+
+  @override
+  List<Object> get props => [lastName];
+}
+
+class UserEmailChanged extends UserEvent {
+  final String email;
+  const UserEmailChanged({required this.email});
+
+  @override
+  List<Object> get props => [email];
+}
+
+class UserImageUrlChanged extends UserEvent {
+  final String imageUrl;
+  const UserImageUrlChanged({required this.imageUrl});
+
+  @override
+  List<Object> get props => [imageUrl];
+}
+
+class UserActivatedChanged extends UserEvent {
+  final bool activated;
+  const UserActivatedChanged({required this.activated});
+
+  @override
+  List<Object> get props => [activated];
+}
+
+class UserLangKeyChanged extends UserEvent {
+  final String langKey;
+  const UserLangKeyChanged({required this.langKey});
+
+  @override
+  List<Object> get props => [langKey];
+}
+
+class UserCreatedByChanged extends UserEvent {
+  final String createdBy;
+  const UserCreatedByChanged({required this.createdBy});
+
+  @override
+  List<Object> get props => [createdBy];
+}
+
+class UserCreatedDateChanged extends UserEvent {
+  final DateTime createdDate;
+  const UserCreatedDateChanged({required this.createdDate});
+
+  @override
+  List<Object> get props => [createdDate];
+}
+
+class UserLastModifiedByChanged extends UserEvent {
+  final String lastModifiedBy;
+  const UserLastModifiedByChanged({required this.lastModifiedBy});
+
+  @override
+  List<Object> get props => [lastModifiedBy];
+}
+
+class UserLastModifiedDateChanged extends UserEvent {
+  final DateTime lastModifiedDate;
+  const UserLastModifiedDateChanged({required this.lastModifiedDate});
+
+  @override
+  List<Object> get props => [lastModifiedDate];
+}
+
+class UserFormSubmitted extends UserEvent {}
+
+class LoadUserByIdForEdit extends UserEvent {
+  final String login;
+
+  const LoadUserByIdForEdit({required this.login});
+
+  @override
+  List<Object> get props => [login];
+}
+
+class DeleteUserByLogin extends UserEvent {
+  final String login;
+
+  const DeleteUserByLogin({required this.login});
+
+  @override
+  List<Object> get props => [login];
+}
+
+class LoadUserByIdForView extends UserEvent {
+  final String login;
+
+  const LoadUserByIdForView({required this.login});
+
+  @override
+  List<Object> get props => [login];
+}

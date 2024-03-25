@@ -1,0 +1,24 @@
+import 'package:<%= baseName %>/account/user/models/user_model.dart';
+
+class UserResponse {
+  final List<User> users;
+  final int totalCount;
+  final String link;
+
+  const UserResponse({
+    required this.users,
+    required this.totalCount,
+    required this.link,
+  });
+
+  UserResponse copyWith({
+    List<User>? users,
+    int? totalCount,
+    String? link,
+  }) =>
+  UserResponse(
+        users: users ?? this.users,
+        totalCount: totalCount ?? this.totalCount,
+        link: link ?? this.link,
+      );
+}

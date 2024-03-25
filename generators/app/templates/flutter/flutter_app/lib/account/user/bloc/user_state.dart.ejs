@@ -1,0 +1,163 @@
+part of 'user_bloc.dart';
+
+enum UserStatusUI { init, loading, error, done, ok }
+
+enum UserDeleteStatus { ok, error, none }
+
+class UserState extends Equatable {
+  final List<User> users;
+  final int initialRow;
+  final int rowsPerPage;
+  final bool sortAscending;
+  final int sortColumnIndex;
+  final bool selectAll;
+  final int totalRow;
+  final String columnName;
+  final int currentPage;
+
+  final User loadedUser;
+  final bool editMode;
+  final UserDeleteStatus deleteStatus;
+  final UserStatusUI userStatusUI;
+
+  final FormzSubmissionStatus formStatus;
+  final bool isValid;
+  final String generalNotificationKey;
+
+  final UserLoginInput login;
+  final UserFirstNameInput firstName;
+  final UserLastNameInput lastName;
+  final UserEmailInput email;
+  final UserImageUrlInput imageUrl;
+  final UserActivatedInput activated;
+  final UserLangKeyInput langKey;
+  final UserCreatedByInput createdBy;
+  final UserCreatedDateInput createdDate;
+  final UserLastModifiedByInput lastModifiedBy;
+  final UserLastModifiedDateInput lastModifiedDate;
+
+  const UserState({
+    this.users = const [],
+    this.initialRow = 0,
+    this.rowsPerPage = 20,
+    this.sortAscending = true,
+    this.sortColumnIndex = 1,
+    this.selectAll = false,
+    this.totalRow = 0,
+    this.columnName = 'id',
+    this.currentPage = 1,
+    this.userStatusUI = UserStatusUI.init,
+    this.loadedUser = const User(authorities: ['ROLE_USER']),
+    this.editMode = false,
+    this.formStatus = FormzSubmissionStatus.initial,
+    this.isValid = false,
+    this.generalNotificationKey = '',
+    this.deleteStatus = UserDeleteStatus.none,
+    this.login = const UserLoginInput.pure(),
+    this.firstName = const UserFirstNameInput.pure(),
+    this.lastName = const UserLastNameInput.pure(),
+    this.email = const UserEmailInput.pure(),
+    this.imageUrl = const UserImageUrlInput.pure(),
+    this.activated = const UserActivatedInput.pure(),
+    this.langKey = const UserLangKeyInput.pure(),
+    this.createdBy = const UserCreatedByInput.pure(),
+    this.createdDate = const UserCreatedDateInput.pure(),
+    this.lastModifiedBy = const UserLastModifiedByInput.pure(),
+    this.lastModifiedDate = const UserLastModifiedDateInput.pure(),
+  });
+
+  UserState copyWith({
+    List<User>? users,
+    int? initialRow,
+    int? rowsPerPage,
+    bool? sortAscending,
+    int? sortColumnIndex,
+    bool? selectAll,
+    int? totalRow,
+    String? columnName,
+    int? currentPage,
+    UserStatusUI? userStatusUI,
+    bool? editMode,
+    UserDeleteStatus? deleteStatus,
+    User? loadedUser,
+    FormzSubmissionStatus? formStatus,
+    bool? isValid,
+    String? generalNotificationKey,
+    UserLoginInput? login,
+    UserFirstNameInput? firstName,
+    UserLastNameInput? lastName,
+    UserEmailInput? email,
+    UserImageUrlInput? imageUrl,
+    UserActivatedInput? activated,
+    UserLangKeyInput? langKey,
+    UserCreatedByInput? createdBy,
+    UserCreatedDateInput? createdDate,
+    UserLastModifiedByInput? lastModifiedBy,
+    UserLastModifiedDateInput? lastModifiedDate,
+  }) {
+    return UserState(
+      users: users ?? this.users,
+      initialRow: initialRow ?? this.initialRow,
+      rowsPerPage: rowsPerPage ?? this.rowsPerPage,
+      sortAscending: sortAscending ?? this.sortAscending,
+      sortColumnIndex: sortColumnIndex ?? this.sortColumnIndex,
+      selectAll: selectAll ?? this.selectAll,
+      totalRow: totalRow ?? this.totalRow,
+      columnName: columnName ?? this.columnName,
+      currentPage: currentPage ?? this.currentPage,
+      userStatusUI: userStatusUI ?? this.userStatusUI,
+      loadedUser: loadedUser ?? this.loadedUser,
+      editMode: editMode ?? this.editMode,
+      formStatus: formStatus ?? this.formStatus,
+      isValid: isValid ?? this.isValid,
+      generalNotificationKey:
+          generalNotificationKey ?? this.generalNotificationKey,
+      deleteStatus: deleteStatus ?? this.deleteStatus,
+      login: login ?? this.login,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      email: email ?? this.email,
+      imageUrl: imageUrl ?? this.imageUrl,
+      activated: activated ?? this.activated,
+      langKey: langKey ?? this.langKey,
+      createdBy: createdBy ?? this.createdBy,
+      createdDate: createdDate ?? this.createdDate,
+      lastModifiedBy: lastModifiedBy ?? this.lastModifiedBy,
+      lastModifiedDate: lastModifiedDate ?? this.lastModifiedDate,
+    );
+  }
+
+  @override
+  List<Object> get props => [
+        users,
+        initialRow,
+        rowsPerPage,
+        sortAscending,
+        sortColumnIndex,
+        userStatusUI,
+        selectAll,
+        totalRow,
+        columnName,
+        currentPage,
+        loadedUser,
+        editMode,
+        deleteStatus,
+        formStatus,
+        isValid,
+        generalNotificationKey,
+        login,
+        firstName,
+        lastName,
+        email,
+        imageUrl,
+        activated,
+        langKey,
+        createdBy,
+        createdDate,
+        lastModifiedBy,
+        lastModifiedDate,
+      ];
+
+  @override
+  bool get stringify => true;
+}

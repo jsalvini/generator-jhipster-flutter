@@ -1,0 +1,623 @@
+import 'package:bloc/bloc.dart';
+import 'package:dartz/dartz.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/widgets.dart';
+import 'package:formz/formz.dart';
+import 'package:<%= baseName %>/core/core.dart';
+import 'package:<%= baseName %>/account/user/models/user_models.dart';
+import 'package:<%= baseName %>/account/user/user_repository.dart';
+
+part 'user_events.dart.ejs';
+part 'user_state.dart.ejs';
+
+class UserBloc extends Bloc<UserEvent, UserState> {
+  final UserRepository _userRepository;
+
+  final loginController = TextEditingController();
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final emailController = TextEditingController();
+  final imageUrlController = TextEditingController();
+  final langKeyController = TextEditingController();
+  final createdByController = TextEditingController();
+  final createdDateController = TextEditingController();
+  final lastModifiedByController = TextEditingController();
+  final lastModifiedDateController = TextEditingController();
+
+  UserBloc({required UserRepository userRepository})
+      : _userRepository = userRepository,
+        super(const UserState()) {
+    on<LoadUserList>(onLoadUser);
+    on<UserFormSubmitted>(onSubmit);
+    on<LoadUserByIdForEdit>(onLoadUserIdForEdit);
+    on<DeleteUserByLogin>(onDeleteUserId);
+    on<LoadUserByIdForView>(onLoadUserIdForView);
+    on<UserLoginChanged>(onUserLoginChanged);
+    on<UserFirstNameChanged>(onUserFirstNameChanged);
+    on<UserLastNameChanged>(onUserLastNameChanged);
+    on<UserEmailChanged>(onUserEmailChanged);
+    on<UserImageUrlChanged>(onUserImageUrlChanged);
+    on<UserActivatedChanged>(onUserActivatedChanged);
+    on<UserLangKeyChanged>(onUserLangKeyChanged);
+    on<UserCreatedByChanged>(onUserCreatedByChanged);
+    on<UserCreatedDateChanged>(onUserCreatedDateChanged);
+    on<UserLastModifiedByChanged>(onUserLastModifiedByChanged);
+    on<UserLastModifiedDateChanged>(onUserLastModifiedDateChanged);
+    on<UserRowsPerPageChanged>(onRowsPerPageChanged);
+    on<UserInitialRowChanged>(onInitialRowChanged);
+    on<UserSortChanged>(onSortChanged);
+    on<UserCurrentPageChanged>(onCurrentPageChanged);
+  }
+
+  void onRowsPerPageChanged(
+    UserRowsPerPageChanged event,
+    Emitter<UserState> emit,
+  ) {
+    emit(
+      state.copyWith(rowsPerPage: event.rowsPerPage),
+    );
+  }
+
+  void onInitialRowChanged(
+    UserInitialRowChanged event,
+    Emitter<UserState> emit,
+  ) {
+    emit(
+      state.copyWith(initialRow: event.initialRow),
+    );
+  }
+
+  void onSortChanged(
+    UserSortChanged event,
+    Emitter<UserState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        columnName: event.columnName,
+        sortColumnIndex: event.sortColumnIndex,
+        sortAscending: event.sortAscending,
+      ),
+    );
+  }
+
+  void onCurrentPageChanged(
+    UserCurrentPageChanged event,
+    Emitter<UserState> emit,
+  ) {
+    emit(
+      state.copyWith(currentPage: event.currentPage),
+    );
+  }
+
+  Future<void> onLoadUser(
+    LoadUserList event,
+    Emitter<UserState> emit,
+  ) async {
+    emit(state.copyWith(
+      userStatusUI: UserStatusUI.loading,
+    ));
+    final result = await _userRepository.getAllUsers(
+      page: event.page,
+      sort: event.sort,
+      ascending: event.ascending,
+    );
+
+    result.fold(
+      (Failure failure) {
+        emit(
+          state.copyWith(
+              userStatusUI: UserStatusUI.error,
+              generalNotificationKey: failure.errorMessage),
+        );
+      },
+      (UserResponse data) {
+        List<User>? users = data.users;
+
+        emit(
+          state.copyWith(
+            users: users,
+            totalRow: data.totalCount,
+            userStatusUI: UserStatusUI.done,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> onSubmit(
+    UserFormSubmitted event,
+    Emitter<UserState> emit,
+  ) async {
+    if (state.isValid) {
+      emit(state.copyWith(
+        formStatus: FormzSubmissionStatus.inProgress,
+      ));
+
+      User newUser;
+      Either<Failure, User?> result;
+
+      if (state.editMode) {
+        newUser = User(
+          id: state.loadedUser.id,
+          login: state.login.value,
+          firstName: state.firstName.value,
+          lastName: state.lastName.value,
+          email: state.email.value,
+          imageUrl: '',
+          activated: state.activated.value,
+          langKey: 'es',
+          authorities: const ['ROLE_USER'],
+        );
+        result = await _userRepository.update(newUser);
+      } else {
+        newUser = User(
+          id: null,
+          login: state.login.value,
+          firstName: state.firstName.value,
+          lastName: state.lastName.value,
+          email: state.email.value,
+          imageUrl: '',
+          activated: state.activated.value,
+          langKey: 'es',
+          authorities: const ['ROLE_USER'],
+        );
+        result = await _userRepository.create(newUser);
+      }
+      result.fold(
+        (Failure failure) {
+          emit(
+            state.copyWith(
+                userStatusUI: UserStatusUI.error,
+                generalNotificationKey: failure.errorMessage),
+          );
+        },
+        (User? data) {
+          add(const LoadUserList(page: 0, sort: 'id', ascending: 'asc'));
+          emit(state.copyWith(
+            userStatusUI: UserStatusUI.ok,
+            generalNotificationKey: state.editMode
+                ? 'Usuario actualizado correctamente.'
+                : 'Usuario agregado correctamente.',
+          ));
+        },
+      );
+    }
+  }
+
+  Future<void> onLoadUserIdForEdit(
+    LoadUserByIdForEdit event,
+    Emitter<UserState> emit,
+  ) async {
+    emit(state.copyWith(userStatusUI: UserStatusUI.loading));
+    final result = await _userRepository.getUser(event.login);
+    result.fold(
+      (Failure failure) {
+        emit(
+          state.copyWith(
+            userStatusUI: UserStatusUI.error,
+            generalNotificationKey: failure.errorMessage,
+          ),
+        );
+      },
+      (User? data) {
+        User? loadedUser = data;
+
+        if (loadedUser != null) {
+          final login = UserLoginInput.dirty((loadedUser.login));
+          final firstName =
+              UserFirstNameInput.dirty((loadedUser.firstName ?? ''));
+          final lastName = UserLastNameInput.dirty((loadedUser.lastName ?? ''));
+          final email = UserEmailInput.dirty((loadedUser.email ?? ''));
+          final imageUrl = UserImageUrlInput.dirty((loadedUser.imageUrl ?? ''));
+          final activated = UserActivatedInput.dirty((loadedUser.activated));
+          final langKey = UserLangKeyInput.dirty((loadedUser.langKey ?? ''));
+          final createdBy =
+              UserCreatedByInput.dirty((loadedUser.createdBy ?? ''));
+          final createdDate =
+              UserCreatedDateInput.dirty((loadedUser.createdDate ?? ''));
+          final lastModifiedBy =
+              UserLastModifiedByInput.dirty((loadedUser.lastModifiedBy ?? ''));
+          final lastModifiedDate = UserLastModifiedDateInput.dirty(
+              (loadedUser.lastModifiedDate ?? ''));
+          emit(state.copyWith(
+            loadedUser: loadedUser,
+            editMode: true,
+            login: login,
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            imageUrl: imageUrl,
+            activated: activated,
+            langKey: langKey,
+            createdBy: createdBy,
+            createdDate: createdDate,
+            lastModifiedBy: lastModifiedBy,
+            lastModifiedDate: lastModifiedDate,
+            userStatusUI: UserStatusUI.done,
+          ));
+          loginController.text = loadedUser.login;
+          firstNameController.text = loadedUser.firstName ?? '';
+          lastNameController.text = loadedUser.lastName ?? '';
+          emailController.text = loadedUser.email ?? '';
+          imageUrlController.text = loadedUser.imageUrl ?? '';
+          langKeyController.text = loadedUser.langKey ?? '';
+          createdByController.text = loadedUser.createdBy ?? '';
+          createdDateController.text = loadedUser.createdDate ?? '';
+          lastModifiedByController.text = loadedUser.lastModifiedBy ?? '';
+          lastModifiedDateController.text = loadedUser.lastModifiedDate ?? '';
+        }
+      },
+    );
+  }
+
+  Future<void> onDeleteUserId(
+    DeleteUserByLogin event,
+    Emitter<UserState> emit,
+  ) async {
+    final result = await _userRepository.delete(event.login);
+    result.fold(
+      (Failure failure) {
+        emit(state.copyWith(
+          deleteStatus: UserDeleteStatus.error,
+          generalNotificationKey: failure.errorMessage,
+        ));
+      },
+      (String data) {
+        add(const LoadUserList(page: 0, sort: 'id', ascending: 'asc'));
+        emit(state.copyWith(
+            deleteStatus: UserDeleteStatus.none,
+            generalNotificationKey:
+                'Usuario ${event.login} eliminado correctamente.'));
+      },
+    );
+  }
+
+  Future<void> onLoadUserIdForView(
+    LoadUserByIdForView event,
+    Emitter<UserState> emit,
+  ) async {
+    emit(state.copyWith(
+      userStatusUI: UserStatusUI.loading,
+    ));
+
+    final result = await _userRepository.getUser(event.login);
+    result.fold(
+      (Failure failure) {
+        emit(
+          state.copyWith(
+            userStatusUI: UserStatusUI.error,
+            generalNotificationKey: failure.errorMessage,
+          ),
+        );
+      },
+      (User? data) {
+        User? loadedUser = data;
+
+        if (loadedUser != null) {
+          final login = UserLoginInput.dirty((loadedUser.login));
+          final firstName =
+              UserFirstNameInput.dirty((loadedUser.firstName ?? ''));
+          final lastName = UserLastNameInput.dirty((loadedUser.lastName ?? ''));
+          final email = UserEmailInput.dirty((loadedUser.email ?? ''));
+          final imageUrl = UserImageUrlInput.dirty((loadedUser.imageUrl ?? ''));
+          final activated = UserActivatedInput.dirty((loadedUser.activated));
+          final langKey = UserLangKeyInput.dirty((loadedUser.langKey ?? ''));
+          final createdBy =
+              UserCreatedByInput.dirty((loadedUser.createdBy ?? ''));
+          final createdDate =
+              UserCreatedDateInput.dirty((loadedUser.createdDate ?? ''));
+          final lastModifiedBy =
+              UserLastModifiedByInput.dirty((loadedUser.lastModifiedBy ?? ''));
+          final lastModifiedDate = UserLastModifiedDateInput.dirty(
+              (loadedUser.lastModifiedDate ?? ''));
+          emit(state.copyWith(
+            loadedUser: loadedUser,
+            login: login,
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            imageUrl: imageUrl,
+            activated: activated,
+            langKey: langKey,
+            createdBy: createdBy,
+            createdDate: createdDate,
+            lastModifiedBy: lastModifiedBy,
+            lastModifiedDate: lastModifiedDate,
+            userStatusUI: UserStatusUI.done,
+          ));
+          loginController.text = loadedUser.login;
+          firstNameController.text = loadedUser.firstName ?? '';
+          lastNameController.text = loadedUser.lastName ?? '';
+          emailController.text = loadedUser.email ?? '';
+          imageUrlController.text = loadedUser.imageUrl ?? '';
+          langKeyController.text = loadedUser.langKey ?? '';
+          createdByController.text = loadedUser.createdBy ?? '';
+          createdDateController.text = loadedUser.createdDate ?? '';
+          lastModifiedByController.text = loadedUser.lastModifiedBy ?? '';
+          lastModifiedDateController.text = loadedUser.lastModifiedDate ?? '';
+        }
+      },
+    );
+  }
+
+  void onUserLoginChanged(
+    UserLoginChanged event,
+    Emitter<UserState> emit,
+  ) {
+    final login = UserLoginInput.dirty(event.login);
+    emit(state.copyWith(
+      login: login,
+      formStatus: FormzSubmissionStatus.initial,
+      isValid: Formz.validate([
+        login,
+        state.firstName,
+        state.lastName,
+        state.email,
+        state.imageUrl,
+        state.activated,
+        state.langKey,
+        state.createdBy,
+        state.createdDate,
+        state.lastModifiedBy,
+        state.lastModifiedDate,
+      ]),
+    ));
+  }
+
+  void onUserFirstNameChanged(
+    UserFirstNameChanged event,
+    Emitter<UserState> emit,
+  ) {
+    final firstName = UserFirstNameInput.dirty(event.firstName);
+    emit(state.copyWith(
+      firstName: firstName,
+      formStatus: FormzSubmissionStatus.initial,
+      isValid: Formz.validate([
+        state.login,
+        firstName,
+        state.lastName,
+        state.email,
+        state.imageUrl,
+        state.activated,
+        state.langKey,
+        state.createdBy,
+        state.createdDate,
+        state.lastModifiedBy,
+        state.lastModifiedDate,
+      ]),
+    ));
+  }
+
+  void onUserLastNameChanged(
+    UserLastNameChanged event,
+    Emitter<UserState> emit,
+  ) {
+    final lastName = UserLastNameInput.dirty(event.lastName);
+    emit(state.copyWith(
+      lastName: lastName,
+      formStatus: FormzSubmissionStatus.initial,
+      isValid: Formz.validate([
+        state.login,
+        state.firstName,
+        lastName,
+        state.email,
+        state.imageUrl,
+        state.activated,
+        state.langKey,
+        state.createdBy,
+        state.createdDate,
+        state.lastModifiedBy,
+        state.lastModifiedDate,
+      ]),
+    ));
+  }
+
+  void onUserEmailChanged(
+    UserEmailChanged event,
+    Emitter<UserState> emit,
+  ) {
+    final email = UserEmailInput.dirty(event.email);
+    emit(state.copyWith(
+      email: email,
+      formStatus: FormzSubmissionStatus.initial,
+      isValid: Formz.validate([
+        state.login,
+        state.firstName,
+        state.lastName,
+        email,
+        state.imageUrl,
+        state.activated,
+        state.langKey,
+        state.createdBy,
+        state.createdDate,
+        state.lastModifiedBy,
+        state.lastModifiedDate,
+      ]),
+    ));
+  }
+
+  void onUserImageUrlChanged(
+    UserImageUrlChanged event,
+    Emitter<UserState> emit,
+  ) {
+    final imageUrl = UserImageUrlInput.dirty(event.imageUrl);
+    emit(state.copyWith(
+      imageUrl: imageUrl,
+      formStatus: FormzSubmissionStatus.initial,
+      isValid: Formz.validate([
+        state.login,
+        state.firstName,
+        state.lastName,
+        state.email,
+        imageUrl,
+        state.activated,
+        state.langKey,
+        state.createdBy,
+        state.createdDate,
+        state.lastModifiedBy,
+        state.lastModifiedDate,
+      ]),
+    ));
+  }
+
+  void onUserActivatedChanged(
+    UserActivatedChanged event,
+    Emitter<UserState> emit,
+  ) {
+    final activated = UserActivatedInput.dirty(event.activated);
+    emit(state.copyWith(
+      activated: activated,
+      formStatus: FormzSubmissionStatus.initial,
+      isValid: Formz.validate([
+        state.login,
+        state.firstName,
+        state.lastName,
+        state.email,
+        state.imageUrl,
+        activated,
+        state.langKey,
+        state.createdBy,
+        state.createdDate,
+        state.lastModifiedBy,
+        state.lastModifiedDate,
+      ]),
+    ));
+  }
+
+  void onUserLangKeyChanged(
+    UserLangKeyChanged event,
+    Emitter<UserState> emit,
+  ) {
+    final langKey = UserLangKeyInput.dirty(event.langKey);
+    emit(state.copyWith(
+      langKey: langKey,
+      formStatus: FormzSubmissionStatus.initial,
+      isValid: Formz.validate([
+        state.login,
+        state.firstName,
+        state.lastName,
+        state.email,
+        state.imageUrl,
+        state.activated,
+        langKey,
+        state.createdBy,
+        state.createdDate,
+        state.lastModifiedBy,
+        state.lastModifiedDate,
+      ]),
+    ));
+  }
+
+  void onUserCreatedByChanged(
+    UserCreatedByChanged event,
+    Emitter<UserState> emit,
+  ) {
+    final createdBy = UserCreatedByInput.dirty(event.createdBy);
+    emit(state.copyWith(
+      createdBy: createdBy,
+      formStatus: FormzSubmissionStatus.initial,
+      isValid: Formz.validate([
+        state.login,
+        state.firstName,
+        state.lastName,
+        state.email,
+        state.imageUrl,
+        state.activated,
+        state.langKey,
+        createdBy,
+        state.createdDate,
+        state.lastModifiedBy,
+        state.lastModifiedDate,
+      ]),
+    ));
+  }
+
+  void onUserCreatedDateChanged(
+    UserCreatedDateChanged event,
+    Emitter<UserState> emit,
+  ) {
+    final createdDate =
+        UserCreatedDateInput.dirty(event.createdDate.toIso8601String());
+    emit(state.copyWith(
+      createdDate: createdDate,
+      formStatus: FormzSubmissionStatus.initial,
+      isValid: Formz.validate([
+        state.login,
+        state.firstName,
+        state.lastName,
+        state.email,
+        state.imageUrl,
+        state.activated,
+        state.langKey,
+        state.createdBy,
+        createdDate,
+        state.lastModifiedBy,
+        state.lastModifiedDate,
+      ]),
+    ));
+  }
+
+  void onUserLastModifiedByChanged(
+    UserLastModifiedByChanged event,
+    Emitter<UserState> emit,
+  ) {
+    final lastModifiedBy = UserLastModifiedByInput.dirty(event.lastModifiedBy);
+    emit(state.copyWith(
+      lastModifiedBy: lastModifiedBy,
+      formStatus: FormzSubmissionStatus.initial,
+      isValid: Formz.validate([
+        state.login,
+        state.firstName,
+        state.lastName,
+        state.email,
+        state.imageUrl,
+        state.activated,
+        state.langKey,
+        state.createdBy,
+        state.createdDate,
+        lastModifiedBy,
+        state.lastModifiedDate,
+      ]),
+    ));
+  }
+
+  void onUserLastModifiedDateChanged(
+    UserLastModifiedDateChanged event,
+    Emitter<UserState> emit,
+  ) {
+    final lastModifiedDate = UserLastModifiedDateInput.dirty(
+        event.lastModifiedDate.toIso8601String());
+    emit(state.copyWith(
+      lastModifiedDate: lastModifiedDate,
+      formStatus: FormzSubmissionStatus.initial,
+      isValid: Formz.validate([
+        state.login,
+        state.firstName,
+        state.lastName,
+        state.email,
+        state.imageUrl,
+        state.activated,
+        state.langKey,
+        state.createdBy,
+        state.createdDate,
+        state.lastModifiedBy,
+        lastModifiedDate,
+      ]),
+    ));
+  }
+
+  @override
+  Future<void> close() {
+    loginController.dispose();
+    firstNameController.dispose();
+    lastNameController.dispose();
+    emailController.dispose();
+    imageUrlController.dispose();
+    langKeyController.dispose();
+    createdByController.dispose();
+    createdDateController.dispose();
+    lastModifiedByController.dispose();
+    lastModifiedDateController.dispose();
+    return super.close();
+  }
+}

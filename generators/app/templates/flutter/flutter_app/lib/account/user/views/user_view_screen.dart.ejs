@@ -1,0 +1,464 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
+import 'package:<%= baseName %>/account/user/bloc/user_bloc.dart';
+import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
+import '../user_routes.dart.ejs';
+
+class UserViewScreen extends StatelessWidget {
+  const UserViewScreen({Key? key}) : super(key: UserRoutes.createScreenKey);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text('Usuario'),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(15.0),
+        child: BlocBuilder<UserBloc, UserState>(
+            buildWhen: (previous, current) =>
+                previous.loadedUser != current.loadedUser,
+            builder: (context, state) {
+              return Visibility(
+                visible: state.userStatusUI == UserStatusUI.done,
+                replacement: const LoadingIndicator(),
+                child: Column(
+                  children: <Widget>[
+                    Card(
+                      elevation: 5,
+                      margin: const EdgeInsets.all(20),
+                      shadowColor: Theme.of(context).colorScheme.primary,
+                      child: const FormUser(),
+                    ),
+                  ],
+                ),
+              );
+            }),
+      ),
+    );
+  }
+}
+
+class FormUser extends StatelessWidget {
+  const FormUser({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.only(top: 30, bottom: 30),
+      child: Center(
+        child: SizedBox(
+          width: 600,
+          child: Form(
+            child: Wrap(
+              runSpacing: 15,
+              children: <Widget>[
+                LoginField(),
+                FirstNameField(),
+                LastNameField(),
+                EmailField(),
+                //ImageUrlField(),
+                ActivatedField(),
+                //LangKeyField(),
+                CreatedByField(),
+                CreatedDateField(),
+                LastModifiedByField(),
+                LastModifiedDateField(),
+                EditButton(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class EditButton extends StatelessWidget {
+  const EditButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserBloc, UserState>(
+      buildWhen: (previous, current) =>
+          previous.loadedUser.id != current.loadedUser.id,
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 30),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () => context
+                    .push('${UserRoutes.editPath}${state.loadedUser.login}'),
+                style: ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll(
+                        Theme.of(context).primaryColor)),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.2,
+                  height: 50,
+                  child: const Center(
+                    child: Text(
+                      'Editar',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class LoginField extends StatelessWidget {
+  const LoginField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserBloc, UserState>(
+        buildWhen: (previous, current) => previous.login != current.login,
+        builder: (context, state) {
+          return TextFormField(
+            controller: context.read<UserBloc>().loginController,
+            enabled: false,
+            keyboardType: TextInputType.text,
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.text_fields_rounded),
+              labelText: 'Usuario',
+              labelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              floatingLabelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+              contentPadding: EdgeInsets.symmetric(vertical: 10),
+            ),
+          );
+        });
+  }
+}
+
+class FirstNameField extends StatelessWidget {
+  const FirstNameField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserBloc, UserState>(
+        buildWhen: (previous, current) =>
+            previous.firstName != current.firstName,
+        builder: (context, state) {
+          return TextFormField(
+            controller: context.read<UserBloc>().firstNameController,
+            enabled: false,
+            keyboardType: TextInputType.text,
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.text_fields_rounded),
+              labelText: 'Nombre',
+              labelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              floatingLabelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+              contentPadding: EdgeInsets.symmetric(vertical: 10),
+            ),
+          );
+        });
+  }
+}
+
+class LastNameField extends StatelessWidget {
+  const LastNameField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserBloc, UserState>(
+        buildWhen: (previous, current) => previous.lastName != current.lastName,
+        builder: (context, state) {
+          return TextFormField(
+            controller: context.read<UserBloc>().lastNameController,
+            enabled: false,
+            keyboardType: TextInputType.text,
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.text_fields_rounded),
+              labelText: 'Apellido',
+              labelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              floatingLabelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+              contentPadding: EdgeInsets.symmetric(vertical: 10),
+            ),
+          );
+        });
+  }
+}
+
+class EmailField extends StatelessWidget {
+  const EmailField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserBloc, UserState>(
+        buildWhen: (previous, current) => previous.email != current.email,
+        builder: (context, state) {
+          return TextFormField(
+            controller: context.read<UserBloc>().emailController,
+            enabled: false,
+            keyboardType: TextInputType.text,
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.text_fields_rounded),
+              labelText: 'Email',
+              labelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              floatingLabelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+              contentPadding: EdgeInsets.symmetric(vertical: 10),
+            ),
+          );
+        });
+  }
+}
+
+class ActivatedField extends StatelessWidget {
+  const ActivatedField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserBloc, UserState>(
+        buildWhen: (previous, current) =>
+            previous.activated != current.activated,
+        builder: (context, state) {
+          return Padding(
+            padding: const EdgeInsets.only(left: 3.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'Activado',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(width: 20),
+                Switch(
+                  value: state.activated.value,
+                  onChanged: null,
+                  activeColor: Theme.of(context).primaryColor,
+                ),
+              ],
+            ),
+          );
+        });
+  }
+}
+
+class LangKeyField extends StatelessWidget {
+  const LangKeyField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserBloc, UserState>(
+        buildWhen: (previous, current) => previous.langKey != current.langKey,
+        builder: (context, state) {
+          return TextFormField(
+            controller: context.read<UserBloc>().langKeyController,
+            enabled: false,
+            keyboardType: TextInputType.text,
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.text_fields_rounded),
+              labelText: 'Idioma',
+              labelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              floatingLabelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+              contentPadding: EdgeInsets.symmetric(vertical: 10),
+            ),
+          );
+        });
+  }
+}
+
+class CreatedByField extends StatelessWidget {
+  const CreatedByField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserBloc, UserState>(
+        buildWhen: (previous, current) =>
+            previous.createdBy != current.createdBy,
+        builder: (context, state) {
+          return TextFormField(
+            controller: context.read<UserBloc>().createdByController,
+            enabled: false,
+            keyboardType: TextInputType.text,
+            maxLength: 50,
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.text_fields_rounded),
+              labelText: 'Creado por',
+              labelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              floatingLabelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+              contentPadding: EdgeInsets.symmetric(vertical: 10),
+            ),
+          );
+        });
+  }
+}
+
+class CreatedDateField extends StatelessWidget {
+  const CreatedDateField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserBloc, UserState>(
+        buildWhen: (previous, current) =>
+            previous.createdDate != current.createdDate,
+        builder: (context, state) {
+          return DateTimeField(
+            controller: context.read<UserBloc>().createdDateController,
+            enabled: false,
+            format: DateFormat("yyyy-MM-dd"),
+            keyboardType: TextInputType.datetime,
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.date_range_rounded),
+              labelText: 'Fecha de creación',
+              labelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              floatingLabelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            onShowPicker: (context, currentValue) async {
+              return await showDatePicker(
+                  locale: const Locale('en'),
+                  context: context,
+                  firstDate: DateTime(1950),
+                  initialDate: currentValue ?? DateTime.now(),
+                  lastDate: DateTime(2100));
+            },
+          );
+        });
+  }
+}
+
+class LastModifiedByField extends StatelessWidget {
+  const LastModifiedByField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserBloc, UserState>(
+        buildWhen: (previous, current) =>
+            previous.lastModifiedBy != current.lastModifiedBy,
+        builder: (context, state) {
+          return TextFormField(
+            controller: context.read<UserBloc>().lastModifiedByController,
+            enabled: false,
+            keyboardType: TextInputType.text,
+            maxLength: 50,
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.text_fields_rounded),
+              labelText: 'Modificado por',
+              labelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              floatingLabelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+              contentPadding: EdgeInsets.symmetric(vertical: 10),
+            ),
+          );
+        });
+  }
+}
+
+class LastModifiedDateField extends StatelessWidget {
+  const LastModifiedDateField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserBloc, UserState>(
+        buildWhen: (previous, current) =>
+            previous.lastModifiedDate != current.lastModifiedDate,
+        builder: (context, state) {
+          return DateTimeField(
+            controller: context.read<UserBloc>().lastModifiedDateController,
+            enabled: false,
+            format: DateFormat("yyyy-MM-dd"),
+            keyboardType: TextInputType.datetime,
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.date_range_rounded),
+              labelText: 'Fecha de modificación',
+              labelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              floatingLabelStyle: TextStyle(
+                height: 0.5,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            onShowPicker: (context, currentValue) async {
+              return await showDatePicker(
+                  locale: const Locale('en'),
+                  context: context,
+                  firstDate: DateTime(1950),
+                  initialDate: currentValue ?? DateTime.now(),
+                  lastDate: DateTime(2100));
+            },
+          );
+        });
+  }
+}

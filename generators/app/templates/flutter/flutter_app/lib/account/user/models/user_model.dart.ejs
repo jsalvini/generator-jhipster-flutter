@@ -1,0 +1,162 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
+
+import 'package:dart_json_mapper/dart_json_mapper.dart';
+import 'package:equatable/equatable.dart';
+import 'package:intl/intl.dart';
+
+@jsonSerializable
+class User extends Equatable {
+  final int? id;
+  final String login;
+  final String? firstName;
+  final String? lastName;
+  final String? email;
+  final String? imageUrl;
+  final bool activated;
+  final String? langKey;
+  final String? createdBy;
+  final String? createdDate;
+  final String? lastModifiedBy;
+  final String? lastModifiedDate;
+  final List<String> authorities;
+
+  const User({
+    this.id = 0,
+    this.login = '',
+    this.firstName = '',
+    this.lastName = '',
+    this.email = '',
+    this.imageUrl = '',
+    this.activated = true,
+    this.langKey,
+    this.createdBy,
+    this.createdDate,
+    this.lastModifiedBy,
+    this.lastModifiedDate,
+    required this.authorities,
+  });
+
+  static const empty = User(
+    id: 0,
+    login: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    imageUrl: '',
+    activated: true,
+    authorities: ['ROLE_USER'],
+  );
+
+  @override
+  String toString() {
+    return '''User{
+      login: $login,
+      firstName: $firstName,
+      lastName: $lastName,
+      email: $email,
+      activated: $activated,
+      authorities: $authorities
+      }''';
+  }
+
+  @override
+  List<Object?> get props => [
+        id,
+        login,
+        email,
+        imageUrl,
+        activated,
+        firstName,
+        lastName,
+        langKey,
+        createdBy,
+        createdDate,
+        lastModifiedBy,
+        lastModifiedDate,
+        authorities,
+      ];
+
+  User copyWith({
+    int? id,
+    String? login,
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? imageUrl,
+    bool? activated,
+    String? langKey,
+    String? createdBy,
+    String? createdDate,
+    String? lastModifiedBy,
+    String? lastModifiedDate,
+    List<String>? authorities,
+  }) {
+    return User(
+      id: id ?? this.id,
+      login: login ?? this.login,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      email: email ?? this.email,
+      imageUrl: imageUrl ?? this.imageUrl,
+      activated: activated ?? this.activated,
+      langKey: langKey ?? this.langKey,
+      createdBy: createdBy ?? this.createdBy,
+      createdDate: createdDate ?? this.createdDate,
+      lastModifiedBy: lastModifiedBy ?? this.lastModifiedBy,
+      lastModifiedDate: lastModifiedDate ?? this.lastModifiedDate,
+      authorities: authorities ?? this.authorities,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'id': id,
+      'login': login,
+      'firstName': firstName,
+      'lastName': lastName,
+      'email': email,
+      'imageUrl': imageUrl,
+      'activated': activated,
+      'langKey': langKey,
+      'createdBy': createdBy,
+      'createdDate': createdDate,
+      'lastModifiedBy': lastModifiedBy,
+      'lastModifiedDate': lastModifiedDate,
+      'authorities': authorities,
+    };
+  }
+
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
+      id: map['id'] != null ? map['id'] as int : 0,
+      login: map['login'] != null ? map['login'] as String : '',
+      firstName: map['firstName'] != null ? map['firstName'] as String : '',
+      lastName: map['lastName'] != null ? map['lastName'] as String : '',
+      email: map['email'] != null ? map['email'] as String : '',
+      imageUrl: map['imageUrl'] != null ? map['imageUrl'] as String : '',
+      activated: map['activated'] != null ? map['activated'] as bool : true,
+      langKey: map['langKey'] != null ? map['langKey'] as String : 'es',
+      createdBy:
+          map['createdBy'] != null ? map['createdBy'] as String : 'system',
+      createdDate: map['createdDate'] != null
+          ? DateFormat('yyyy-MM-dd hh:mm:ss')
+              .format(DateTime.parse(map['createdDate']))
+              .toString()
+          : '',
+      lastModifiedBy: map['lastModifiedBy'] != null
+          ? map['lastModifiedBy'] as String
+          : 'system',
+      lastModifiedDate: map['lastModifiedDate'] != null
+          ? DateFormat('yyyy-MM-dd hh:mm:ss')
+              .format(DateTime.parse(map['lastModifiedDate']))
+              .toString()
+          : '',
+      authorities: map['authorities'] != null ? List<String>.from(map['authorities']) : [],
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  //factory User.fromJson(String source) => User.fromMap(json.decode(source));
+}

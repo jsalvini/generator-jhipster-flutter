@@ -9,7 +9,6 @@ const INTELLIJ_CONFIG_DIR = `${MAIN_DIR}.idea/runConfigurations/`;
 
 const LANGUAGES = [
     { name: 'Spanish', dispName: 'Español', value: 'es' },
-    { name: 'English', dispName: 'English', value: 'en' },
 ];
 
 const FLUTTER_FILES = {
@@ -131,6 +130,20 @@ const FLUTTER_FILES = {
                 'account/settings/views/settings_screen.dart',
                 'account/settings/settings_routes.dart',
                 'account/settings/settings.dart',
+                'account/user/bloc/user_bloc.dart',
+                'account/user/bloc/user_event.dart',
+                'account/user/bloc/user_state.dart',
+                'account/user/models/user_form_model.dart',
+                'account/user/models/user_model.dart.ejs',
+                'account/user/models/user_models.dart',
+                'account/user/models/user_response.dart',
+                'account/user/views/user_list_screen.dart',
+                'account/user/views/user_table.dart',
+                'account/user/views/user_update_screen.dart',
+                'account/user/views/user_view_screen.dart.dart',
+                'account/user/views/widgets/user_delete_dialog.dart',
+                'account/user/user_routes.dart',
+                'account/user/user_repository.dart',
             ],
         },
     ],
@@ -161,6 +174,8 @@ const FLUTTER_FILES = {
                 { file: 'assets/images/banner.png', method: 'copy' },
                 { file: 'assets/images/fondo.jpg', method: 'copy' },
                 { file: 'assets/images/user.png', method: 'copy' },
+                { file: 'assets/images/cloud.jpg', method: 'copy' },
+                { file: 'assets/images/folder.png', method: 'copy' },
                 { file: 'assets/images/progress_indicator.png', method: 'copy' },
                 { file: 'assets/lotties/error_1.json', method: 'copy' },
                 { file: 'assets/lotties/error_2.json', method: 'copy' },

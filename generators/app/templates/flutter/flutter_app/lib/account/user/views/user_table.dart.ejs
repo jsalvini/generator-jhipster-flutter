@@ -1,47 +1,25 @@
-<%_
-const baseName = context.baseName;
-const entityInstance = context.entityInstance;
-const entityFileName = context.entityFileName;
-const entityClassPlural = context.entityClassPlural;
-const entityClassPluralLowered = context.entityClassPluralLowered;
-const entityClass = context.entityClass;
-const camelizedUpperFirstBaseName = context.camelizedUpperFirstBaseName;
-const enableTranslation = context.enableTranslation;
-const fields = context.fields;
-const idField = context.idField;
-const relationships = context.relationships;
-let filtro = 1;
-_%>
 import 'package:adaptive_scrollbar/adaptive_scrollbar.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pager/pager.dart';
 import 'package:<%= baseName %>/core/core.dart';
-import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
-import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_model.dart';
-import 'package:<%= baseName %>/entities/<%= entityFileName %>/views/widgets/<%= entityFileName %>_delete_dialog.dart';
-<%_ relationships.forEach(relationship => { %>
-<%_ if(!relationship.isList) { _%>
-import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/bloc/<%= relationship.otherEntityFileName %>_bloc.dart';
-import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/models/<%= relationship.otherEntityFileName %>_models.dart';
-import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/<%= relationship.otherEntityFileName %>_repository.dart';
-import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/<%= relationship.otherEntityFileName %>_routes.dart';
-<%_ } _%>
-<%_ }); _%>
+import 'package:<%= baseName %>/account/user/bloc/user_bloc.dart';
+import 'package:<%= baseName %>/account/user/models/user_model.dart';
+import 'package:<%= baseName %>/account/user/views/widgets/user_delete_dialog.dart';
+import 'package:<%= baseName %>/account/user/user_routes.dart';
 // jhipster-merlin-needle-import-add
 
-class <%= entityClass %>Table extends StatelessWidget {
-  <%= entityClass %>Table({
+class UserTable extends StatelessWidget {
+  UserTable({
     super.key,
-    required this.<%= entityClassPluralLowered %>,
+    required this.users,
     required this.blocContext,
   });
 
-  final List<<%= entityClass %>> <%= entityClassPluralLowered %>;
+  final List<User> users;
   final BuildContext blocContext;
   final ScrollController horizontalScroll = ScrollController();
   final ScrollController verticalScroll = ScrollController();
@@ -55,8 +33,7 @@ class <%= entityClass %>Table extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding:
-              const EdgeInsets.only(top: 10, right: 16, left: 16),
+          padding: const EdgeInsets.only(top: 10, right: 16, left: 16),
           child: Card(
             margin: EdgeInsets.zero,
             elevation: 4,
@@ -66,7 +43,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   ElevatedButton.icon(
-                    onPressed: () => context.push(<%= entityClass %>Routes.create),
+                    onPressed: () => context.push(UserRoutes.create),
                     style: ButtonStyle(
                       elevation: const MaterialStatePropertyAll(5.0),
                       minimumSize:
@@ -79,7 +56,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                     ),
                     icon: const Icon(Icons.add, color: Colors.white),
                     label: const Text(
-                      'Agregar <%= entityInstance %>',
+                      'Agregar usuario',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -87,14 +64,14 @@ class <%= entityClass %>Table extends StatelessWidget {
                   ElevatedButton.icon(
                     onPressed: () {
                       int pageQuery =
-                          blocContext.read<<%= entityClass %>Bloc>().state.currentPage - 1;
+                          blocContext.read<UserBloc>().state.currentPage - 1;
                       String columnName =
-                          blocContext.read<<%= entityClass %>Bloc>().state.columnName;
+                          blocContext.read<UserBloc>().state.columnName;
                       var order =
-                          blocContext.read<<%= entityClass %>Bloc>().state.sortAscending
+                          blocContext.read<UserBloc>().state.sortAscending
                               ? 'asc'
                               : 'desc';
-                      blocContext.read<<%= entityClass %>Bloc>().add(Load<%= entityClass %>List(
+                      blocContext.read<UserBloc>().add(LoadUserList(
                             page: pageQuery,
                             sort: columnName,
                             ascending: order,
@@ -122,9 +99,6 @@ class <%= entityClass %>Table extends StatelessWidget {
             ),
           ),
         ),
-        if (!validarVisibilidad(blocContext.read<<%= entityClass %>Bloc>().state))
-          const NoData(),
-        if (validarVisibilidad(blocContext.read<<%= entityClass %>Bloc>().state))
         Padding(
           padding: const EdgeInsets.all(16),
           child: Theme(
@@ -177,22 +151,15 @@ class <%= entityClass %>Table extends StatelessWidget {
                           controller: horizontalScroll,
                           scrollDirection: Axis.horizontal,
                           child: SizedBox(
-                            width: <%_ if(fields.length <= 5) { _%>
-                              2000
-                              <%_ } else if(fields.length <= 10) { _%>
-                                4000
-                                <%_ } else if(fields.length <= 20) { _%>
-                                  6000
-                                  <%_ } else { _%>
-                                    8000
-                                  <%_ } _%>,
+                            width: 2000,
                             child: DataTable2(
                               headingRowColor: MaterialStateColor.resolveWith(
                                   (states) => Theme.of(context).primaryColor),
                               headingTextStyle:
                                   const TextStyle(color: Colors.white),
                               headingCheckboxTheme: const CheckboxThemeData(
-                                side: BorderSide(color: Colors.white, width: 2.0),
+                                side:
+                                    BorderSide(color: Colors.white, width: 2.0),
                               ),
                               isHorizontalScrollBarVisible: false,
                               isVerticalScrollBarVisible: false,
@@ -208,11 +175,13 @@ class <%= entityClass %>Table extends StatelessWidget {
                               bottomMargin: 10,
                               minWidth: 900,
                               sortColumnIndex: blocContext
-                                  .read<<%= entityClass %>Bloc>()
+                                  .read<UserBloc>()
                                   .state
                                   .sortColumnIndex,
-                              sortAscending:
-                                  blocContext.read<<%= entityClass %>Bloc>().state.sortAscending,
+                              sortAscending: blocContext
+                                  .read<UserBloc>()
+                                  .state
+                                  .sortAscending,
                               sortArrowIcon: Icons.keyboard_arrow_up,
                               sortArrowAnimationDuration:
                                   const Duration(milliseconds: 500),
@@ -235,58 +204,56 @@ class <%= entityClass %>Table extends StatelessWidget {
             ),
           ),
         ),
-        if (validarVisibilidad(blocContext.read<<%= entityClass %>Bloc>().state))
         SizedBox(
           width: widthSize < 1300 ? (widthSize * 0.8) : (widthSize * 0.5),
           child: Card(
-              margin: EdgeInsets.zero,
-              elevation: 4,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text(
-                      'Total <%= entityClassPluralLowered %>: ${blocContext.read<<%= entityClass %>Bloc>().state.totalRow}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+            margin: EdgeInsets.zero,
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(
+                    'Total usuarios: ${blocContext.read<UserBloc>().state.totalRow}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'Total paginas: ${cantidadDePaginas(
+                      blocContext.read<UserBloc>().state.totalRow,
+                      blocContext.read<UserBloc>().state.rowsPerPage,
+                    )}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Pager(
+                    currentPage: blocContext.read<UserBloc>().state.currentPage,
+                    totalPages: cantidadDePaginas(
+                      blocContext.read<UserBloc>().state.totalRow,
+                      blocContext.read<UserBloc>().state.rowsPerPage,
                     ),
-                    Text(
-                      'Total paginas: ${cantidadDePaginas(
-                        blocContext.read<<%= entityClass %>Bloc>().state.totalRow,
-                        blocContext.read<<%= entityClass %>Bloc>().state.rowsPerPage,
-                      )}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Pager(
-                      currentPage:
-                          blocContext.read<<%= entityClass %>Bloc>().state.currentPage,
-                      totalPages: cantidadDePaginas(
-                        blocContext.read<<%= entityClass %>Bloc>().state.totalRow,
-                        blocContext.read<<%= entityClass %>Bloc>().state.rowsPerPage,
-                      ),
-                      onPageChanged: (page) {
-                        int pageQuery = page - 1;
-                        blocContext
-                            .read<<%= entityClass %>Bloc>()
-                            .add(<%= entityClass %>CurrentPageChanged(currentPage: page));
-                        String columnName =
-                            blocContext.read<<%= entityClass %>Bloc>().state.columnName;
-                        var order =
-                            blocContext.read<<%= entityClass %>Bloc>().state.sortAscending
-                                ? 'asc'
-                                : 'desc';
-                        blocContext.read<<%= entityClass %>Bloc>().add(Load<%= entityClass %>List(
-                              page: pageQuery,
-                              sort: columnName,
-                              ascending: order,
-                            ));
-                      },
-                      numberButtonSelectedColor: Theme.of(context).primaryColor,
-                      numberTextUnselectedColor: Colors.grey,
-                    ),
-                  ],
-                ),
-             ),
+                    onPageChanged: (page) {
+                      int pageQuery = page - 1;
+                      blocContext
+                          .read<UserBloc>()
+                          .add(UserCurrentPageChanged(currentPage: page));
+                      String columnName =
+                          blocContext.read<UserBloc>().state.columnName;
+                      var order =
+                          blocContext.read<UserBloc>().state.sortAscending
+                              ? 'asc'
+                              : 'desc';
+                      blocContext.read<UserBloc>().add(LoadUserList(
+                            page: pageQuery,
+                            sort: columnName,
+                            ascending: order,
+                          ));
+                    },
+                    numberButtonSelectedColor: Theme.of(context).primaryColor,
+                    numberTextUnselectedColor: Colors.grey,
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ],
@@ -294,20 +261,16 @@ class <%= entityClass %>Table extends StatelessWidget {
   }
 
   List<DataRow> _rows(double widthSize) {
-    return <%= entityClassPluralLowered %>.map((<%= entityInstance %>) {
+    return users.map((user) {
       return DataRow2.byIndex(
-        index: <%= entityInstance %>.id,
-        cells: _cell(<%= entityInstance %>, widthSize),
+        index: user.id,
+        cells: _cell(user, widthSize),
       );
     }).toList();
   }
 
   int cantidadDePaginas(int totalRegistros, int registrosPorPagina) {
     return (totalRegistros / registrosPorPagina).ceil();
-  }
-
-  bool validarVisibilidad(<%= entityClass %>State state) {
-    return state.<%= entityClassPluralLowered %>.isNotEmpty ? true : false;
   }
 
   List<DataColumn> _columns(double widthSize) {
@@ -320,50 +283,62 @@ class <%= entityClass %>Table extends StatelessWidget {
       DataColumn2(
         label: const Align(
           alignment: Alignment.centerLeft,
-          child: Text('<%= context.idField.fieldNameHumanized %>'),
+          child: Text('Id'),
         ),
-        size: ColumnSize.S,
+        fixedWidth: 80,
         numeric: true,
         onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
       ),
-    <%_ fields.forEach(field => { %>
       DataColumn2(
-        <%_ if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
-        label: const Align(
-          alignment: Alignment.centerLeft,
-          child: Text('<%= field.fieldNameHumanized %>'),
-        ),
-        numeric: true,
-        <%_ } else if(field.fieldType === 'bool' ) {_%>
-        label: const Text('<%= field.fieldNameHumanized %>'),
-        size: ColumnSize.S,
-        <%_ } else { _%>
-        label: const Text('<%= field.fieldNameHumanized %>'),
-        <%_ } _%>
+        label: const Text('Usuario'),
+        onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
+        fixedWidth: 100,
+      ),
+      DataColumn2(
+        label: const Text('Nombre'),
         onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
       ),
-    <%_ }); _%>
-    <%_ relationships.forEach(relationship => { %>
-      <%_ if(!relationship.isList) { _%>
       DataColumn2(
-        label: const Text('<%= relationship.otherEntityNameCapitalized %>'),
+        label: const Text('Apellido'),
         onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
       ),
-      <%_ } _%>
-    <%_ }); _%>
+      DataColumn2(
+        label: const Text('Email'),
+        onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
+      ),
+      DataColumn2(
+        label: const Text('Activado'),
+        onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
+        fixedWidth: 100,
+      ),
+      DataColumn2(
+        label: const Text('Fecha creación'),
+        onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
+        fixedWidth: 200,
+      ),
+      DataColumn2(
+        label: const Text('Modificado por'),
+        onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
+        fixedWidth: 150,
+      ),
+      DataColumn2(
+        label: const Text('Fecha modificación'),
+        onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
+        fixedWidth: 200,
+      ),
     ];
   }
 
-  List<DataCell> _cell(<%= entityClass %> <%= entityInstance %>, double widthSize) {
+  List<DataCell> _cell(User user, double widthSize) {
     return [
       DataCell(
         Row(
           children: [
             widthSize > 1200
-                ?  TextButton.icon(
+                ? TextButton.icon(
                     label: const Text('Ver'),
                     onPressed: () {
-                      blocContext.push('${<%= entityClass %>Routes.viewPath}${<%= entityInstance %>.id}');
+                      blocContext.push('${UserRoutes.viewPath}${user.login}');
                     },
                     icon: const Icon(
                       Icons.remove_red_eye_outlined,
@@ -372,7 +347,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                   )
                 : IconButton(
                     onPressed: () {
-                      blocContext.push('${<%= entityClass %>Routes.viewPath}${<%= entityInstance %>.id}');
+                      blocContext.push('${UserRoutes.viewPath}${user.id}');
                     },
                     icon: const Icon(
                       Icons.remove_red_eye_outlined,
@@ -380,10 +355,10 @@ class <%= entityClass %>Table extends StatelessWidget {
                     ),
                   ),
             widthSize > 1200
-                ?  TextButton.icon(
+                ? TextButton.icon(
                     label: const Text('Editar'),
                     onPressed: () {
-                      blocContext.push('${<%= entityClass %>Routes.editPath}${<%= entityInstance %>.id}');
+                      blocContext.push('${UserRoutes.editPath}${user.login}');
                     },
                     icon: const Icon(
                       Icons.edit,
@@ -392,7 +367,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                   )
                 : IconButton(
                     onPressed: () {
-                      blocContext.push('${<%= entityClass %>Routes.editPath}${<%= entityInstance %>.id}');
+                      blocContext.push('${UserRoutes.editPath}${user.id}');
                     },
                     icon: const Icon(
                       Icons.edit,
@@ -400,14 +375,14 @@ class <%= entityClass %>Table extends StatelessWidget {
                     ),
                   ),
             widthSize > 1200
-                ?  TextButton.icon(
+                ? TextButton.icon(
                     label: const Text('Eliminar'),
                     onPressed: () {
                       showDialog(
                         context: blocContext,
                         builder: (BuildContext context) {
-                          return <%= entityClass %>DeleteDialog(
-                            id: <%= entityInstance %>.id,
+                          return UserDeleteDialog(
+                            login: user.login,
                             blocContext: blocContext,
                           );
                         },
@@ -423,8 +398,8 @@ class <%= entityClass %>Table extends StatelessWidget {
                       showDialog(
                         context: blocContext,
                         builder: (BuildContext context) {
-                          return <%= entityClass %>DeleteDialog(
-                            id: <%= entityInstance %>.id,
+                          return UserDeleteDialog(
+                            login: user.login,
                             blocContext: blocContext,
                           );
                         },
@@ -439,43 +414,32 @@ class <%= entityClass %>Table extends StatelessWidget {
         ),
       ),
       DataCell(
-        Align(alignment: Alignment.centerLeft, child: Text('${<%= entityInstance %>.<%= idField.fieldName %>}')),
+        Align(alignment: Alignment.centerLeft, child: Text('${user.id}')),
       ),
-    <%_ fields.forEach(field => { %>
       DataCell(
-        <%_ if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
-        Align(alignment: Alignment.centerLeft, child: Text('${<%= entityInstance %>.<%- field.fieldName -%>}')),
-        <%_ } else if (field.fieldIsEnum) {_%>
-        Text('${<%= entityInstance %>.<%- field.fieldName -%>?.name}'),
-        <%_ } else { _%>
-        Text('${<%= entityInstance %>.<%- field.fieldName -%>}'),
-        <%_ } _%>
+        Text(user.login),
       ),
-    <%_ }); _%>
-    <%_ relationships.forEach(relationship => { %>
-      <%_ if(!relationship.isList) { _%>
       DataCell(
-        <%= entityInstance %>.<%= relationship.otherEntityName %> != null
-            ? RichText(
-                text: TextSpan(
-                    text: '${<%= entityInstance %>.<%= relationship.otherEntityName %>?.<%=relationship.otherEntityField %>}',
-                    style: TextStyle(
-                      color: Theme.of(blocContext).primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () => blocContext.push('${<%= relationship.otherEntityNameCapitalized %>Routes.viewPath}${<%= entityInstance %>.<%= relationship.otherEntityName %>?.id}'),
-                  ),
-              )
-            : const Text(
-                'Sin asignar',
-                style: TextStyle(
-                  color: Colors.black87,
-                ),
-              ),
+        Text(user.firstName ?? ''),
       ),
-      <%_ } _%>
-    <%_ }); _%>
+      DataCell(
+        Text(user.lastName ?? ''),
+      ),
+      DataCell(
+        Text('${user.email}'),
+      ),
+      DataCell(
+        Text(user.activated ? 'SI' : 'NO'),
+      ),
+      DataCell(
+        Text(user.createdDate ?? ''),
+      ),
+      DataCell(
+        Text('${user.lastModifiedBy}'),
+      ),
+      DataCell(
+        Text(user.lastModifiedDate ?? ''),
+      ),
     ];
   }
 
@@ -483,28 +447,47 @@ class <%= entityClass %>Table extends StatelessWidget {
     int columnIndex,
     bool ascending,
   ) {
-    var columnName = '<%= idField.fieldName %>';
+    var columnName = 'id';
     switch (columnIndex) {
       case 1:
-        columnName = '<%= idField.fieldName %>';
+        columnName = 'id';
         break;
-    <%_ fields.forEach(field => { %>
-      <%_ filtro++; _%>
-      case <%= filtro %>:
-        columnName = '<%= field.fieldName %>';
+      case 2:
+        columnName = 'login';
         break;
-    <%_ }); _%>
+      case 3:
+        columnName = 'firstName';
+        break;
+      case 4:
+        columnName = 'lastName';
+        break;
+      case 5:
+        columnName = 'email';
+        break;
+      case 6:
+        columnName = 'activated';
+        break;
+      case 7:
+        columnName = 'createdDate';
+        break;
+      case 8:
+        columnName = 'lastModifiedBy';
+        break;
+      case 9:
+        columnName = 'lastModifiedDate';
+        break;
     }
-    int pageQuery = blocContext.read<<%= entityClass %>Bloc>().state.currentPage - 1;
+    int pageQuery = blocContext.read<UserBloc>().state.currentPage - 1;
     var order = ascending ? 'asc' : 'desc';
 
-    blocContext.read<<%= entityClass %>Bloc>().add(<%= entityClass %>SortChanged(
+    blocContext.read<UserBloc>().add(UserSortChanged(
           sortColumnIndex: columnIndex,
           sortAscending: ascending,
           columnName: columnName,
         ));
 
-    blocContext.read<<%= entityClass %>Bloc>().add(
-        Load<%= entityClass %>List(page: pageQuery, sort: columnName, ascending: order));
+    blocContext
+        .read<UserBloc>()
+        .add(LoadUserList(page: pageQuery, sort: columnName, ascending: order));
   }
 }

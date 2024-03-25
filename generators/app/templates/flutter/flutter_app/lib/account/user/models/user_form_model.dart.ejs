@@ -1,0 +1,351 @@
+import 'package:formz/formz.dart';
+import 'package:<%= baseName %>/core/core.dart';
+
+enum LoginValidationError { invalid, minLength, maxLength }
+
+extension LoginValidationErrorMessage on LoginValidationError {
+  String invalidMessage() {
+    switch (this) {
+      case LoginValidationError.invalid:
+        return 'El Login no es valido:\n\t${MessageValidation.invalidValue}';
+      case LoginValidationError.minLength:
+        return 'El Login no es valido:\n\t${MessageValidation.minimoCaracteres}';
+      case LoginValidationError.maxLength:
+        return 'El Login no es valido:\n\t${MessageValidation.maximoCaracteres}';
+    }
+  }
+}
+
+class UserLoginInput extends FormzInput<String, LoginValidationError> {
+  const UserLoginInput.pure() : super.pure('');
+  const UserLoginInput.dirty([super.value = '']) : super.dirty();
+
+  static const isOptional = true;
+  static const maxLength = 250;
+
+  static String pattern =
+      r'''^[a-zA-Z0-9!@#$%^&*()-_+=~{}:"\';,./|\\[\]<>?áéíóúÁÉÍÓÚüÜñÑ ]+$''';
+  static RegExp regExp = RegExp(pattern);
+
+  @override
+  LoginValidationError? validator(String value) {
+    if (isOptional && value.isEmpty) {
+      return null;
+    }
+    if (!regExp.hasMatch(value)) {
+      return LoginValidationError.invalid;
+    }
+    return null;
+  }
+}
+
+enum FirstNameValidationError { invalid, minLength, maxLength }
+
+extension FirstNameValidationErrorMessage on FirstNameValidationError {
+  String invalidMessage() {
+    switch (this) {
+      case FirstNameValidationError.invalid:
+        return 'El First Name no es valido:\n\t${MessageValidation.invalidValue}';
+      case FirstNameValidationError.minLength:
+        return 'El First Name no es valido:\n\t${MessageValidation.minimoCaracteres}';
+      case FirstNameValidationError.maxLength:
+        return 'El First Name no es valido:\n\t${MessageValidation.maximoCaracteres}';
+    }
+  }
+}
+
+class UserFirstNameInput extends FormzInput<String, FirstNameValidationError> {
+  const UserFirstNameInput.pure() : super.pure('');
+  const UserFirstNameInput.dirty([super.value = '']) : super.dirty();
+
+  static const isOptional = true;
+  static const maxLength = 250;
+
+  static String pattern =
+      r'''^[a-zA-Z0-9!@#$%^&*()-_+=~{}:"\';,./|\\[\]<>?áéíóúÁÉÍÓÚüÜñÑ ]+$''';
+  static RegExp regExp = RegExp(pattern);
+
+  @override
+  FirstNameValidationError? validator(String value) {
+    if (isOptional && value.isEmpty) {
+      return null;
+    }
+    if (!regExp.hasMatch(value)) {
+      return FirstNameValidationError.invalid;
+    }
+    return null;
+  }
+}
+
+enum LastNameValidationError { invalid, minLength, maxLength }
+
+extension LastNameValidationErrorMessage on LastNameValidationError {
+  String invalidMessage() {
+    switch (this) {
+      case LastNameValidationError.invalid:
+        return 'El Last Name no es valido:\n\t${MessageValidation.invalidValue}';
+      case LastNameValidationError.minLength:
+        return 'El Last Name no es valido:\n\t${MessageValidation.minimoCaracteres}';
+      case LastNameValidationError.maxLength:
+        return 'El Last Name no es valido:\n\t${MessageValidation.maximoCaracteres}';
+    }
+  }
+}
+
+class UserLastNameInput extends FormzInput<String, LastNameValidationError> {
+  const UserLastNameInput.pure() : super.pure('');
+  const UserLastNameInput.dirty([super.value = '']) : super.dirty();
+
+  static const isOptional = true;
+  static const maxLength = 250;
+
+  static String pattern =
+      r'''^[a-zA-Z0-9!@#$%^&*()-_+=~{}:"\';,./|\\[\]<>?áéíóúÁÉÍÓÚüÜñÑ ]+$''';
+  static RegExp regExp = RegExp(pattern);
+
+  @override
+  LastNameValidationError? validator(String value) {
+    if (isOptional && value.isEmpty) {
+      return null;
+    }
+    if (!regExp.hasMatch(value)) {
+      return LastNameValidationError.invalid;
+    }
+    return null;
+  }
+}
+
+enum EmailValidationError { invalid, minLength, maxLength }
+
+extension EmailValidationErrorMessage on EmailValidationError {
+  String invalidMessage() {
+    switch (this) {
+      case EmailValidationError.invalid:
+        return 'El Email no es valido:\n\t${MessageValidation.invalidValue}';
+      case EmailValidationError.minLength:
+        return 'El Email no es valido:\n\t${MessageValidation.minimoCaracteres}';
+      case EmailValidationError.maxLength:
+        return 'El Email no es valido:\n\t${MessageValidation.maximoCaracteres}';
+    }
+  }
+}
+
+class UserEmailInput extends FormzInput<String, EmailValidationError> {
+  const UserEmailInput.pure() : super.pure('');
+  const UserEmailInput.dirty([super.value = '']) : super.dirty();
+
+  static const isOptional = true;
+  static const maxLength = 250;
+
+  static String pattern =
+      r'''^[a-zA-Z0-9!@#$%^&*()-_+=~{}:"\';,./|\\[\]<>?áéíóúÁÉÍÓÚüÜñÑ ]+$''';
+  static RegExp regExp = RegExp(pattern);
+
+  @override
+  EmailValidationError? validator(String value) {
+    if (isOptional && value.isEmpty) {
+      return null;
+    }
+    if (!regExp.hasMatch(value)) {
+      return EmailValidationError.invalid;
+    }
+    return null;
+  }
+}
+
+enum ImageUrlValidationError { invalid, minLength, maxLength }
+
+extension ImageUrlValidationErrorMessage on ImageUrlValidationError {
+  String invalidMessage() {
+    switch (this) {
+      case ImageUrlValidationError.invalid:
+        return 'El Image Url no es valido:\n\t${MessageValidation.invalidValue}';
+      case ImageUrlValidationError.minLength:
+        return 'El Image Url no es valido:\n\t${MessageValidation.minimoCaracteres}';
+      case ImageUrlValidationError.maxLength:
+        return 'El Image Url no es valido:\n\t${MessageValidation.maximoCaracteres}';
+    }
+  }
+}
+
+class UserImageUrlInput extends FormzInput<String, ImageUrlValidationError> {
+  const UserImageUrlInput.pure() : super.pure('');
+  const UserImageUrlInput.dirty([super.value = '']) : super.dirty();
+
+  static const isOptional = true;
+  static const maxLength = 250;
+
+  static String pattern =
+      r'''^[a-zA-Z0-9!@#$%^&*()-_+=~{}:"\';,./|\\[\]<>?áéíóúÁÉÍÓÚüÜñÑ ]+$''';
+  static RegExp regExp = RegExp(pattern);
+
+  @override
+  ImageUrlValidationError? validator(String value) {
+    if (isOptional && value.isEmpty) {
+      return null;
+    }
+    if (!regExp.hasMatch(value)) {
+      return ImageUrlValidationError.invalid;
+    }
+    return null;
+  }
+}
+
+enum ActivatedValidationError { invalid }
+
+class UserActivatedInput extends FormzInput<bool, ActivatedValidationError> {
+  const UserActivatedInput.pure() : super.pure(false);
+  const UserActivatedInput.dirty([super.value = false]) : super.dirty();
+
+  @override
+  ActivatedValidationError? validator(bool value) {
+    return null;
+  }
+}
+
+enum LangKeyValidationError { invalid, minLength, maxLength }
+
+extension LangKeyValidationErrorMessage on LangKeyValidationError {
+  String invalidMessage() {
+    switch (this) {
+      case LangKeyValidationError.invalid:
+        return 'El Lang Key no es valido:\n\t${MessageValidation.invalidValue}';
+      case LangKeyValidationError.minLength:
+        return 'El Lang Key no es valido:\n\t${MessageValidation.minimoCaracteres}';
+      case LangKeyValidationError.maxLength:
+        return 'El Lang Key no es valido:\n\t${MessageValidation.maximoCaracteres}';
+    }
+  }
+}
+
+class UserLangKeyInput extends FormzInput<String, LangKeyValidationError> {
+  const UserLangKeyInput.pure() : super.pure('');
+  const UserLangKeyInput.dirty([super.value = '']) : super.dirty();
+
+  static const isOptional = true;
+  static const maxLength = 250;
+
+  static String pattern =
+      r'''^[a-zA-Z0-9!@#$%^&*()-_+=~{}:"\';,./|\\[\]<>?áéíóúÁÉÍÓÚüÜñÑ ]+$''';
+  static RegExp regExp = RegExp(pattern);
+
+  @override
+  LangKeyValidationError? validator(String value) {
+    if (isOptional && value.isEmpty) {
+      return null;
+    }
+    if (!regExp.hasMatch(value)) {
+      return LangKeyValidationError.invalid;
+    }
+    return null;
+  }
+}
+
+enum CreatedByValidationError { invalid, minLength, maxLength }
+
+extension CreatedByValidationErrorMessage on CreatedByValidationError {
+  String invalidMessage() {
+    switch (this) {
+      case CreatedByValidationError.invalid:
+        return 'El Created By no es valido:\n\t${MessageValidation.invalidValue}';
+      case CreatedByValidationError.minLength:
+        return 'El Created By no es valido:\n\t${MessageValidation.minimoCaracteres}';
+      case CreatedByValidationError.maxLength:
+        return 'El Created By no es valido:\n\t${MessageValidation.maximoCaracteres}';
+    }
+  }
+}
+
+class UserCreatedByInput extends FormzInput<String, CreatedByValidationError> {
+  const UserCreatedByInput.pure() : super.pure('');
+  const UserCreatedByInput.dirty([super.value = '']) : super.dirty();
+
+  static const isOptional = true;
+  static const maxLength = 50;
+
+  static String pattern =
+      r'''^[a-zA-Z0-9!@#$%^&*()-_+=~{}:"\';,./|\\[\]<>?áéíóúÁÉÍÓÚüÜñÑ ]+$''';
+  static RegExp regExp = RegExp(pattern);
+
+  @override
+  CreatedByValidationError? validator(String value) {
+    if (isOptional && value.isEmpty) {
+      return null;
+    }
+    if (value.length > maxLength) {
+      return CreatedByValidationError.maxLength;
+    }
+    if (!regExp.hasMatch(value)) {
+      return CreatedByValidationError.invalid;
+    }
+    return null;
+  }
+}
+
+enum CreatedDateValidationError { invalid }
+
+class UserCreatedDateInput
+    extends FormzInput<String, CreatedDateValidationError> {
+  const UserCreatedDateInput.pure() : super.pure('');
+  const UserCreatedDateInput.dirty([super.value = '']) : super.dirty();
+
+  @override
+  CreatedDateValidationError? validator(String value) {
+    return null;
+  }
+}
+
+enum LastModifiedByValidationError { invalid, minLength, maxLength }
+
+extension LastModifiedByValidationErrorMessage
+    on LastModifiedByValidationError {
+  String invalidMessage() {
+    switch (this) {
+      case LastModifiedByValidationError.invalid:
+        return 'El Last Modified By no es valido:\n\t${MessageValidation.invalidValue}';
+      case LastModifiedByValidationError.minLength:
+        return 'El Last Modified By no es valido:\n\t${MessageValidation.minimoCaracteres}';
+      case LastModifiedByValidationError.maxLength:
+        return 'El Last Modified By no es valido:\n\t${MessageValidation.maximoCaracteres}';
+    }
+  }
+}
+
+class UserLastModifiedByInput
+    extends FormzInput<String, LastModifiedByValidationError> {
+  const UserLastModifiedByInput.pure() : super.pure('');
+  const UserLastModifiedByInput.dirty([super.value = '']) : super.dirty();
+
+  static const isOptional = true;
+  static const maxLength = 50;
+
+  static String pattern =
+      r'''^[a-zA-Z0-9!@#$%^&*()-_+=~{}:"\';,./|\\[\]<>?áéíóúÁÉÍÓÚüÜñÑ ]+$''';
+  static RegExp regExp = RegExp(pattern);
+
+  @override
+  LastModifiedByValidationError? validator(String value) {
+    if (isOptional && value.isEmpty) {
+      return null;
+    }
+    if (value.length > maxLength) {
+      return LastModifiedByValidationError.maxLength;
+    }
+    if (!regExp.hasMatch(value)) {
+      return LastModifiedByValidationError.invalid;
+    }
+    return null;
+  }
+}
+
+enum LastModifiedDateValidationError { invalid }
+
+class UserLastModifiedDateInput
+    extends FormzInput<String, LastModifiedDateValidationError> {
+  const UserLastModifiedDateInput.pure() : super.pure('');
+  const UserLastModifiedDateInput.dirty([super.value = '']) : super.dirty();
+  @override
+  LastModifiedDateValidationError? validator(String value) {
+    return null;
+  }
+}

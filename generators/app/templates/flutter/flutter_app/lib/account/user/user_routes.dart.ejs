@@ -1,0 +1,90 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:<%= baseName %>/account/user/views/user_update_screen.dart';
+import 'package:<%= baseName %>/account/user/views/user_view_screen.dart';
+import 'bloc/user_bloc.dart';
+import 'views/user_list_screen.dart';
+import 'user_repository.dart.ejs';
+
+class UserRoutes {
+  static const list = '/user';
+  static const create = '/user-create';
+  static const edit = '/user-edit/:login';
+  static const editPath = '/user-edit/';
+  static const view = '/user-view/:login';
+  static const viewPath = '/user-view/';
+
+  static const listScreenKey = Key('__userListScreen__');
+  static const createScreenKey = Key('__userCreateScreen__');
+  static const editScreenKey = Key('__userEditScreen__');
+  static const viewScreenKey = Key('__userViewScreen__');
+
+  static final userRoutes = <GoRoute>[
+    GoRoute(
+      name: 'user',
+      path: list,
+      pageBuilder: (context, state) => CustomTransitionPage(
+        child: BlocProvider<UserBloc>(
+          create: (context) => UserBloc(
+            userRepository: UserRepository(),
+          )..add(const LoadUserList(page: 0, sort: 'id', ascending: 'asc')),
+          child: UserListScreen(),
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            ScaleTransition(scale: animation, child: child),
+      ),
+    ),
+    GoRoute(
+      name: 'usercreate',
+      path: create,
+      pageBuilder: (context, state) => CustomTransitionPage(
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider<UserBloc>(
+              create: (context) => UserBloc(
+                userRepository: UserRepository(),
+              ),
+            ),
+          ],
+          child: const UserUpdateScreen(),
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            ScaleTransition(scale: animation, child: child),
+      ),
+    ),
+    GoRoute(
+      name: 'useredit',
+      path: edit,
+      pageBuilder: (context, state) => CustomTransitionPage(
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider<UserBloc>(
+              create: (context) => UserBloc(
+                userRepository: UserRepository(),
+              )..add(
+                  LoadUserByIdForEdit(login: state.pathParameters['login']!)),
+            )
+          ],
+          child: const UserUpdateScreen(),
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            ScaleTransition(scale: animation, child: child),
+      ),
+    ),
+    GoRoute(
+      name: 'userview',
+      path: view,
+      pageBuilder: (context, state) => CustomTransitionPage(
+        child: BlocProvider<UserBloc>(
+          create: (context) => UserBloc(
+            userRepository: UserRepository(),
+          )..add(LoadUserByIdForView(login: state.pathParameters['login']!)),
+          child: const UserViewScreen(),
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            ScaleTransition(scale: animation, child: child),
+      ),
+    ),
+  ];
+}
