@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'package:<%= baseName %>/shared/models/user.dart';
+import 'dart:developer';
+import 'package:<%= baseName %>/account/user/models/user_model.dart';
 import 'package:<%= baseName %>/shared/utils/http_utils.dart';
 
 class AccountRepository {
@@ -9,7 +10,14 @@ class AccountRepository {
 
   Future<User?> getAccount() async {
     final response = await HttpUtils.getRequest("/account");
-    _user = User.fromJson(utf8.decode(response.bodyBytes));
+    var decode = utf8.decode(response.bodyBytes);
+    const JsonDecoder decoder = JsonDecoder();
+    try {
+      _user = User.fromMap(decoder.convert(decode));
+    } catch (e) {
+      log('Error decodificación json: $e');
+    }
+
     return _user;
   }
 

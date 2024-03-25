@@ -32,7 +32,7 @@ class AuthenticationState extends Equatable {
   factory AuthenticationState.fromMap(Map<String, dynamic> map) {
     return AuthenticationState(
       status: AuthenticationStatus.values[map['status']],
-      user: User.fromJson(map['user']),
+      user: User.fromMap(map['user']),
     );
   }
 

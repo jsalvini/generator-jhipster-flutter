@@ -5,7 +5,8 @@ const BaseGenerator = require('generator-jhipster/generators/generator-base');
 const shelljs = require('shelljs');
 const path = require('path');
 const fs = require('fs');
-const pluralize = require('pluralize');
+/* const pluralize = require('pluralize'); */
+const plural = require('pluralize-es');
 const utils = require('generator-jhipster/generators/utils');
 const files = require('./files');
 const flutterConstants = require('../flutter-generator-constants');
@@ -137,14 +138,14 @@ module.exports = class extends BaseGenerator {
     loadInMemoryData() {
         const context = this.context;
         const entityName = context.name;
-        const entityNamePluralizedAndSpinalCased = _.kebabCase(pluralize(entityName));
+        const entityNamePluralizedAndSpinalCased = _.kebabCase(plural(entityName));
 
         context.entityClass = _.upperFirst(_.camelCase(entityName));
         context.entityClassCamelCase = _.camelCase(context.entityClass);
-        context.entityClassPlural = pluralize(context.entityClass);
+        context.entityClassPlural = plural(context.entityClass);
         context.entityClassPluralLowered = _.camelCase(_.lowerCase(context.entityClassPlural));
         context.entityClassKebabCase = _.kebabCase(context.entityClass);
-        context.entityClassKebabCasePlural = _.kebabCase(pluralize(context.entityClassKebabCase));
+        context.entityClassKebabCasePlural = _.kebabCase(plural(context.entityClassKebabCase));
 
         const fileData = this.data || this.context.fileData;
         // Used for i18n
@@ -155,7 +156,7 @@ module.exports = class extends BaseGenerator {
         context.entityI18nVariant = fileData.entityI18nVariant || 'default';
 
         context.entityInstance = _.lowerFirst(entityName);
-        context.entityInstancePlural = pluralize(context.entityInstance);
+        context.entityInstancePlural = plural(context.entityInstance);
         context.entityApiUrl = entityNamePluralizedAndSpinalCased;
         context.entityFileName = _.snakeCase(_.lowerCase(entityName));
         context.entityFolderName = `entities/${_.snakeCase(_.lowerCase(entityName))}`;
@@ -375,10 +376,10 @@ module.exports = class extends BaseGenerator {
                                 && otherRelationship.relationshipType === 'many-to-many')
                         ) {
                             relationship.otherEntityRelationshipName = relationship.otherEntityRelationshipName || otherRelationship.relationshipName;
-                            relationship.otherEntityRelationshipNamePlural = relationship.otherEntityRelationshipNamePlural || pluralize(otherRelationship.relationshipName);
+                            relationship.otherEntityRelationshipNamePlural = relationship.otherEntityRelationshipNamePlural || plural(otherRelationship.relationshipName);
                             relationship.otherEntityRelationshipNameCapitalized = relationship.otherEntityRelationshipNameCapitalized
                                 || _.upperFirst(otherRelationship.relationshipName);
-                            relationship.otherEntityRelationshipNameCapitalizedPlural = relationship.otherEntityRelationshipNameCapitalizedPlural = pluralize(
+                            relationship.otherEntityRelationshipNameCapitalizedPlural = relationship.otherEntityRelationshipNameCapitalizedPlural = plural(
                                 relationship.otherEntityRelationshipNameCapitalized
                             );
                         }
@@ -388,7 +389,7 @@ module.exports = class extends BaseGenerator {
 
             if (!_.isUndefined(relationship.otherEntityRelationshipName)) {
                 if (_.isUndefined(relationship.otherEntityRelationshipNamePlural)) {
-                    relationship.otherEntityRelationshipNamePlural = pluralize(relationship.otherEntityRelationshipName);
+                    relationship.otherEntityRelationshipNamePlural = plural(relationship.otherEntityRelationshipName);
                 }
 
                 if (_.isUndefined(relationship.otherEntityRelationshipNameCapitalized)) {
@@ -396,7 +397,7 @@ module.exports = class extends BaseGenerator {
                 }
 
                 if (_.isUndefined(relationship.otherEntityRelationshipNameCapitalizedPlural)) {
-                    relationship.otherEntityRelationshipNameCapitalizedPlural = pluralize(
+                    relationship.otherEntityRelationshipNameCapitalizedPlural = plural(
                         _.upperFirst(relationship.otherEntityRelationshipName)
                     );
                 }
@@ -408,9 +409,9 @@ module.exports = class extends BaseGenerator {
 
             if (_.isUndefined(relationship.relationshipNameCapitalizedPlural)) {
                 if (relationship.relationshipName.length > 1) {
-                    relationship.relationshipNameCapitalizedPlural = pluralize(_.upperFirst(relationship.relationshipName));
+                    relationship.relationshipNameCapitalizedPlural = plural(_.upperFirst(relationship.relationshipName));
                 } else {
-                    relationship.relationshipNameCapitalizedPlural = _.upperFirst(pluralize(relationship.relationshipName));
+                    relationship.relationshipNameCapitalizedPlural = _.upperFirst(plural(relationship.relationshipName));
                 }
             }
 
@@ -419,7 +420,7 @@ module.exports = class extends BaseGenerator {
             }
 
             if (_.isUndefined(relationship.relationshipNamePlural)) {
-                relationship.relationshipNamePlural = pluralize(relationship.relationshipName);
+                relationship.relationshipNamePlural = plural(relationship.relationshipName);
             }
 
             if (_.isUndefined(relationship.relationshipFieldName)) {
@@ -427,7 +428,7 @@ module.exports = class extends BaseGenerator {
             }
 
             if (_.isUndefined(relationship.relationshipFieldNamePlural)) {
-                relationship.relationshipFieldNamePlural = pluralize(_.lowerFirst(relationship.relationshipName));
+                relationship.relationshipFieldNamePlural = plural(_.lowerFirst(relationship.relationshipName));
             }
 
             if (context.dto && context.dto === 'mapstruct') {
@@ -455,7 +456,7 @@ module.exports = class extends BaseGenerator {
             }
 
             if (_.isUndefined(relationship.otherEntityNamePlural)) {
-                relationship.otherEntityNamePlural = pluralize(relationship.otherEntityName);
+                relationship.otherEntityNamePlural = plural(relationship.otherEntityName);
             }
 
             if (_.isUndefined(relationship.otherEntityNameCapitalized)) {
@@ -472,7 +473,7 @@ module.exports = class extends BaseGenerator {
             }
 
             if (_.isUndefined(relationship.otherEntityNameCapitalizedPlural)) {
-                relationship.otherEntityNameCapitalizedPlural = pluralize(_.upperFirst(relationship.otherEntityName));
+                relationship.otherEntityNameCapitalizedPlural = plural(_.upperFirst(relationship.otherEntityName));
             }
 
             if (_.isUndefined(relationship.otherEntityFieldCapitalized)) {

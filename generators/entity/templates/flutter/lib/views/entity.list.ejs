@@ -19,9 +19,6 @@ import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
 import '../../../shared/widgets/drawer_widget.dart';
 import '../<%= entityFileName %>_routes.dart';
 import '<%= entityFileName %>_table.dart';
-<%_ if(enableTranslation) { _%>
-import 'package:<%= baseName %>/generated/l10n.dart';
-<%_ } _%>
 
 class <%= entityClass %>ListScreen extends StatelessWidget {
     <%= entityClass %>ListScreen({Key? key}) : super(key: <%= entityClass %>Routes.listScreenKey);

@@ -1,7 +1,13 @@
-part of 'user_bloc.dart.ejs';
+part of 'user_bloc.dart';
 
-abstract class UserEvent {
+abstract class UserEvent extends Equatable {
   const UserEvent();
+
+  @override
+  List<Object> get props => [];
+
+  @override
+  bool get stringify => true;
 }
 
 class UserRowsPerPageChanged extends UserEvent {

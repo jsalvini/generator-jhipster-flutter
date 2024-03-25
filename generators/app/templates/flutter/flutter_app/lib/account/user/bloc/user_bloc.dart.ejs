@@ -7,8 +7,8 @@ import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/account/user/models/user_models.dart';
 import 'package:<%= baseName %>/account/user/user_repository.dart';
 
-part 'user_events.dart.ejs';
-part 'user_state.dart.ejs';
+part 'user_event.dart';
+part 'user_state.dart';
 
 class UserBloc extends Bloc<UserEvent, UserState> {
   final UserRepository _userRepository;

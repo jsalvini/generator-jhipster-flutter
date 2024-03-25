@@ -1,6 +1,6 @@
 part of 'settings_bloc.dart';
 
-enum SettingsAction {none, reloadForLanguage}
+enum SettingsAction { none, reloadForLanguage }
 
 class SettingsState extends Equatable {
   final FirstnameInput firstname;
@@ -20,7 +20,7 @@ class SettingsState extends Equatable {
     this.formStatus = FormzSubmissionStatus.initial,
     this.isValid = false,
     this.generalNotificationKey = HttpUtils.generalNoErrorKey,
-    this.currentUser = const User(),
+    this.currentUser = const User(authorities: ['ROLE_USER']),
   });
 
   SettingsState copyWith(
@@ -45,6 +45,14 @@ class SettingsState extends Equatable {
   }
 
   @override
-  List<Object> get props =>
-      [firstname, lastname, email, formStatus, isValid, generalNotificationKey, action, currentUser];
+  List<Object> get props => [
+        firstname,
+        lastname,
+        email,
+        formStatus,
+        isValid,
+        generalNotificationKey,
+        action,
+        currentUser
+      ];
 }

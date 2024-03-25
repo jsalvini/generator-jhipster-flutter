@@ -4,7 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:formz/formz.dart';
 import 'package:<%= baseName %>/account/settings/models/settings_models.dart';
-import 'package:<%= baseName %>/shared/models/user.dart';
+import 'package:<%= baseName %>/account/user/models/user_model.dart';
 import 'package:<%= baseName %>/shared/repository/account_repository.dart';
 import 'package:<%= baseName %>/shared/utils/http_utils.dart';
 
@@ -85,7 +85,6 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
       SettingsAction action = SettingsAction.none;
       try {
-
         User newCurrentUser = User(
           id: state.currentUser.id,
           login: state.currentUser.login,
@@ -94,6 +93,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           firstName: state.firstname.value,
           lastName: state.lastname.value,
           activated: true,
+          authorities: const ['ROLE_USER'],
         );
 
         String? result = await _accountRepository.saveAccount(newCurrentUser);
@@ -129,7 +129,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     String firstName = (currentUser?.firstName ?? '');
     String lastName = (currentUser?.lastName ?? '');
     String email = (currentUser?.email ?? '');
-	
+
     final firstNameInput = FirstnameInput.dirty(firstName);
     final lastNameInput = LastnameInput.dirty(lastName);
     final emailInput = EmailInput.dirty(email);
@@ -155,5 +155,4 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     firstNameController.dispose();
     return super.close();
   }
-
 }
