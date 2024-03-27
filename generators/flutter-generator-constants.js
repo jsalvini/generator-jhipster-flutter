@@ -49,6 +49,7 @@ const FLUTTER_FILES = {
                 'core/theme/bloc/theme_event.dart',
                 'core/theme/themes.dart',
                 'core/widgets/error_view.dart',
+                'core/widgets/no_data.dart',
                 'core/core.dart',
             ],
         },

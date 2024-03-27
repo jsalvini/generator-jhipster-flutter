@@ -8,7 +8,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xff191918),
+      //backgroundColor: const Color(0xff191918),
       appBar: AppBar(
         centerTitle: true,
         title: const Text('Home'),
@@ -32,9 +32,9 @@ class HomeBody extends StatelessWidget {
           children: <Widget>[
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.80,
-              child: const Text('Bienvenido a <%= baseName %>',
+              child: const Text('Bienvenido a <%= camelizedUpperFirstBaseName %>',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white, fontSize: 24),
+                  style: TextStyle(fontSize: 48),
 				        ),
             ),
           ],

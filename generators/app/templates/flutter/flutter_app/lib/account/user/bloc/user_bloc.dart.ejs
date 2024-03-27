@@ -43,10 +43,34 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<UserCreatedDateChanged>(onUserCreatedDateChanged);
     on<UserLastModifiedByChanged>(onUserLastModifiedByChanged);
     on<UserLastModifiedDateChanged>(onUserLastModifiedDateChanged);
+    on<UserAuthoritiesChanged>(onUserAuthoritiesChanged);
     on<UserRowsPerPageChanged>(onRowsPerPageChanged);
     on<UserInitialRowChanged>(onInitialRowChanged);
     on<UserSortChanged>(onSortChanged);
     on<UserCurrentPageChanged>(onCurrentPageChanged);
+  }
+
+  void onUserAuthoritiesChanged(
+    UserAuthoritiesChanged event,
+    Emitter<UserState> emit,
+  ) {
+    emit(state.copyWith(
+      authorities: event.authorities,
+      formStatus: FormzSubmissionStatus.initial,
+      isValid: Formz.validate([
+        state.login,
+        state.firstName,
+        state.lastName,
+        state.email,
+        state.imageUrl,
+        state.activated,
+        state.langKey,
+        state.createdBy,
+        state.createdDate,
+        state.lastModifiedBy,
+        state.lastModifiedDate,
+      ]),
+    ));
   }
 
   void onRowsPerPageChanged(
@@ -146,7 +170,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           imageUrl: '',
           activated: state.activated.value,
           langKey: 'es',
-          authorities: const ['ROLE_USER'],
+          authorities: state.authorities,
         );
         result = await _userRepository.update(newUser);
       } else {
@@ -159,7 +183,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           imageUrl: '',
           activated: state.activated.value,
           langKey: 'es',
-          authorities: const ['ROLE_USER'],
+          authorities: state.authorities,
         );
         result = await _userRepository.create(newUser);
       }
@@ -234,6 +258,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
             lastModifiedBy: lastModifiedBy,
             lastModifiedDate: lastModifiedDate,
             userStatusUI: UserStatusUI.done,
+            authorities: loadedUser.authorities,
           ));
           loginController.text = loadedUser.login;
           firstNameController.text = loadedUser.firstName ?? '';

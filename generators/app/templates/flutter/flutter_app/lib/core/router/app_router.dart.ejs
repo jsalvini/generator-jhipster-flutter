@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:<%= baseName %>/shared/storage/secure_storage.dart';
 import 'package:<%= baseName %>/shared/utils/http_utils.dart';
 import 'package:<%= baseName %>/error/views/error_screen.dart';
-
+import 'package:<%= baseName %>/account/user/user_routes.dart';
 import 'package:<%= baseName %>/account/authentication/authentication.dart';
 import 'package:<%= baseName %>/account/login/login_routes.dart';
 import 'package:<%= baseName %>/account/settings/settings_routes.dart';
@@ -22,6 +22,7 @@ abstract class AppRouter {
       ...HomeRoutes.homeRoutes,
       ...LoginRoutes.loginRoutes,
       ...SettingsRoutes.settingsRoutes,
+      ...UserRoutes.userRoutes,
       // jhipster-merlin-needle-route-add - JHipster will add new routes here
     ],
     errorPageBuilder: (context, state) {

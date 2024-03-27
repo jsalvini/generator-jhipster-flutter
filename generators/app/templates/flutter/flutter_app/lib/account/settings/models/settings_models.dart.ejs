@@ -53,7 +53,7 @@ extension EmailValidationErrorX on EmailValidationError {
 }
 
 class EmailInput extends FormzInput<String, EmailValidationError> {
-  const EmailInput.pure() : super.pure('');
+  const EmailInput.pure() : super.pure('@');
   const EmailInput.dirty([String value = '']) : super.dirty(value);
 
   @override

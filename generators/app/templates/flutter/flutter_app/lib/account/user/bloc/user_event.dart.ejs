@@ -139,6 +139,15 @@ class UserLastModifiedDateChanged extends UserEvent {
   List<Object> get props => [lastModifiedDate];
 }
 
+class UserAuthoritiesChanged extends UserEvent {
+  final List<String> authorities;
+  const UserAuthoritiesChanged({required this.authorities});
+
+  @override
+  List<Object> get props => [authorities];
+}
+
+
 class UserFormSubmitted extends UserEvent {}
 
 class LoadUserByIdForEdit extends UserEvent {

@@ -347,7 +347,7 @@ class UserTable extends StatelessWidget {
                   )
                 : IconButton(
                     onPressed: () {
-                      blocContext.push('${UserRoutes.viewPath}${user.id}');
+                      blocContext.push('${UserRoutes.viewPath}${user.login}');
                     },
                     icon: const Icon(
                       Icons.remove_red_eye_outlined,
@@ -367,7 +367,7 @@ class UserTable extends StatelessWidget {
                   )
                 : IconButton(
                     onPressed: () {
-                      blocContext.push('${UserRoutes.editPath}${user.id}');
+                      blocContext.push('${UserRoutes.editPath}${user.login}');
                     },
                     icon: const Icon(
                       Icons.edit,

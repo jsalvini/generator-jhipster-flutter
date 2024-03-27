@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:<%= baseName %>/entities/authority/bloc/authority_bloc.dart';
+import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
 import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/account/user/bloc/user_bloc.dart';
 import 'package:<%= baseName %>/account/user/models/user_models.dart';
@@ -100,6 +103,7 @@ class FormUser extends StatelessWidget {
               EmailField(),
               //ImageUrlField(),
               ActivatedField(),
+              AutorityField(),
               //LangKeyField(),
               //CreatedByField(),
               //CreatedDateField(),
@@ -631,5 +635,93 @@ class LastModifiedDateField extends StatelessWidget {
             },
           );
         });
+  }
+}
+
+class AutorityField extends StatelessWidget {
+  const AutorityField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    return BlocBuilder<UserBloc, UserState>(
+      buildWhen: (previous, current) =>
+          previous.authorities != current.authorities,
+      builder: (context, state) {
+        return BlocBuilder<AuthorityBloc, AuthorityState>(
+          builder: (context, authorityState) {
+            if (authorityState.authorityStatusUI == AuthorityStatusUI.done) {
+              List<String> authorityList = authorityState.authorities;
+              final List<MultiSelectItem<String>> items = authorityList
+                  .map((authority) =>
+                      MultiSelectItem<String>(authority, authority))
+                  .toList();
+              List<String> selectedAuthorities = [];
+
+              return MultiSelectDialogField<String>(
+                items: items,
+                listType: MultiSelectListType.LIST,
+                title: const Text("Perfiles de usuario"),
+                selectedItemsTextStyle:
+                    context.read<ThemeBloc>().state == ThemeMode.dark
+                        ? const TextStyle(color: Colors.white)
+                        : const TextStyle(color: Colors.black),
+                itemsTextStyle:
+                    context.read<ThemeBloc>().state == ThemeMode.dark
+                        ? const TextStyle(color: Colors.white)
+                        : const TextStyle(color: Colors.black),
+                unselectedColor: Colors.grey,
+                chipDisplay: MultiSelectChipDisplay(
+                  chipColor: Colors.green,
+                  icon: const Icon(
+                    Icons.check,
+                    color: Colors.white,
+                  ),
+                  textStyle: const TextStyle(color: Colors.white),
+                ),
+                initialValue: state.authorities.isEmpty
+                    ? ['ROLE_USER']
+                    : state.authorities,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+                  borderRadius: const BorderRadius.all(Radius.circular(40)),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 2,
+                  ),
+                ),
+                cancelText: const Text('CANCELAR'),
+                confirmText: const Text('OK'),
+                searchable: true,
+                dialogWidth: size.width * 0.4,
+                dialogHeight: size.height * 0.3,
+                buttonIcon: Icon(
+                  Icons.people_alt_rounded,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                buttonText: Text(
+                  "Seleccione perfiles de usuario",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 16,
+                  ),
+                ),
+                onConfirm: (results) {
+                  selectedAuthorities = [];
+                  selectedAuthorities.addAll(results);
+                  context.read<UserBloc>().add(
+                      UserAuthoritiesChanged(authorities: selectedAuthorities));
+                },
+              );
+            }
+            if (authorityState.authorityStatusUI == AuthorityStatusUI.loading) {
+              return const LoadingIndicator();
+            }
+            return const Center(child: CircularProgressIndicator());
+          },
+        );
+      },
+    );
   }
 }

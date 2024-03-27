@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
-import 'package:<%= baseName %>/account/user/models/user_response.dart';
+import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:<%= baseName %>/core/exceptions/exception.dart';
 import 'package:<%= baseName %>/core/exceptions/failure.dart';
 import 'package:<%= baseName %>/account/user/models/user_models.dart';
 import 'package:<%= baseName %>/shared/exceptions/app_exception.dart';
 import 'package:<%= baseName %>/shared/models/error_response.dart';
 import 'package:<%= baseName %>/shared/utils/http_utils.dart';
-import 'package:dart_json_mapper/dart_json_mapper.dart';
+
 
 class UserRepository {
   UserRepository();
@@ -48,8 +48,6 @@ class UserRepository {
         users.add(newUser);
       }
 
-      //List<User>? users = JsonMapper.deserialize<List<User>>(decode);
-
       UserResponse userResponse =
           UserResponse(users: users, totalCount: count, link: link);
 
@@ -64,7 +62,7 @@ class UserRepository {
       );
     } on Exception catch (e) {
       return Left(
-        ServerFailure(errorMessage: 'Error al conversión. $e'),
+        ServerFailure(errorMessage: 'Error de conversión - $e'),
       );
     }
   }
@@ -85,7 +83,6 @@ class UserRepository {
       const JsonDecoder decoder = JsonDecoder();
       User? user =
           User.fromMap(decoder.convert(utf8.decode(response.bodyBytes)));
-      //User? user = JsonMapper.deserialize<User>(utf8.decode(response.bodyBytes));
       return Right(user);
     } on ServerException catch (e) {
       return Left(
@@ -110,10 +107,8 @@ class UserRepository {
           );
         }
       }
-      //User? newUser = JsonMapper.deserialize<User>(utf8.decode(response.bodyBytes));
       const JsonDecoder decoder = JsonDecoder();
       var decode = utf8.decode(response.bodyBytes);
-      //print('Create user: $decode');
       User? newUser = User.fromMap(decoder.convert(decode));
       return Right(newUser);
     } on ServerException catch (e) {
@@ -139,7 +134,6 @@ class UserRepository {
           );
         }
       }
-      //User? updatedUser = JsonMapper.deserialize<User>(utf8.decode(response.bodyBytes));
       const JsonDecoder decoder = JsonDecoder();
       User? updatedUser =
           User.fromMap(decoder.convert(utf8.decode(response.bodyBytes)));

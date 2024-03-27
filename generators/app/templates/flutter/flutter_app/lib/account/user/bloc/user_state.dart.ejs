@@ -35,6 +35,7 @@ class UserState extends Equatable {
   final UserCreatedDateInput createdDate;
   final UserLastModifiedByInput lastModifiedBy;
   final UserLastModifiedDateInput lastModifiedDate;
+  final List<String> authorities;
 
   const UserState({
     this.users = const [],
@@ -64,6 +65,7 @@ class UserState extends Equatable {
     this.createdDate = const UserCreatedDateInput.pure(),
     this.lastModifiedBy = const UserLastModifiedByInput.pure(),
     this.lastModifiedDate = const UserLastModifiedDateInput.pure(),
+    this.authorities = const ['ROLE_USER'],
   });
 
   UserState copyWith({
@@ -94,6 +96,7 @@ class UserState extends Equatable {
     UserCreatedDateInput? createdDate,
     UserLastModifiedByInput? lastModifiedBy,
     UserLastModifiedDateInput? lastModifiedDate,
+    List<String>? authorities,
   }) {
     return UserState(
       users: users ?? this.users,
@@ -124,6 +127,7 @@ class UserState extends Equatable {
       createdDate: createdDate ?? this.createdDate,
       lastModifiedBy: lastModifiedBy ?? this.lastModifiedBy,
       lastModifiedDate: lastModifiedDate ?? this.lastModifiedDate,
+      authorities: authorities ?? this.authorities,
     );
   }
 
@@ -156,6 +160,7 @@ class UserState extends Equatable {
         createdDate,
         lastModifiedBy,
         lastModifiedDate,
+        authorities,
       ];
 
   @override

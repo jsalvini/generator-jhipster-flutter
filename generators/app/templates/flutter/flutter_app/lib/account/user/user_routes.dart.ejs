@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'bloc/user_bloc.dart';
+import 'package:<%= baseName %>/entities/authority/authority_repository.dart';
+import 'package:<%= baseName %>/entities/authority/bloc/authority_bloc.dart';
 import 'package:<%= baseName %>/account/user/views/user_update_screen.dart';
 import 'package:<%= baseName %>/account/user/views/user_view_screen.dart';
-import 'bloc/user_bloc.dart';
 import 'views/user_list_screen.dart';
 import 'user_repository.dart';
 
@@ -41,6 +43,13 @@ class UserRoutes {
       pageBuilder: (context, state) => CustomTransitionPage(
         child: MultiBlocProvider(
           providers: [
+            BlocProvider<AuthorityBloc>(
+              create: (context) => AuthorityBloc(
+                authorityRepository: AuthorityRepository(),
+              )..add(const LoadAuthorityList(
+                  page: 0, sort: 'id', ascending: 'asc')),
+              lazy: false,
+            ),
             BlocProvider<UserBloc>(
               create: (context) => UserBloc(
                 userRepository: UserRepository(),
@@ -59,6 +68,13 @@ class UserRoutes {
       pageBuilder: (context, state) => CustomTransitionPage(
         child: MultiBlocProvider(
           providers: [
+            BlocProvider<AuthorityBloc>(
+              create: (context) => AuthorityBloc(
+                authorityRepository: AuthorityRepository(),
+              )..add(const LoadAuthorityList(
+                  page: 0, sort: 'id', ascending: 'asc')),
+              lazy: false,
+            ),
             BlocProvider<UserBloc>(
               create: (context) => UserBloc(
                 userRepository: UserRepository(),
@@ -76,10 +92,22 @@ class UserRoutes {
       name: 'userview',
       path: view,
       pageBuilder: (context, state) => CustomTransitionPage(
-        child: BlocProvider<UserBloc>(
-          create: (context) => UserBloc(
-            userRepository: UserRepository(),
-          )..add(LoadUserByIdForView(login: state.pathParameters['login']!)),
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider<AuthorityBloc>(
+              create: (context) => AuthorityBloc(
+                authorityRepository: AuthorityRepository(),
+              )..add(const LoadAuthorityList(
+                  page: 0, sort: 'id', ascending: 'asc')),
+              lazy: false,
+            ),
+            BlocProvider<UserBloc>(
+              create: (context) => UserBloc(
+                userRepository: UserRepository(),
+              )..add(
+                  LoadUserByIdForView(login: state.pathParameters['login']!)),
+            )
+          ],
           child: const UserViewScreen(),
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) =>

@@ -7,11 +7,11 @@ extension LoginValidationErrorMessage on LoginValidationError {
   String invalidMessage() {
     switch (this) {
       case LoginValidationError.invalid:
-        return 'El Login no es valido:\n\t${MessageValidation.invalidValue}';
+        return 'El usuario no es valido:\n\t${MessageValidation.invalidValue}';
       case LoginValidationError.minLength:
-        return 'El Login no es valido:\n\t${MessageValidation.minimoCaracteres}';
+        return 'El usuario no es valido:\n\t${MessageValidation.minimoCaracteres}';
       case LoginValidationError.maxLength:
-        return 'El Login no es valido:\n\t${MessageValidation.maximoCaracteres}';
+        return 'El usuario no es valido:\n\t${MessageValidation.maximoCaracteres}';
     }
   }
 }
@@ -20,7 +20,7 @@ class UserLoginInput extends FormzInput<String, LoginValidationError> {
   const UserLoginInput.pure() : super.pure('');
   const UserLoginInput.dirty([super.value = '']) : super.dirty();
 
-  static const isOptional = true;
+  static const isOptional = false;
   static const maxLength = 250;
 
   static String pattern =
@@ -45,11 +45,11 @@ extension FirstNameValidationErrorMessage on FirstNameValidationError {
   String invalidMessage() {
     switch (this) {
       case FirstNameValidationError.invalid:
-        return 'El First Name no es valido:\n\t${MessageValidation.invalidValue}';
+        return 'El nombre no es valido:\n\t${MessageValidation.invalidValue}';
       case FirstNameValidationError.minLength:
-        return 'El First Name no es valido:\n\t${MessageValidation.minimoCaracteres}';
+        return 'El nombre no es valido:\n\t${MessageValidation.minimoCaracteres}';
       case FirstNameValidationError.maxLength:
-        return 'El First Name no es valido:\n\t${MessageValidation.maximoCaracteres}';
+        return 'El nombre no es valido:\n\t${MessageValidation.maximoCaracteres}';
     }
   }
 }
@@ -58,7 +58,7 @@ class UserFirstNameInput extends FormzInput<String, FirstNameValidationError> {
   const UserFirstNameInput.pure() : super.pure('');
   const UserFirstNameInput.dirty([super.value = '']) : super.dirty();
 
-  static const isOptional = true;
+  static const isOptional = false;
   static const maxLength = 250;
 
   static String pattern =
@@ -83,11 +83,11 @@ extension LastNameValidationErrorMessage on LastNameValidationError {
   String invalidMessage() {
     switch (this) {
       case LastNameValidationError.invalid:
-        return 'El Last Name no es valido:\n\t${MessageValidation.invalidValue}';
+        return 'El apellido no es valido:\n\t${MessageValidation.invalidValue}';
       case LastNameValidationError.minLength:
-        return 'El Last Name no es valido:\n\t${MessageValidation.minimoCaracteres}';
+        return 'El apellido no es valido:\n\t${MessageValidation.minimoCaracteres}';
       case LastNameValidationError.maxLength:
-        return 'El Last Name no es valido:\n\t${MessageValidation.maximoCaracteres}';
+        return 'El apellido no es valido:\n\t${MessageValidation.maximoCaracteres}';
     }
   }
 }
@@ -96,7 +96,7 @@ class UserLastNameInput extends FormzInput<String, LastNameValidationError> {
   const UserLastNameInput.pure() : super.pure('');
   const UserLastNameInput.dirty([super.value = '']) : super.dirty();
 
-  static const isOptional = true;
+  static const isOptional = false;
   static const maxLength = 250;
 
   static String pattern =
@@ -121,11 +121,11 @@ extension EmailValidationErrorMessage on EmailValidationError {
   String invalidMessage() {
     switch (this) {
       case EmailValidationError.invalid:
-        return 'El Email no es valido:\n\t${MessageValidation.invalidValue}';
+        return 'El email no es valido:\n\t${MessageValidation.invalidValue}';
       case EmailValidationError.minLength:
-        return 'El Email no es valido:\n\t${MessageValidation.minimoCaracteres}';
+        return 'El email no es valido:\n\t${MessageValidation.minimoCaracteres}';
       case EmailValidationError.maxLength:
-        return 'El Email no es valido:\n\t${MessageValidation.maximoCaracteres}';
+        return 'El email no es valido:\n\t${MessageValidation.maximoCaracteres}';
     }
   }
 }
@@ -134,7 +134,7 @@ class UserEmailInput extends FormzInput<String, EmailValidationError> {
   const UserEmailInput.pure() : super.pure('');
   const UserEmailInput.dirty([super.value = '']) : super.dirty();
 
-  static const isOptional = true;
+  static const isOptional = false;
   static const maxLength = 250;
 
   static String pattern =

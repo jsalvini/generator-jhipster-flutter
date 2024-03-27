@@ -707,7 +707,7 @@ module.exports = class extends BaseGenerator {
                 padding: const EdgeInsets.only(left: 20),
                 child: ListTile(
                     leading: const Icon(Icons.label, size: iconSize,),
-                    title: const Text('${entityClass}'),
+                    title: const Text('${entityClassPlural}'),
                     onTap: () => context.go(${entityClass}Routes.list),
                 ),
             ),`;

@@ -23,12 +23,12 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
       create: (context) => HomeBloc(
         accountRepository: RepositoryProvider.of<AccountRepository>(context),
       )..add(Init()),
-      child: Drawer(
-        child: Column(
-          children: [
-            BlocBuilder<HomeBloc, HomeState>(
-              builder: (context, state) {
-                return UserAccountsDrawerHeader(
+      child: BlocBuilder<HomeBloc, HomeState>(
+        builder: (context, state) {
+          return Drawer(
+            child: Column(
+              children: [
+                UserAccountsDrawerHeader(
                   accountName: Text(
                     '${state.currentUser.firstName}, ${state.currentUser.lastName}',
                     overflow: TextOverflow.ellipsis,
@@ -54,130 +54,142 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Theme.of(context).primaryColor,
                   ),
-                );
-              },
-            ),
-            Expanded(
-              flex: 8,
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: <Widget>[
-                  ListTile(
-                    leading: const Icon(
-                      Icons.home,
-                      size: iconSize,
-                    ),
-                    title: const Text('Inicio'),
-                    onTap: () => context.go(<%= camelizedUpperFirstBaseName %>Routes.home),
-                  ),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.settings,
-                      size: iconSize,
-                    ),
-                    title: const Text('Perfil'),
-                    onTap: () => context.go(<%= camelizedUpperFirstBaseName %>Routes.settings),
-                  ),
-                  AboutListTile(
-                    icon: const Icon(
-                      Icons.info,
-                      size: iconSize,
-                    ),
-                    applicationIcon: Icon(
-                      Icons.local_play,
-                      color: context.read<ThemeBloc>().state == ThemeMode.dark
-                        ? Colors.white
-                        : Colors.black,
-                    ),
-                    applicationName: 'Template App',
-                    applicationVersion: 'Versión 20240209',
-                    applicationLegalese: 'Tipre 2024 ©',
-                    child: const Text('Información'),
-                  ),
-                  const Divider(thickness: 2),
-                  Theme(
-                    data: theme,
-                    child: ExpansionTile(
-                      leading: const Icon(
-                        Icons.list_alt_rounded,
-                        size: iconSize,
+                ),
+                Expanded(
+                  flex: 8,
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: <Widget>[
+                      ListTile(
+                        leading: const Icon(
+                          Icons.home,
+                          size: iconSize,
+                        ),
+                        title: const Text('Inicio'),
+                        onTap: () => context.go(<%= camelizedUpperFirstBaseName %>Routes.home),
                       ),
-                      textColor: context.read<ThemeBloc>().state == ThemeMode.dark
-                        ? Theme.of(context).colorScheme.primaryContainer
-                        : Theme.of(context).colorScheme.primary,
-                      iconColor: context.read<ThemeBloc>().state == ThemeMode.dark
-                        ? Theme.of(context).colorScheme.primaryContainer
-                        : Theme.of(context).colorScheme.primary,
-                      title: const Text(
-                        'Entidades',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ListTile(
+                        leading: const Icon(
+                          Icons.settings,
+                          size: iconSize,
+                        ),
+                        title: const Text('Perfil'),
+                        onTap: () => context.go(<%= camelizedUpperFirstBaseName %>Routes.settings),
                       ),
+                      Visibility(
+                        visible: state.currentUser.authorities
+                            .contains('ROLE_ADMIN'),
+                        child: ListTile(
+                          leading: const Icon(
+                            Icons.group_rounded,
+                            size: iconSize,
+                          ),
+                          title: const Text('Gestión de usuarios'),
+                          onTap: () => context.go(UserRoutes.list),
+                        ),
+                      ),
+                      AboutListTile(
+                        icon: const Icon(
+                          Icons.info,
+                          size: iconSize,
+                        ),
+                        applicationIcon: Icon(
+                          Icons.local_play,
+                          color: context.read<ThemeBloc>().state == ThemeMode.dark
+                            ? Colors.white
+                            : Colors.black,
+                        ),
+                        applicationName: 'Template App',
+                        applicationVersion: 'Versión 20240209',
+                        applicationLegalese: 'Tipre 2024 ©',
+                        child: const Text('Información'),
+                      ),
+                      const Divider(thickness: 2),
+                      Theme(
+                        data: theme,
+                        child: ExpansionTile(
+                          leading: const Icon(
+                            Icons.list_alt_rounded,
+                            size: iconSize,
+                          ),
+                          textColor: context.read<ThemeBloc>().state == ThemeMode.dark
+                            ? Theme.of(context).colorScheme.primaryContainer
+                            : Theme.of(context).colorScheme.primary,
+                          iconColor: context.read<ThemeBloc>().state == ThemeMode.dark
+                            ? Theme.of(context).colorScheme.primaryContainer
+                            : Theme.of(context).colorScheme.primary,
+                          title: const Text(
+                            'Entidades',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          children: [
+                            // jhipster-merlin-needle-menu-entry-add
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        key: const Key('cerrarSesion_elevatedButton'),
+                        onPressed: () =>
+                          context
+                              .read<AuthenticationBloc>()
+                              .add(AuthenticationLogoutRequested())
+                        ,
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStatePropertyAll(
+                            context.read<ThemeBloc>().state == ThemeMode.dark
+                              ? Theme.of(context).colorScheme.primaryContainer
+                              : Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        child: const SizedBox(
+                          width: 200,
+                          height: 50,
+                          child: Center(
+                            child: Text(
+                              'Cerrar sesión',
+                              style: TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // jhipster-merlin-needle-menu-entry-add
+                        const Text('Theme Light'),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Switch(
+                              value: context.read<ThemeBloc>().state == ThemeMode.dark,
+                              onChanged: (value) {
+                                context
+                                    .read<ThemeBloc>()
+                                    .add(ThemeChanged(isDark: value));
+                              }),
+                        ),
+                        const Text('Theme Dark'),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    key: const Key('cerrarSesion_elevatedButton'),
-                    onPressed: () =>
-                      context
-                          .read<AuthenticationBloc>()
-                          .add(AuthenticationLogoutRequested())
-                    ,
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(
-                        context.read<ThemeBloc>().state == ThemeMode.dark
-                          ? Theme.of(context).colorScheme.primaryContainer
-                          : Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    child: const SizedBox(
-                      width: 200,
-                      height: 50,
-                      child: Center(
-                        child: Text(
-                          'Cerrar sesión',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Theme Light'),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Switch(
-                          value: context.read<ThemeBloc>().state == ThemeMode.dark,
-                          onChanged: (value) {
-                            context
-                                .read<ThemeBloc>()
-                                .add(ThemeChanged(isDark: value));
-                          }),
-                    ),
-                    const Text('Theme Dark'),
-                  ],
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

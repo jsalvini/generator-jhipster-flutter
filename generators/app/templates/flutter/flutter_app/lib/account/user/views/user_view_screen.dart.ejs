@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:<%= baseName %>/account/user/bloc/user_bloc.dart';
 import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
+import 'package:<%= baseName %>/entities/authority/bloc/authority_bloc.dart';
 import '../user_routes.dart';
 
 class UserViewScreen extends StatelessWidget {
@@ -61,13 +63,12 @@ class FormUser extends StatelessWidget {
                 FirstNameField(),
                 LastNameField(),
                 EmailField(),
-                //ImageUrlField(),
                 ActivatedField(),
-                //LangKeyField(),
                 CreatedByField(),
                 CreatedDateField(),
                 LastModifiedByField(),
                 LastModifiedDateField(),
+                AutorityField(),
                 EditButton(),
               ],
             ),
@@ -460,5 +461,55 @@ class LastModifiedDateField extends StatelessWidget {
             },
           );
         });
+  }
+}
+
+class AutorityField extends StatelessWidget {
+  const AutorityField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserBloc, UserState>(
+      buildWhen: (previous, current) =>
+          previous.authorities != current.authorities,
+      builder: (context, state) {
+        return BlocBuilder<AuthorityBloc, AuthorityState>(
+          builder: (context, authorityState) {
+            if (authorityState.authorityStatusUI == AuthorityStatusUI.done) {
+              return Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Perfiles',
+                          style: TextStyle(
+                            height: 0.5,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  MultiSelectChipDisplay(
+                    items: state.authorities
+                        .map((e) => MultiSelectItem(e, e))
+                        .toList(),
+                    onTap: (value) {},
+                  ),
+                ],
+              );
+            }
+            if (authorityState.authorityStatusUI == AuthorityStatusUI.loading) {
+              return const LoadingIndicator();
+            }
+            return const Center(child: CircularProgressIndicator());
+          },
+        );
+      },
+    );
   }
 }
