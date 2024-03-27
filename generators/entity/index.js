@@ -5,7 +5,7 @@ const BaseGenerator = require('generator-jhipster/generators/generator-base');
 const shelljs = require('shelljs');
 const path = require('path');
 const fs = require('fs');
-/* const pluralize = require('pluralize'); */
+const pluralize = require('pluralize');
 const plural = require('pluralize-es');
 const utils = require('generator-jhipster/generators/utils');
 const files = require('./files');
@@ -145,7 +145,7 @@ module.exports = class extends BaseGenerator {
         context.entityClassPlural = plural(context.entityClass);
         context.entityClassPluralLowered = _.camelCase(_.lowerCase(context.entityClassPlural));
         context.entityClassKebabCase = _.kebabCase(context.entityClass);
-        context.entityClassKebabCasePlural = _.kebabCase(plural(context.entityClassKebabCase));
+        context.entityClassKebabCasePlural = _.kebabCase(pluralize(context.entityClassKebabCase));
 
         const fileData = this.data || this.context.fileData;
         // Used for i18n
