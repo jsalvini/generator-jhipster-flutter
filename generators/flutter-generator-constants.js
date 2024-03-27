@@ -181,6 +181,25 @@ const FLUTTER_FILES = {
             ],
         },
     ],
+    font: [
+        {
+            path: MAIN_DIR,
+            templates: [
+                { file: 'assets/fonts/Roboto-Black.ttf', method: 'copy' },
+                { file: 'assets/fonts/Roboto-BlackItalic.ttf', method: 'copy' },
+                { file: 'assets/fonts/Roboto-Bold.ttf', method: 'copy' },
+                { file: 'assets/fonts/Roboto-BoldItalic.ttf', method: 'copy' },
+                { file: 'assets/fonts/Roboto-Italic.ttf', method: 'copy' },
+                { file: 'assets/fonts/Roboto-Light.ttf', method: 'copy' },
+                { file: 'assets/fonts/Roboto-LightItalic.ttf', method: 'copy' },
+                { file: 'assets/fonts/Roboto-Medium.ttf', method: 'copy' },
+                { file: 'assets/fonts/Roboto-MediumItalic.ttf', method: 'copy' },
+                { file: 'assets/fonts/Roboto-Regular.ttf', method: 'copy' },
+                { file: 'assets/fonts/Roboto-Thin.ttf', method: 'copy' },
+                { file: 'assets/fonts/Roboto-ThinItalic.ttf', method: 'copy' },
+            ],
+        },
+    ],
     intellij: [
         {
             path: INTELLIJ_CONFIG_DIR,
