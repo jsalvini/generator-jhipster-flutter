@@ -1,0 +1,49 @@
+import 'dart:convert';
+import 'package:dartz/dartz.dart';
+import 'package:http/http.dart';
+import 'package:dart_json_mapper/dart_json_mapper.dart';
+import 'package:<%= baseName %>/core/exceptions/exception.dart';
+import 'package:<%= baseName %>/core/exceptions/failure.dart';
+import 'package:<%= baseName %>/account/authority/models/authority_models.dart';
+import 'package:<%= baseName %>/shared/exceptions/app_exception.dart';
+import 'package:<%= baseName %>/shared/models/error_response.dart';
+import 'package:<%= baseName %>/shared/utils/http_utils.dart';
+
+class AuthorityRepository {
+  AuthorityRepository();
+
+  static const String uriEndpoint = '/authorities';
+
+  Future<Either<Failure, AuthorityResponse>> getAllAuthorityes() async {
+    try {
+      final Response response = await HttpUtils.getRequest(uriEndpoint);
+
+      if (response.statusCode >= 300 && response.statusCode < 600) {
+        ErrorResponse? errorResponse = JsonMapper.deserialize<ErrorResponse>(
+            utf8.decode(response.bodyBytes));
+        if (errorResponse != null) {
+          return Left(
+            ServerFailure(errorMessage: errorResponse.detail!),
+          );
+        }
+      }
+      String decode = utf8.decode(response.bodyBytes);
+      decode =
+          decode.replaceAll('[', '').replaceAll(']', '').replaceAll('"', '');
+      List<String> authorities = decode.split(',').map((e) => e.trim()).toList();
+
+      AuthorityResponse authorityResponse =
+          AuthorityResponse(authorities: authorities);
+
+      return Right(authorityResponse);
+    } on ServerException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: e.errorMessage),
+      );
+    } on FetchDataException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: '${e.prefix} ${e.message}'),
+      );
+    }
+  }
+}

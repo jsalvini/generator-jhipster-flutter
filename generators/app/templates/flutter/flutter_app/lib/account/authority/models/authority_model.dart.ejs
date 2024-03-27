@@ -1,0 +1,22 @@
+import 'package:dart_json_mapper/dart_json_mapper.dart';
+import 'package:equatable/equatable.dart';
+
+@jsonSerializable
+class Authority extends Equatable {
+  @JsonProperty(name: 'name', ignoreIfNull: true)
+  final String? name;
+
+  const Authority({
+    this.name,
+  });
+
+  @override
+  String toString() {
+    return 'Authority{name: $name}';
+  }
+
+  @override
+  List<Object?> get props => [
+        name,
+      ];
+}

@@ -1,0 +1,14 @@
+class AuthorityResponse {
+  final List<String> authorities;
+
+  const AuthorityResponse({
+    required this.authorities,
+  });
+
+  AuthorityResponse copyWith({
+    List<String>? authorities,
+  }) =>
+      AuthorityResponse(
+        authorities: authorities ?? this.authorities,
+      );
+}

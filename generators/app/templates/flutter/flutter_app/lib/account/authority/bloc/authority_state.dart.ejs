@@ -1,0 +1,55 @@
+part of 'authority_bloc.dart';
+
+enum AuthorityStatusUI { init, loading, error, done, ok }
+
+enum AuthorityDeleteStatus { ok, error, none }
+
+class AuthorityState extends Equatable {
+  final List<String> authorities;
+  final AuthorityStatusUI authorityStatusUI;
+  final Authority loadedAuthority;
+  final bool isValid;
+  final String generalNotificationKey;
+  final AuthorityNameInput name;
+
+  const AuthorityState({
+    this.authorities = const [],
+    this.authorityStatusUI = AuthorityStatusUI.init,
+    this.loadedAuthority = const Authority(name: ''),
+    this.isValid = false,
+    this.generalNotificationKey = '',
+    this.name = const AuthorityNameInput.pure(),
+  });
+
+  AuthorityState copyWith({
+    List<String>? authorities,
+    Authority? loadedAuthority,
+    AuthorityStatusUI? authorityStatusUI,
+    bool? isValid,
+    String? generalNotificationKey,
+    AuthorityNameInput? name,
+  }) {
+    return AuthorityState(
+      authorities: authorities ?? this.authorities,
+      authorityStatusUI: authorityStatusUI ?? this.authorityStatusUI,
+      loadedAuthority: loadedAuthority ?? this.loadedAuthority,
+      isValid: isValid ?? this.isValid,
+      generalNotificationKey:
+          generalNotificationKey ?? this.generalNotificationKey,
+      name: name ?? this.name,
+    );
+  }
+
+  @override
+  List<Object> get props => [
+        authorities,
+        loadedAuthority,
+        authorityStatusUI,
+        isValid,
+        generalNotificationKey,
+        name,
+      ];
+
+  @override
+  bool get stringify => true;
+}

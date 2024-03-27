@@ -1,0 +1,57 @@
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+import 'package:<%= baseName %>/core/core.dart';
+import 'package:<%= baseName %>/account/authority/models/authority_models.dart';
+import 'package:<%= baseName %>/account/authority/authority_repository.dart';
+
+part 'authority_event.dart';
+part 'authority_state.dart';
+
+class AuthorityBloc extends Bloc<AuthorityEvent, AuthorityState> {
+  final AuthorityRepository _authorityRepository;
+
+  final nameController = TextEditingController();
+
+  AuthorityBloc({required AuthorityRepository authorityRepository})
+      : _authorityRepository = authorityRepository,
+        super(const AuthorityState()) {
+    on<LoadAuthorityList>(onLoadAuthority);
+  }
+
+  Future<void> onLoadAuthority(
+    LoadAuthorityList event,
+    Emitter<AuthorityState> emit,
+  ) async {
+    emit(state.copyWith(
+      authorityStatusUI: AuthorityStatusUI.loading,
+    ));
+    final result = await _authorityRepository.getAllAuthorityes();
+
+    result.fold(
+      (Failure failure) {
+        emit(
+          state.copyWith(
+              authorityStatusUI: AuthorityStatusUI.error,
+              generalNotificationKey: failure.errorMessage),
+        );
+      },
+      (AuthorityResponse data) {
+        List<String>? authorityes = data.authorities;
+
+        emit(
+          state.copyWith(
+            authorities: authorityes,
+            authorityStatusUI: AuthorityStatusUI.done,
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Future<void> close() {
+    nameController.dispose();
+    return super.close();
+  }
+}

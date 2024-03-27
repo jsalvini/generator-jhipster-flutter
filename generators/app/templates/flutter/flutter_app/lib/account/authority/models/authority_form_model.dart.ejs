@@ -1,0 +1,39 @@
+import 'package:formz/formz.dart';
+import 'package:<%= baseName %>/core/core.dart';
+
+    enum NameValidationError { invalid, minLength, maxLength }
+
+    extension NameValidationErrorMessage on NameValidationError {
+      String invalidMessage() {
+        switch (this) {
+          case NameValidationError.invalid:
+            return 'El Name no es valido:\n\t${MessageValidation.invalidValue}';
+          case NameValidationError.minLength:
+            return 'El Name no es valido:\n\t${MessageValidation.minimoCaracteres}';
+          case NameValidationError.maxLength:
+            return 'El Name no es valido:\n\t${MessageValidation.maximoCaracteres}';
+        }
+      }
+    }
+
+    class AuthorityNameInput extends FormzInput<String, NameValidationError> {
+      const AuthorityNameInput.pure() : super.pure('');
+      const AuthorityNameInput.dirty([super.value = '']) : super.dirty();
+
+      static const isOptional = true;
+      static const maxLength = 250;
+
+      static String pattern = r'''^[a-zA-Z0-9!@#$%^&*()-_+=~{}:"\';,./|\\[\]<>?áéíóúÁÉÍÓÚüÜñÑ ]+$''';
+      static RegExp regExp = RegExp(pattern);
+
+      @override
+      NameValidationError? validator(String value) {
+        if (isOptional && value.isEmpty) {
+          return null;
+        }
+        if(!regExp.hasMatch(value)){
+          return NameValidationError.invalid;
+        }
+        return null;
+      }
+    }

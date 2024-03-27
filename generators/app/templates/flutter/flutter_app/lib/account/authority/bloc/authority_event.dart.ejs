@@ -1,0 +1,90 @@
+part of 'authority_bloc.dart';
+
+abstract class AuthorityEvent extends Equatable {
+  const AuthorityEvent();
+
+  @override
+  List<Object> get props => [];
+
+  @override
+  bool get stringify => true;
+}
+
+class AuthorityRowsPerPageChanged extends AuthorityEvent {
+  final int rowsPerPage;
+
+  const AuthorityRowsPerPageChanged({required this.rowsPerPage});
+}
+
+class AuthorityInitialRowChanged extends AuthorityEvent {
+  final int initialRow;
+
+  const AuthorityInitialRowChanged({required this.initialRow});
+}
+
+class AuthoritySortChanged extends AuthorityEvent {
+  final String columnName;
+  final int sortColumnIndex;
+  final bool sortAscending;
+
+  const AuthoritySortChanged(
+      {required this.sortColumnIndex,
+      required this.sortAscending,
+      required this.columnName});
+}
+
+class AuthorityCurrentPageChanged extends AuthorityEvent {
+  final int currentPage;
+
+  const AuthorityCurrentPageChanged({required this.currentPage});
+}
+
+class LoadAuthorityList extends AuthorityEvent {
+  final int page;
+  final String sort;
+  final String ascending;
+
+  const LoadAuthorityList(
+      {required this.page, required this.sort, required this.ascending});
+
+  @override
+  List<Object> get props => [page, sort, ascending];
+}
+
+class AuthorityNameChanged extends AuthorityEvent {
+  final String name;
+  const AuthorityNameChanged({required this.name});
+
+  @override
+  List<Object> get props => [name];
+}
+
+
+class AuthorityFormSubmitted extends AuthorityEvent {}
+
+class LoadAuthorityByIdForEdit extends AuthorityEvent {
+  final int? id;
+
+  const LoadAuthorityByIdForEdit({required this.id});
+
+  @override
+  List<Object> get props => [id as int];
+}
+
+class DeleteAuthorityById extends AuthorityEvent {
+  final int? id;
+
+  const DeleteAuthorityById({required this.id});
+
+  @override
+  List<Object> get props => [id as int];
+}
+
+class LoadAuthorityByIdForView extends AuthorityEvent {
+  final int? id;
+
+  const LoadAuthorityByIdForView({required this.id});
+
+  @override
+  List<Object> get props => [id as int];
+}
