@@ -1,11 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
-import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:equatable/equatable.dart';
 import 'package:intl/intl.dart';
+import 'package:<%= baseName %>/shared/utils/utils.dart';
 
-@jsonSerializable
-class User extends Equatable {
+class User extends Equatable implements JsonSerializable {
   final int? id;
   final String login;
   final String? firstName;
@@ -28,10 +26,10 @@ class User extends Equatable {
     this.email = '',
     this.imageUrl = '',
     this.activated = true,
-    this.langKey,
-    this.createdBy,
+    this.langKey = '',
+    this.createdBy = '',
     this.createdDate,
-    this.lastModifiedBy,
+    this.lastModifiedBy = '',
     this.lastModifiedDate,
     required this.authorities,
   });
@@ -44,6 +42,11 @@ class User extends Equatable {
     email: '',
     imageUrl: '',
     activated: true,
+    langKey: '',
+    createdBy: '',
+    createdDate: null,
+    lastModifiedBy: '',
+    lastModifiedDate: null,
     authorities: ['ROLE_USER'],
   );
 
@@ -55,6 +58,11 @@ class User extends Equatable {
       lastName: $lastName,
       email: $email,
       activated: $activated,
+      langKey: $langKey,
+      createdBy: $createdBy,
+      createdDate: $createdDate,
+      lastModifiedBy: $lastModifiedBy,
+      lastModifiedDate: $lastModifiedDate,
       authorities: $authorities
       }''';
   }
@@ -108,54 +116,52 @@ class User extends Equatable {
     );
   }
 
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'id': id,
-      'login': login,
-      'firstName': firstName,
-      'lastName': lastName,
-      'email': email,
-      'imageUrl': imageUrl,
-      'activated': activated,
-      'langKey': langKey,
-      'createdBy': createdBy,
-      'createdDate': createdDate,
-      'lastModifiedBy': lastModifiedBy,
-      'lastModifiedDate': lastModifiedDate,
-      'authorities': authorities,
-    };
-  }
+  @override
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "login": login,
+        "firstName": firstName,
+        "lastName": lastName,
+        "email": email,
+        "imageUrl": imageUrl,
+        "activated": activated,
+        "langKey": langKey,
+        "createdBy": createdBy,
+        "createdDate": createdDate,
+        "lastModifiedBy": lastModifiedBy,
+        "lastModifiedDate": lastModifiedDate,
+        "authorities": List<String>.from(authorities.map((x) => x)),
+      };
 
-  factory User.fromMap(Map<String, dynamic> map) {
+  factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: map['id'] != null ? map['id'] as int : 0,
-      login: map['login'] != null ? map['login'] as String : '',
-      firstName: map['firstName'] != null ? map['firstName'] as String : '',
-      lastName: map['lastName'] != null ? map['lastName'] as String : '',
-      email: map['email'] != null ? map['email'] as String : '',
-      imageUrl: map['imageUrl'] != null ? map['imageUrl'] as String : '',
-      activated: map['activated'] != null ? map['activated'] as bool : true,
-      langKey: map['langKey'] != null ? map['langKey'] as String : 'es',
+      id: json['id'] != null ? json['id'] as int : 0,
+      login: json['login'] != null ? json['login'] as String : '',
+      firstName: json['firstName'] != null ? json['firstName'] as String : '',
+      lastName: json['lastName'] != null ? json['lastName'] as String : '',
+      email: json['email'] != null ? json['email'] as String : '',
+      imageUrl: json['imageUrl'] != null ? json['imageUrl'] as String : '',
+      activated: json['activated'] != null ? json['activated'] as bool : true,
+      langKey: json['langKey'] != null ? json['langKey'] as String : 'es',
       createdBy:
-          map['createdBy'] != null ? map['createdBy'] as String : 'system',
-      createdDate: map['createdDate'] != null
+          json['createdBy'] != null ? json['createdBy'] as String : 'system',
+      createdDate: json['createdDate'] != null && json['createdDate'] != ''
           ? DateFormat('yyyy-MM-dd hh:mm:ss')
-              .format(DateTime.parse(map['createdDate']))
+              .format(DateTime.parse(json['createdDate']))
               .toString()
           : '',
-      lastModifiedBy: map['lastModifiedBy'] != null
-          ? map['lastModifiedBy'] as String
+      lastModifiedBy: json['lastModifiedBy'] != null
+          ? json['lastModifiedBy'] as String
           : 'system',
-      lastModifiedDate: map['lastModifiedDate'] != null
-          ? DateFormat('yyyy-MM-dd hh:mm:ss')
-              .format(DateTime.parse(map['lastModifiedDate']))
-              .toString()
-          : '',
-      authorities: map['authorities'] != null ? List<String>.from(map['authorities']) : [],
+      lastModifiedDate:
+          json['lastModifiedDate'] != null && json['lastModifiedDate'] != ''
+              ? DateFormat('yyyy-MM-dd hh:mm:ss')
+                  .format(DateTime.parse(json['lastModifiedDate']))
+                  .toString()
+              : '',
+      authorities: json['authorities'] != null
+          ? List<String>.from(json['authorities'].map((x) => x))
+          : [],
     );
   }
-
-  String toJson() => json.encode(toMap());
-
-  //factory User.fromJson(String source) => User.fromMap(json.decode(source));
 }

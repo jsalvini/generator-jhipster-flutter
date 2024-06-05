@@ -18,12 +18,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pager/pager.dart';
+import 'package:<%= baseName %>/shared/utils/utils.dart';
+import 'package:<%= baseName %>/shared/widgets/view_json_dialog.dart';
+import 'package:<%= baseName %>/shared/widgets/widgets.dart';
 import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_model.dart';
-import 'package:<%= baseName %>/entities/<%= entityFileName %>/views/widgets/<%= entityFileName %>_delete_dialog.dart';
+import 'package:<%= baseName %>/entities/<%= entityFileName %>/<%= entityFileName %>_routes.dart';
+import 'package:<%= baseName %>/entities/<%= entityFileName %>/views/widgets/<%= entityFileName %>_filter_dialog.dart';
 <%_ relationships.forEach(relationship => { %>
 <%_ if(!relationship.isList) { _%>
 import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/bloc/<%= relationship.otherEntityFileName %>_bloc.dart';
@@ -38,11 +43,9 @@ class <%= entityClass %>Table extends StatelessWidget {
   <%= entityClass %>Table({
     super.key,
     required this.<%= entityClassPluralLowered %>,
-    required this.blocContext,
   });
 
   final List<<%= entityClass %>> <%= entityClassPluralLowered %>;
-  final BuildContext blocContext;
   final ScrollController horizontalScroll = ScrollController();
   final ScrollController verticalScroll = ScrollController();
   final double widthScrollbar = 10.0;
@@ -51,121 +54,141 @@ class <%= entityClass %>Table extends StatelessWidget {
   Widget build(BuildContext context) {
     final widthSize = MediaQuery.of(context).size.width;
     final heigthSize = MediaQuery.of(context).size.height;
+    final ThemeData theme = Theme.of(context);
+    final blocContext = context.read<<%= entityClass %>Bloc>();
 
-    return Column(
-      children: [
-        Padding(
-          padding:
-              const EdgeInsets.only(top: 10, right: 16, left: 16),
-          child: Card(
-            margin: EdgeInsets.zero,
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () => context.push(<%= entityClass %>Routes.create),
-                    style: ButtonStyle(
-                      elevation: const MaterialStatePropertyAll(5.0),
-                      minimumSize:
-                          const MaterialStatePropertyAll(Size(250, 50)),
-                      backgroundColor: MaterialStatePropertyAll(
-                        context.read<ThemeBloc>().state == ThemeMode.dark
-                            ? Theme.of(context).colorScheme.primaryContainer
-                            : Theme.of(context).colorScheme.primary,
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: Card(
+              margin: EdgeInsets.zero,
+              elevation: 5,
+              shadowColor: Theme.of(context).colorScheme.primary,
+              surfaceTintColor: Theme.of(context).colorScheme.primary,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Wrap(
+                  direction: Axis.horizontal,
+                  alignment: widthSize < 1300
+                      ? WrapAlignment.center
+                      : WrapAlignment.end,
+                  runSpacing: 10,
+                  spacing: 10,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () => context.push(<%= entityClass %>Routes.create),
+                      style: ButtonStyle(
+                        elevation: const MaterialStatePropertyAll(5.0),
+                        minimumSize:
+                            const MaterialStatePropertyAll(Size(250, 50)),
+                        backgroundColor: MaterialStatePropertyAll(
+                          context.read<ThemeBloc>().state == ThemeMode.dark
+                              ? Theme.of(context).colorScheme.primaryContainer
+                              : Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      label: const Text(
+                        'Agregar <%= entityInstance %>',
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
-                    icon: const Icon(Icons.add, color: Colors.white),
-                    label: const Text(
-                      'Agregar <%= entityInstance %>',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      int pageQuery =
-                          blocContext.read<<%= entityClass %>Bloc>().state.currentPage - 1;
-                      String columnName =
-                          blocContext.read<<%= entityClass %>Bloc>().state.columnName;
-                      var order =
-                          blocContext.read<<%= entityClass %>Bloc>().state.sortAscending
-                              ? 'asc'
-                              : 'desc';
-                      blocContext.read<<%= entityClass %>Bloc>().add(Load<%= entityClass %>List(
-                            page: pageQuery,
-                            sort: columnName,
-                            ascending: order,
-                          ));
-                    },
-                    style: ButtonStyle(
-                      elevation: const MaterialStatePropertyAll(5.0),
-                      minimumSize:
-                          const MaterialStatePropertyAll(Size(200, 50)),
-                      backgroundColor: MaterialStatePropertyAll(
-                        context.read<ThemeBloc>().state == ThemeMode.dark
-                            ? Theme.of(context).colorScheme.primaryContainer
-                            : Theme.of(context).colorScheme.primary,
+                    const SizedBox(width: 10),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        int pageQuery = blocContext.state.currentPage - 1;
+                        String columnName =
+                            context.read<<%= entityClass %>Bloc>().state.columnName;
+                        var order =
+                            blocContext.state.sortAscending ? 'asc' : 'desc';
+
+                        blocContext.add(Load<%= entityClass %>List(
+                          page: pageQuery,
+                          sort: columnName,
+                          ascending: order,
+                        ));
+                      },
+                      style: ButtonStyle(
+                        elevation: const WidgetStatePropertyAll(5.0),
+                        minimumSize:
+                            const WidgetStatePropertyAll(Size(200, 50)),
+                        backgroundColor: WidgetStatePropertyAll(
+                          context.read<ThemeBloc>().state == ThemeMode.dark
+                              ? theme.colorScheme.primaryContainer
+                              : theme.colorScheme.primary,
+                        ),
+                      ),
+                      icon: const Icon(Icons.refresh_rounded,
+                          color: Colors.white),
+                      label: const Text(
+                        'Actualizar lista',
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
-                    icon:
-                        const Icon(Icons.refresh_rounded, color: Colors.white),
-                    label: const Text(
-                      'Actualizar lista',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        if (!validarVisibilidad(blocContext.read<<%= entityClass %>Bloc>().state))
-          const NoData(),
-        if (validarVisibilidad(blocContext.read<<%= entityClass %>Bloc>().state))
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Theme(
-            data: ThemeData(
-                iconTheme: const IconThemeData(color: Colors.white),
-                scrollbarTheme: ScrollbarThemeData(
-                    thickness: MaterialStateProperty.all(5),
-                    thumbVisibility: MaterialStateProperty.all(true),
-                    thumbColor: MaterialStateProperty.all<Color>(
-                        Theme.of(context).primaryColor))),
-            child: SizedBox(
-              height: !kIsWeb ? heigthSize * 0.70 : heigthSize * 0.65,
+          if (!validarVisibilidad(blocContext.state))
+            Padding(
+              padding: const EdgeInsets.only(top: 10, right: 16, left: 16),
               child: Card(
                 margin: EdgeInsets.zero,
                 elevation: 4,
+                surfaceTintColor: Colors.amber,
+                color: Colors.amber[300],
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(15)),
-                    child: AdaptiveScrollbar(
-                      controller: verticalScroll,
-                      width: widthScrollbar,
-                      scrollToClickDelta: 75,
-                      scrollToClickFirstDelay: 200,
-                      scrollToClickOtherDelay: 50,
-                      sliderDecoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(12.0))),
-                      sliderActiveDecoration: const BoxDecoration(
-                          color: Color.fromRGBO(206, 206, 206, 100),
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(12.0))),
-                      underColor: Colors.transparent,
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.50,
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 10,
+                      children: [
+                        const Icon(Icons.warning_amber_rounded),
+                        Text(
+                          'No hay registros para mostrar.',
+                          style: theme.textTheme.headlineMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 10),
+            child: Theme(
+              data: ThemeData(
+                  iconTheme: const IconThemeData(color: Colors.white),
+                  scrollbarTheme: ScrollbarThemeData(
+                      thickness: const WidgetStatePropertyAll(5),
+                      thumbVisibility: const WidgetStatePropertyAll(true),
+                      thumbColor:
+                          WidgetStatePropertyAll<Color>(theme.primaryColor))),
+              child: SizedBox(
+                height: !kIsWeb ? heigthSize * 0.70 : heigthSize * 0.65,
+                child: Card(
+                  margin: EdgeInsets.zero,
+                  elevation: 5,
+                  shadowColor: Theme.of(context).colorScheme.primary,
+                  surfaceTintColor: Theme.of(context).colorScheme.primary,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(15)),
                       child: AdaptiveScrollbar(
-                        underSpacing: const EdgeInsets.only(bottom: 20),
-                        controller: horizontalScroll,
+                        controller: verticalScroll,
                         width: widthScrollbar,
-                        position: ScrollbarPosition.bottom,
+                        scrollToClickDelta: 75,
+                        scrollToClickFirstDelay: 200,
+                        scrollToClickOtherDelay: 50,
                         sliderDecoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
+                            color: theme.colorScheme.primary,
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(12.0))),
                         sliderActiveDecoration: const BoxDecoration(
@@ -173,57 +196,71 @@ class <%= entityClass %>Table extends StatelessWidget {
                             borderRadius:
                                 BorderRadius.all(Radius.circular(12.0))),
                         underColor: Colors.transparent,
-                        child: SingleChildScrollView(
+                        child: AdaptiveScrollbar(
+                          underSpacing: const EdgeInsets.only(bottom: 20),
                           controller: horizontalScroll,
-                          scrollDirection: Axis.horizontal,
-                          child: SizedBox(
-                            width: <%_ if(fields.length <= 5) { _%>
-                              2000
-                              <%_ } else if(fields.length <= 10) { _%>
-                                4000
-                                <%_ } else if(fields.length <= 20) { _%>
-                                  6000
-                                  <%_ } else { _%>
-                                    8000
-                                  <%_ } _%>,
-                            child: DataTable2(
-                              headingRowColor: MaterialStateColor.resolveWith(
-                                  (states) => Theme.of(context).primaryColor),
-                              headingTextStyle:
-                                  const TextStyle(color: Colors.white),
-                              headingCheckboxTheme: const CheckboxThemeData(
-                                side: BorderSide(color: Colors.white, width: 2.0),
+                          width: widthScrollbar,
+                          position: ScrollbarPosition.bottom,
+                          sliderDecoration: BoxDecoration(
+                              color: theme.colorScheme.primary,
+                              borderRadius: const BorderRadius.all(
+                                  Radius.circular(12.0))),
+                          sliderActiveDecoration: const BoxDecoration(
+                              color: Color.fromRGBO(206, 206, 206, 100),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(12.0))),
+                          underColor: Colors.transparent,
+                          child: SingleChildScrollView(
+                            controller: horizontalScroll,
+                            scrollDirection: Axis.horizontal,
+                            child: Container(
+                              constraints: const BoxConstraints(
+                                minWidth: 600,
+                                maxWidth: 8000,
                               ),
-                              isHorizontalScrollBarVisible: false,
-                              isVerticalScrollBarVisible: false,
-                              columnSpacing: 12,
-                              horizontalMargin: 12,
-                              sortArrowBuilder: null,
-                              border: TableBorder(
-                                  horizontalInside: BorderSide(
-                                      color: Theme.of(context).primaryColor),
-                                  right: BorderSide(
-                                      color: Theme.of(context).primaryColor)),
-                              dividerThickness: 1,
-                              bottomMargin: 10,
-                              minWidth: 900,
-                              sortColumnIndex: blocContext
-                                  .read<<%= entityClass %>Bloc>()
-                                  .state
-                                  .sortColumnIndex,
-                              sortAscending:
-                                  blocContext.read<<%= entityClass %>Bloc>().state.sortAscending,
-                              sortArrowIcon: Icons.keyboard_arrow_up,
-                              sortArrowAnimationDuration:
-                                  const Duration(milliseconds: 500),
-                              columns: _columns(widthSize),
-                              empty: Center(
+                              width: 8000,
+                              child: DataTable2(
+                                smRatio: 0.75,
+                                lmRatio: 1.5,
+                                headingRowColor: WidgetStateColor.resolveWith(
+                                    (states) => theme.primaryColor),
+                                headingTextStyle:
+                                    const TextStyle(color: Colors.white),
+                                headingCheckboxTheme: const CheckboxThemeData(
+                                  side: BorderSide(
+                                      color: Colors.white, width: 2.0),
+                                ),
+                                isHorizontalScrollBarVisible: false,
+                                isVerticalScrollBarVisible: false,
+                                columnSpacing: 12,
+                                horizontalMargin: 12,
+                                sortArrowBuilder: null,
+                                border: TableBorder(
+                                    horizontalInside:
+                                        BorderSide(color: theme.primaryColor),
+                                    right:
+                                        BorderSide(color: theme.primaryColor)),
+                                dividerThickness: 1,
+                                bottomMargin: 10,
+                                minWidth: 900,
+                                sortColumnIndex:
+                                    blocContext.state.sortColumnIndex,
+                                sortAscending: blocContext.state.sortAscending,
+                                sortArrowIcon: Icons.keyboard_arrow_up,
+                                sortArrowAnimationDuration:
+                                    const Duration(milliseconds: 500),
+                                columns:
+                                    _columns(widthSize, context, blocContext),
+                                empty: Center(
                                   child: Container(
-                                      padding: const EdgeInsets.all(20),
-                                      color: Colors.grey[200],
-                                      child: const Text(
-                                          'No hay registros para mostrar.'))),
-                              rows: _rows(widthSize),
+                                    padding: const EdgeInsets.all(20),
+                                    color: Colors.grey[200],
+                                    child: const Text(
+                                        'No hay registros para mostrar.'),
+                                  ),
+                                ),
+                                rows: _rows(widthSize, context),
+                              ),
                             ),
                           ),
                         ),
@@ -234,72 +271,90 @@ class <%= entityClass %>Table extends StatelessWidget {
               ),
             ),
           ),
-        ),
-        if (validarVisibilidad(blocContext.read<<%= entityClass %>Bloc>().state))
-        SizedBox(
-          width: widthSize < 1300 ? (widthSize * 0.8) : (widthSize * 0.5),
-          child: Card(
-              margin: EdgeInsets.zero,
-              elevation: 4,
+          if (validarVisibilidad(blocContext.state))
+            SizedBox(
+              width: widthSize < 1300 ? (widthSize * 0.8) : (widthSize * 0.5),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text(
-                      'Total <%= entityClassPluralLowered %>: ${blocContext.read<<%= entityClass %>Bloc>().state.totalRow}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'Total paginas: ${cantidadDePaginas(
-                        blocContext.read<<%= entityClass %>Bloc>().state.totalRow,
-                        blocContext.read<<%= entityClass %>Bloc>().state.rowsPerPage,
-                      )}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Pager(
-                      currentPage:
-                          blocContext.read<<%= entityClass %>Bloc>().state.currentPage,
-                      totalPages: cantidadDePaginas(
-                        blocContext.read<<%= entityClass %>Bloc>().state.totalRow,
-                        blocContext.read<<%= entityClass %>Bloc>().state.rowsPerPage,
-                      ),
-                      onPageChanged: (page) {
-                        int pageQuery = page - 1;
-                        blocContext
-                            .read<<%= entityClass %>Bloc>()
-                            .add(<%= entityClass %>CurrentPageChanged(currentPage: page));
-                        String columnName =
-                            blocContext.read<<%= entityClass %>Bloc>().state.columnName;
-                        var order =
-                            blocContext.read<<%= entityClass %>Bloc>().state.sortAscending
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Card(
+                  margin: EdgeInsets.zero,
+                  elevation: 5,
+                  shadowColor: Theme.of(context).colorScheme.primary,
+                  surfaceTintColor: Theme.of(context).colorScheme.primary,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    child: Wrap(
+                      alignment: WrapAlignment.spaceAround,
+                      runAlignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      runSpacing: 10,
+                      children: [
+                        Text(
+                          'Total <%= entityClassPluralLowered %>: ${blocContext.state.totalRow}',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        Text(
+                          'Total paginas: ${cantidadDePaginas(
+                            blocContext.state.totalRow,
+                            blocContext.state.rowsPerPage,
+                          )}',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        Pager(
+                          currentPage: blocContext.state.currentPage,
+                          totalPages: cantidadDePaginas(
+                            blocContext.state.totalRow,
+                            blocContext.state.rowsPerPage,
+                          ),
+                          onPageChanged: (page) {
+                            int pageQuery = page - 1;
+                            blocContext
+                                .add(<%= entityClass %>CurrentPageChanged(currentPage: page));
+                            String columnName = blocContext.state.columnName;
+                            var order = blocContext.state.sortAscending
                                 ? 'asc'
                                 : 'desc';
-                        blocContext.read<<%= entityClass %>Bloc>().add(Load<%= entityClass %>List(
-                              page: pageQuery,
-                              sort: columnName,
-                              ascending: order,
-                            ));
-                      },
-                      numberButtonSelectedColor: Theme.of(context).primaryColor,
-                      numberTextUnselectedColor: Colors.grey,
+
+                            if (blocContext.state.filters.isNotEmpty) {
+                              blocContext.add(<%= entityClass %>Filter(
+                                page: pageQuery,
+                                sort: columnName,
+                                ascending: order,
+                              ));
+                            } else {
+                              blocContext.add(Load<%= entityClass %>List(
+                                page: pageQuery,
+                                sort: columnName,
+                                ascending: order,
+                              ));
+                            }
+                          },
+                          numberButtonSelectedColor: theme.primaryColor,
+                          numberTextUnselectedColor: Colors.grey,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-             ),
-          ),
-        ),
-      ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 
   List<DataRow> _rows(double widthSize) {
-    return <%= entityClassPluralLowered %>.map((<%= entityInstance %>) {
-      return DataRow2.byIndex(
-        index: <%= entityInstance %>.id,
-        cells: _cell(<%= entityInstance %>, widthSize),
-      );
-    }).toList();
+    List<DataRow> rows = List<DataRow>.empty();
+    if (<%= entityClassPluralLowered %>.isNotEmpty) {
+      rows = <%= entityClassPluralLowered %>.map((<%= entityInstance %>) {
+        return DataRow2.byIndex(
+          index: <%= entityInstance %>.id,
+          cells: _cell(<%= entityInstance %>, widthSize),
+        );
+      }).toList();
+    }
+    return rows;
   }
 
   int cantidadDePaginas(int totalRegistros, int registrosPorPagina) {
@@ -310,51 +365,214 @@ class <%= entityClass %>Table extends StatelessWidget {
     return state.<%= entityClassPluralLowered %>.isNotEmpty ? true : false;
   }
 
-  List<DataColumn> _columns(double widthSize) {
+  // Función para obtener la clave a partir de un valor
+  String? obtenerClavePorValor(Map<String, String> mapa, String valor) {
+    try {
+      return mapa.entries.firstWhere((entrada) => entrada.value == valor).key;
+    } catch (e) {
+      return null; // Retorna null si no se encuentra la clave
+    }
+  }
+
+  List<DataColumn> _columns(
+    double widthSize,
+    BuildContext context,
+    <%= entityClass %>Bloc blocContext,
+    ) {
     return [
       DataColumn2(
         label: const Text(''),
-        size: ColumnSize.L,
-        fixedWidth: widthSize < 1200 ? 150 : 300,
+        size: ColumnSize.S,
+        fixedWidth: widthSize < 1200 ? 80 : 100,
       ),
       DataColumn2(
-        label: const Align(
+        label: Align(
           alignment: Alignment.centerLeft,
-          child: Text('<%= context.idField.fieldNameHumanized %>'),
+          child: _buildColumnLabel(
+          context,
+          '<%= context.idField.fieldNameHumanized %>',
+          'id',
+          FilterMaps.filterTableNumeric,
+          'numeric',
         ),
         size: ColumnSize.S,
         numeric: true,
-        onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
+        onSort: (columnIndex, ascending) => sort(columnIndex, ascending, blocContext),
+        ),
       ),
     <%_ fields.forEach(field => { %>
       DataColumn2(
         <%_ if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
-        label: const Align(
+        label: Align(
           alignment: Alignment.centerLeft,
-          child: Text('<%= field.fieldNameHumanized %>'),
+          child: _buildColumnLabel(
+            context,
+            '<%= field.fieldNameHumanized %>',
+            '<%- field.fieldName -%>',
+            FilterMaps.filterTableNumeric,
+            'numeric',
+          ),
         ),
         numeric: true,
         <%_ } else if(field.fieldType === 'bool' ) {_%>
-        label: const Text('<%= field.fieldNameHumanized %>'),
+        label: Align(
+          alignment: Alignment.centerLeft,
+          child: _buildColumnLabel(
+            context,
+            '<%= field.fieldNameHumanized %>',
+            '<%- field.fieldName -%>',
+            FilterMaps.filterTable,
+            'bool',
+          ),
+        ),
         size: ColumnSize.S,
+        <%_ } else if(field.fieldType === 'String' ) {_%>
+        label: Align(
+          alignment: Alignment.centerLeft,
+          child: _buildColumnLabel(
+            context,
+            '<%= field.fieldNameHumanized %>',
+            '<%- field.fieldName -%>',
+            FilterMaps.filterTableString,
+            'string',
+          ),
+        ),
+        <%_ } else if(field.fieldType === 'DateTime' ) {_%>
+        label: Align(
+          alignment: Alignment.centerLeft,
+          child: _buildColumnLabel(
+            context,
+            '<%= field.fieldNameHumanized %>',
+            '<%- field.fieldName -%>',
+            FilterMaps.filterTableNumeric,
+            'date',
+          ),
+        ),
         <%_ } else { _%>
-        label: const Text('<%= field.fieldNameHumanized %>'),
+        label: Align(
+          alignment: Alignment.centerLeft,
+          child: _buildColumnLabel(
+            context,
+            '<%= field.fieldNameHumanized %>',
+            '<%- field.fieldName -%>',
+            FilterMaps.filterTableString,
+            'string',
+          ),
+        ),
         <%_ } _%>
-        onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
+        onSort: (columnIndex, ascending) => sort(columnIndex, ascending, blocContext),
       ),
     <%_ }); _%>
     <%_ relationships.forEach(relationship => { %>
       <%_ if(!relationship.isList) { _%>
       DataColumn2(
         label: const Text('<%= relationship.otherEntityNameCapitalized %>'),
-        onSort: (columnIndex, ascending) => sort(columnIndex, ascending),
+        onSort: (columnIndex, ascending) => sort(columnIndex, ascending, blocContext),
       ),
       <%_ } _%>
     <%_ }); _%>
     ];
   }
 
-  List<DataCell> _cell(<%= entityClass %> <%= entityInstance %>, double widthSize) {
+  Widget _buildColumnLabel(
+    BuildContext context,
+    String label,
+    String columnName,
+    Map<String, String> filter,
+    String type,
+  ) {
+    return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
+      builder: (blocContext, state) {
+        String? claveEncontrada;
+        String? valorEncontrado;
+        List<String> partes = [];
+        if (state.filters.containsKey(columnName)) {
+          String? filtroString = state.filters[columnName];
+          if (filtroString != null) {
+            partes = filtroString.split('=');
+            claveEncontrada = obtenerClavePorValor(filter, partes[0]);
+
+            valorEncontrado = type == 'date'
+                ? CustomDateTime.formatearFechaHoraMin(partes[1])
+                : partes[1];
+          }
+        }
+
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Wrap(
+                alignment: WrapAlignment.end,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 10,
+                runSpacing: 5,
+                children: [
+                  Text(label),
+                  Tooltip(
+                    message: state.filters.containsKey(columnName)
+                        ? 'Filtro aplicado $claveEncontrada, valor $valorEncontrado.'
+                        : '',
+                    child: IconButton(
+                      onPressed: () {
+                        if (state.filters.containsKey(columnName)) {
+                          Map<String, String> newFilter =
+                              Map<String, String>.from(state.filters);
+
+                          if (newFilter.containsKey(columnName)) {
+                            newFilter.remove(columnName);
+                            blocContext.read<<%= entityClass %>Bloc>().add(<%= entityClass %>FilterChanged(
+                                  filters: newFilter,
+                                ));
+
+                            String columnNameSort = state.columnName;
+                            var order = state.sortAscending ? 'asc' : 'desc';
+                            int pageQuery = state.currentPage - 1;
+
+                            blocContext.read<<%= entityClass %>Bloc>().add(<%= entityClass %>Filter(
+                                  page: pageQuery,
+                                  sort: columnNameSort,
+                                  ascending: order,
+                                ));
+                          }
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return <%= entityClass %>FilterDialog(
+                                columnName: columnName,
+                                filter: filter,
+                                type: type,
+                                blocContext: blocContext,
+                                dialogContext: context,
+                              );
+                            },
+                          );
+                        }
+                      },
+                      icon: Icon(
+                        state.filters.containsKey(columnName)
+                            ? Icons.filter_alt_off_rounded
+                            : Icons.filter_alt,
+                        color: state.filters.containsKey(columnName)
+                            ? Colors.blueAccent
+                            : Colors.grey,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  List<DataCell> _cell(<%= entityClass %> <%= entityInstance %>,
+      double widthSize,
+      BuildContext context,) {
     return [
       DataCell(
         Row(
@@ -363,7 +581,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                 ?  TextButton.icon(
                     label: const Text('Ver'),
                     onPressed: () {
-                      blocContext.push('${<%= entityClass %>Routes.viewPath}${<%= entityInstance %>.id}');
+                      context.push('${<%= entityClass %>Routes.viewPath}${<%= entityInstance %>.id}');
                     },
                     icon: const Icon(
                       Icons.remove_red_eye_outlined,
@@ -372,7 +590,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                   )
                 : IconButton(
                     onPressed: () {
-                      blocContext.push('${<%= entityClass %>Routes.viewPath}${<%= entityInstance %>.id}');
+                      context.push('${<%= entityClass %>Routes.viewPath}${<%= entityInstance %>.id}');
                     },
                     icon: const Icon(
                       Icons.remove_red_eye_outlined,
@@ -383,7 +601,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                 ?  TextButton.icon(
                     label: const Text('Editar'),
                     onPressed: () {
-                      blocContext.push('${<%= entityClass %>Routes.editPath}${<%= entityInstance %>.id}');
+                      context.push('${<%= entityClass %>Routes.editPath}${<%= entityInstance %>.id}');
                     },
                     icon: const Icon(
                       Icons.edit,
@@ -392,7 +610,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                   )
                 : IconButton(
                     onPressed: () {
-                      blocContext.push('${<%= entityClass %>Routes.editPath}${<%= entityInstance %>.id}');
+                      context.push('${<%= entityClass %>Routes.editPath}${<%= entityInstance %>.id}');
                     },
                     icon: const Icon(
                       Icons.edit,
@@ -404,11 +622,11 @@ class <%= entityClass %>Table extends StatelessWidget {
                     label: const Text('Eliminar'),
                     onPressed: () {
                       showDialog(
-                        context: blocContext,
+                        context: context,
                         builder: (BuildContext context) {
                           return <%= entityClass %>DeleteDialog(
                             id: <%= entityInstance %>.id,
-                            blocContext: blocContext,
+                            blocContext: context,
                           );
                         },
                       );
@@ -421,11 +639,11 @@ class <%= entityClass %>Table extends StatelessWidget {
                 : IconButton(
                     onPressed: () {
                       showDialog(
-                        context: blocContext,
+                        context: context,
                         builder: (BuildContext context) {
                           return <%= entityClass %>DeleteDialog(
                             id: <%= entityInstance %>.id,
-                            blocContext: blocContext,
+                            blocContext: context,
                           );
                         },
                       );
@@ -444,11 +662,22 @@ class <%= entityClass %>Table extends StatelessWidget {
     <%_ fields.forEach(field => { %>
       DataCell(
         <%_ if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
-        Align(alignment: Alignment.centerLeft, child: Text('${<%= entityInstance %>.<%- field.fieldName -%>}')),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text('${<%= entityInstance %>.<%- field.fieldName -%> ?? '0.00'}'),
+        ),
         <%_ } else if (field.fieldIsEnum) {_%>
-        Text('${<%= entityInstance %>.<%- field.fieldName -%>?.name}'),
+        Text(
+          '${<%= entityInstance %>.<%- field.fieldName -%>?.name}',
+          style: TextStyle(
+              fontWeight: FontWeight.bold, color: getColorStatus(<%= entityInstance %>.<%- field.fieldName -%>)),
+        ),
+        <%_ } else if (field.fieldType === 'DateTime') {_%>
+        Text(<%= entityInstance %>.<%- field.fieldName -%> != null
+        ? CustomDateTime.formatearFechaHora(<%= entityInstance %>.<%- field.fieldName -%>!)
+        : 'S/D'),
         <%_ } else { _%>
-        Text('${<%= entityInstance %>.<%- field.fieldName -%>}'),
+        Text('${<%= entityInstance %>.<%- field.fieldName -%> ?? 'S/D'}'),
         <%_ } _%>
       ),
     <%_ }); _%>
@@ -460,11 +689,11 @@ class <%= entityClass %>Table extends StatelessWidget {
                 text: TextSpan(
                     text: '${<%= entityInstance %>.<%= relationship.otherEntityName %>?.<%=relationship.otherEntityField %>}',
                     style: TextStyle(
-                      color: Theme.of(blocContext).primaryColor,
+                      color: Theme.of(context).primaryColor,
                       fontWeight: FontWeight.bold,
                     ),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => blocContext.push('${<%= relationship.otherEntityNameCapitalized %>Routes.viewPath}${<%= entityInstance %>.<%= relationship.otherEntityName %>?.id}'),
+                      ..onTap = () => context.push('${<%= relationship.otherEntityNameCapitalized %>Routes.viewPath}${<%= entityInstance %>.<%= relationship.otherEntityName %>?.id}'),
                   ),
               )
             : const Text(
@@ -482,6 +711,7 @@ class <%= entityClass %>Table extends StatelessWidget {
   void sort(
     int columnIndex,
     bool ascending,
+    <%= entityClass %>Bloc blocContext,
   ) {
     var columnName = '<%= idField.fieldName %>';
     switch (columnIndex) {
@@ -495,16 +725,50 @@ class <%= entityClass %>Table extends StatelessWidget {
         break;
     <%_ }); _%>
     }
-    int pageQuery = blocContext.read<<%= entityClass %>Bloc>().state.currentPage - 1;
+    int pageQuery = blocContext.state.currentPage - 1;
     var order = ascending ? 'asc' : 'desc';
 
-    blocContext.read<<%= entityClass %>Bloc>().add(<%= entityClass %>SortChanged(
+    blocContext.add(<%= entityClass %>SortChanged(
           sortColumnIndex: columnIndex,
           sortAscending: ascending,
           columnName: columnName,
         ));
 
-    blocContext.read<<%= entityClass %>Bloc>().add(
-        Load<%= entityClass %>List(page: pageQuery, sort: columnName, ascending: order));
+    Map<String, String> filters = blocContext.state.filters;
+
+    if (filters.isEmpty) {
+      blocContext.add(Load<%= entityClass %>List(
+        page: pageQuery,
+        sort: columnName,
+        ascending: order,
+      ));
+    } else {
+      blocContext.add(<%= entityClass %>Filter(
+        page: pageQuery,
+        sort: columnName,
+        ascending: order,
+      ));
+    }
+  }
+
+  Color getColorStatus(StatusTypes? estado) {
+    switch (estado) {
+      case StatusTypes.OBTENCIONIDTRX:
+        return Colors.cyan;
+      case StatusTypes.PAGO_APROBADO:
+        return Colors.green;
+      case StatusTypes.PAGO_CANCELADO:
+        return Colors.orange;
+      case StatusTypes.PAGO_DENEGADO:
+        return Colors.red;
+      case StatusTypes.PAGO_ENVIADO:
+        return Colors.blue;
+      case StatusTypes.REFUND_APROBADO:
+        return Colors.deepPurple;
+      case StatusTypes.REFUND_DENEGADO:
+        return Colors.red;
+      default:
+        return Colors.black;
+    }
   }
 }

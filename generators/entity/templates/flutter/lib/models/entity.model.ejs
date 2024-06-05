@@ -7,8 +7,9 @@ const entityInstance = context.entityInstance;
 const baseName = context.baseName;
 const idField = context.idField;
 _%>
-import 'package:dart_json_mapper/dart_json_mapper.dart';
+// ignore_for_file: constant_identifier_names
 import 'package:equatable/equatable.dart';
+import 'package:gatewaymp/shared/utils/utils.dart';
 <%_ relationships.forEach(relation => { if (relation.desc === 'relationship') { _%>
 <%_ if (relation.relationshipNameCapitalized === 'User') { _%>
 import 'package:<%- baseName %>/shared/models/user.dart';
@@ -17,26 +18,19 @@ import '../../<%- relation.otherEntityFolderName %>/models/<%- relation.otherEnt
 <%_ } _%>
 <%_ }}); _%>
 
-@jsonSerializable
-class <%= entityClass %> extends Equatable {
+class <%= entityClass %> extends Equatable implements JsonSerializable {
 
-  @JsonProperty(name: '<%- idField.fieldName _%>', ignoreIfNull: true)
   final <%= idField.fieldType %>? <%= idField.fieldName %>;
   <%_ fields.forEach(field => { %>
-  @JsonProperty(name: '<%- field.fieldName _%>' <%_ if(field.fieldType === 'DateTime') { _%>, converterParams: {'format': 'yyyy-MM-dd\'T\'HH:mm:ss\'Z\''}<%_ }  _%>, ignoreIfNull: true)
   final <%= %> <%_ if(field.fieldValidateRules != 'required' ) { _%><%= field.fieldType %>?<%=  %><%_ } else { _%><%=  %> <%= field.fieldType %><%_ } _%>  <%=  %> <%= field.fieldName %>;
   <%_ }); _%>
   <%_ relationships.forEach(relationship => { %>
-  @JsonProperty(name: '<%- relationship.relationshipFieldName _%>', ignoreIfNull: true)
   <%_ if(relationship.isList) { _%>
   final List<<%- relationship.otherEntityNameCapitalized %>>? <%- relationship.relationshipFieldName _%>;
   <%_ } else { _%>
   final <%= relationship.otherEntityNameCapitalized %>? <%= relationship.relationshipFieldName %>;
   <%_ } _%>
   <%_ }); _%>
-
-  @JsonProperty(ignoreForDeserialization: true, ignoreForSerialization: true)
-  final bool selected;
 
  const <%= entityClass %> ({
     this.<%= idField.fieldName %>,
@@ -46,39 +40,110 @@ class <%= entityClass %> extends Equatable {
     <%_ relationships.forEach(relationship => { _%>
     this.<%- relationship.relationshipFieldName -%>,
     <%_ }); _%>
-    this.selected = false,
     });
 
-@override
-String toString() {
-    return '''<%= entityClass %>{'+
-    '<%= idField.fieldName _%>: $<%= idField.fieldName _%>,' +
+    <%= entityClass %> copyWith({
+    <%= idField.fieldType %>? <%= idField.fieldName %>,
     <%_ fields.forEach(field => { _%>
-        '<%= field.fieldName _%>: $<%= field.fieldName _%>,' +
-        <%_ }); _%>
-    <%_ relationships.forEach(relationship => { _%>
-        '<%= relationship.relationshipFieldName _%>: $<%= relationship.relationshipFieldName _%>,' +
+    <%= field.fieldType %>? <%= field.fieldName %>,
     <%_ }); _%>
-    '}''';
-   }
+    <%_ relationships.forEach(relationship => { %>
+    <%_ if(relationship.isList) { _%>
+    List<<%- relationship.otherEntityNameCapitalized %>>? <%- relationship.relationshipFieldName _%>,
+    <%_ } else { _%>
+    <%= relationship.otherEntityNameCapitalized %>? <%= relationship.relationshipFieldName %>,
+    <%_ } _%>
+    <%_ }); _%>
+    }) => <%= entityClass %>(
+        <%= idField.fieldName %>: <%= idField.fieldName %> ?? this.<%= idField.fieldName %>,
+        <%_ fields.forEach(field => { _%>
+        <%= field.fieldName %>: <%= field.fieldName %> ?? this.<%= field.fieldName %>,
+        <%_ }); _%>
+        <%_ relationships.forEach(relationship => { %>
+        <%_ if(relationship.isList) { _%>
+        <%- relationship.relationshipFieldName _%>: <%- relationship.relationshipFieldName _%> ?? this.<%- relationship.relationshipFieldName _%>,
+        <%_ } else { _%>
+        <%= relationship.relationshipFieldName %>: <%= relationship.relationshipFieldName %> ?? this.<%= relationship.relationshipFieldName %>,
+        <%_ } _%>
+        <%_ }); _%>
+    )
 
-@override
-List<Object?> get props => [
-	<%_ fields.forEach(field => { %> <%= field.fieldName %>, <%_ }); _%>
-    selected,
-];
+    factory <%= entityClass %>.fromJson(Map<String, dynamic> json) => <%= entityClass %>(
+        <%= idField.fieldName %>: json['<%= idField.fieldName %>'],
+        <%_ fields.forEach(field => { _%>
+        <%_ if(field.fieldType === 'DateTime') { _%>
+        <%= field.fieldName %>: json['<%= field.fieldName %>'] != null ? CustomDateTime.convertToDate(json['<%= field.fieldName %>']) : null,
+        <%_ } else if(field.fieldIsEnum) { _%>
+        <%= field.fieldName %>: json['<%= field.fieldName %>'] != null ? estadoValues.map[json['<%= field.fieldName %>']] : null,
+        <%_ } else if(field.fieldType === 'double') { _%>
+        <%= field.fieldName %>: json['<%= field.fieldName %>']?.toDouble(),
+        <%_ } else { _%>
+        <%= field.fieldName %>: json['<%= field.fieldName %>'],
+        <%_ }  _%>
+        <%_ }); _%>
+        <%_ relationships.forEach(relationship => { %>
+        <%- relationship.relationshipFieldName _%>: json['<%- relationship.relationshipFieldName _%>'] != null
+                            ? <%= relationship.otherEntityNameCapitalized %>.fromJson(json['<%- relationship.relationshipFieldName _%>'])
+                            : null,
+        <%_ }); _%>
+    );
 
-}
+    @override
+    Map<String, dynamic> toJson() => {
+        "<%= idField.fieldName %>": <%= idField.fieldName %>,
+        <%_ fields.forEach(field => { _%>
+        <%_ if(field.fieldType === 'DateTime') { _%>
+        "<%= field.fieldName %>": <%= field.fieldName %>?.toIso8601String(),
+        <%_ } else if(field.fieldIsEnum) { _%>
+        "<%= field.fieldName %>": <%= field.fieldName %>Values.reverse[<%= field.fieldName %>],
+        <%_ } else { _%>
+        "<%= field.fieldName %>": <%= field.fieldName %>,
+        <%_ }  _%>
+        <%_ }); _%>
+        <%_ relationships.forEach(relationship => { %>
+        "<%- relationship.relationshipFieldName _%>": <%- relationship.relationshipFieldName _%>?.toJson(),
+        <%_ }); _%>
+    }
+
+    @override
+    List<Object?> get props => [
+        <%_ fields.forEach(field => { %> <%= field.fieldName %>, <%_ }); _%>
+    ];
+    }
 
 
 <%_ const enumsAlreadyDeclared = [];
 fields.forEach(field => {
-    if (field.fieldIsEnum && enumsAlreadyDeclared.indexOf(field.fieldType) === -1) {
-        enumsAlreadyDeclared.push(field.fieldType); _%>
-@jsonSerializable
+if (field.fieldIsEnum && enumsAlreadyDeclared.indexOf(field.fieldType) === -1) {
+    enumsAlreadyDeclared.push(field.fieldType); _%>
 enum <%= field.fieldType %> {<%
     const enums = field.fieldValues.split(',');
     for (let i = 0; i < enums.length; i++) { %>
         <%= enums[i] %><%if (i < enums.length - 1) { %>,<% }
     } %>
-} <%_ }}); _%>
+}
+<%_ }}); _%>
+
+<%_ const enumsValues = [];
+fields.forEach(field => {
+if (field.fieldIsEnum && enumsValues.indexOf(field.fieldType) === -1) {
+    enumsValues.push(field.fieldType); _%>
+final <%= field.fieldName %>Values = EnumValues({<%
+    const enums = field.fieldValues.split(',');
+    for (let i = 0; i < enums.length; i++) { %>
+        "<%= enums[i] %>": <%= field.fieldType %>.<%= enums[i] %><%if (i < enums.length - 1) { %>,<% }
+    } %>
+});
+<%_ }}); _%>
+
+class EnumValues<T> {
+  Map<String, T> map;
+  late Map<T, String> reverseMap;
+
+  EnumValues(this.map);
+
+  Map<T, String> get reverse {
+    reverseMap = map.map((k, v) => MapEntry(v, k));
+    return reverseMap;
+  }
+}

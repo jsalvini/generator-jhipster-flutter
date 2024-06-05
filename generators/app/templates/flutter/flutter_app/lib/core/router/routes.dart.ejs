@@ -1,7 +1,32 @@
+import 'package:flutter/material.dart';
+
 class <%= camelizedUpperFirstBaseName %>Routes {
   static const login = '/login';
   static const splash = '/splash';
   static const home = '/home';
   static const settings = '/settings';
+  static const user = '/user';
   // jhipster-merlin-needle-routes-entry-add
+
+  static const double iconSize = 24;
+  static const Map<String, dynamic> screens = {
+    'Inicio': {
+      'routeName': '/home',
+      'icon': Icon(
+        Icons.home,
+        size: iconSize,
+      ),
+    },
+    'Perfil': {
+      'routeName': '/settings',
+      'icon': Icon(
+        Icons.settings,
+        size: iconSize,
+      ),
+    },
+  };
+
+  static const Map<String, dynamic> screensEntities = {
+    // jhipster-merlin-needle-screens-entry-add
+  };
 }

@@ -4,16 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+<%_ if (!enableTranslation) { _%>
+  import 'package:intl/intl.dart';
+  import 'package:intl/date_symbol_data_local.dart';
+<%_ } _%>
 import 'package:path_provider/path_provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'app.dart';
-import 'main.mapper.g.dart' show initializeJsonMapper;
-<%_ if (!enableTranslation) { _%>
-import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart';
-<%_ } _%>
 import 'package:<%= baseName %>/environment.dart';
-import 'package:<%= baseName %>/shared/storage/secure_storage.dart';
+import 'package:<%= baseName %>/shared/storage/preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,8 +26,7 @@ void main() async {
           size: Size(800, 720),
           center: true,
           fullScreen: false,
-          minimumSize: Size(800, 720)
-          );
+          minimumSize: Size(800, 720));
       windowManager.waitUntilReadyToShow(windowOptions, () async {
         await windowManager.show();
         await windowManager.focus();
@@ -37,12 +35,11 @@ void main() async {
     }
   }
   Constants.setEnvironment(Environment.dev);
-  initializeJsonMapper();
   <%_ if (!enableTranslation) { _%>
-  Intl.defaultLocale = "es";
-  initializeDateFormatting();
+    Intl.defaultLocale = "es";
+    initializeDateFormatting();
   <%_ } _%>
-  SecureStorage.initSecureStorage();
+  await Preferences.initialize();
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory: kIsWeb
         ? HydratedStorage.webStorageDirectory

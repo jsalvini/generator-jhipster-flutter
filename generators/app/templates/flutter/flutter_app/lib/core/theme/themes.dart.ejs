@@ -13,6 +13,56 @@ class Themes {
       showCheckmark: false,
     ),
     fontFamily: 'Roboto',
+    textTheme: TextTheme(
+      displayLarge: TextStyle(
+        //color: Color(0xff1b070b),
+        color: lightColorScheme.primary,
+        fontWeight: FontWeight.bold,
+        fontSize: 36.0,
+      ),
+      displayMedium: TextStyle(
+        //color: Color(0xff1b070b),
+        color: lightColorScheme.primary,
+        fontWeight: FontWeight.bold,
+        fontSize: 24.0,
+      ),
+      displaySmall: TextStyle(
+        //color: Color(0xff1b070b),
+        color: lightColorScheme.primary,
+        fontWeight: FontWeight.bold,
+        fontSize: 18.0,
+      ),
+      headlineMedium: TextStyle(
+        //color: Color(0xff1b070b),
+        color: lightColorScheme.primary,
+        fontWeight: FontWeight.bold,
+        fontSize: 16.0,
+      ),
+      headlineSmall: TextStyle(
+        //color: Color(0xff1b070b),
+        color: lightColorScheme.primary,
+        fontWeight: FontWeight.bold,
+        fontSize: 14.0,
+      ),
+      titleLarge: TextStyle(
+        //color: Color(0xff1b070b),
+        color: lightColorScheme.primary,
+        fontWeight: FontWeight.normal,
+        fontSize: 14.0,
+      ),
+      bodyLarge: TextStyle(
+        //color: Color(0xff1b070b),
+        color: lightColorScheme.primary,
+        fontWeight: FontWeight.normal,
+        fontSize: 12.0,
+      ),
+      bodyMedium: TextStyle(
+        //color: Color(0xff1b070b),
+        color: lightColorScheme.primary,
+        fontWeight: FontWeight.normal,
+        fontSize: 10.0,
+      ),
+    ),
   );
 
   static final ThemeData darkTheme = ThemeData(
@@ -31,7 +81,8 @@ class Themes {
 
   static const lightColorScheme = ColorScheme(
     brightness: Brightness.light,
-    primary: Color(0xFF6750A4),
+    //primary: Color(0xFF6750A4),
+    primary: Color(0xFF191918),
     onPrimary: Color(0xFFFFFFFF),
     primaryContainer: Color(0xFFEADDFF),
     onPrimaryContainer: Color(0xFF21005D),
@@ -48,11 +99,9 @@ class Themes {
     errorContainer: Color(0xFFF9DEDC),
     onErrorContainer: Color(0xFF410E0B),
     outline: Color(0xFF79747E),
-    background: Color(0xFFFFFBFE),
-    onBackground: Color(0xFF1C1B1F),
     surface: Color(0xFFFFFBFE),
     onSurface: Color(0xFF1C1B1F),
-    surfaceVariant: Color(0xFFE7E0EC),
+    surfaceContainerHighest: Color(0xFFE7E0EC),
     onSurfaceVariant: Color(0xFF49454F),
     inverseSurface: Color(0xFF313033),
     onInverseSurface: Color(0xFFF4EFF4),
@@ -82,11 +131,9 @@ class Themes {
     errorContainer: Color(0xFF8C1D18),
     onErrorContainer: Color(0xFFF9DEDC),
     outline: Color(0xFF938F99),
-    background: Color(0xFF1C1B1F),
-    onBackground: Color(0xFFE6E1E5),
     surface: Color(0xFF1C1B1F),
     onSurface: Color(0xFFE6E1E5),
-    surfaceVariant: Color(0xFF49454F),
+    surfaceContainerHighest: Color(0xFF49454F),
     onSurfaceVariant: Color(0xFFCAC4D0),
     inverseSurface: Color(0xFFE6E1E5),
     onInverseSurface: Color(0xFF313033),

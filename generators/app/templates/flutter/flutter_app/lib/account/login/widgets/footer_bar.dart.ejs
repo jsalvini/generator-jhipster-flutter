@@ -1,0 +1,39 @@
+import 'package:flutter/material.dart';
+import 'package:<%= baseName %>/account/login/widgets/item_info_text.dart';
+import 'package:<%= baseName %>/core/constants/constants.dart';
+
+class FooterBar extends StatelessWidget {
+  const FooterBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Wrap(
+          alignment: WrapAlignment.center,
+          children: [
+            /*const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image(
+                  image: AssetImage('assets/images/logo_tipre.png'),
+                  width: 150,
+                  height: 30,
+                ),
+              ],
+            ),*/
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const ItemInfoText(text: 'Tipre SA'),
+                const Icon(Icons.copyright, color: Colors.grey),
+                ItemInfoText(text: '${AppData.name} V${AppData.version}'),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}

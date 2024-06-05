@@ -31,7 +31,6 @@ import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>
 <%_ if(enableTranslation) { _%>
 import 'package:<%= baseName %>/generated/l10n.dart';
 <%_ } _%>
-import 'package:<%= baseName %>/shared/utils/http_utils.dart';
 
 part '<%= entityFileName %>_events.dart';
 part '<%= entityFileName %>_state.dart';
@@ -74,6 +73,10 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
     on<<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed>(on<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed);
     <%_ } _%>
     <%_ }); _%>
+    on<<%= entityClass %>Filter>(on<%= entityClass %>Filter);
+    on<<%= entityClass %>FilterChanged>(on<%= entityClass %>FilterChanged);
+    on<<%= entityClass %>FilterCondicionChanged>(on<%= entityClass %>FilterCondicionChanged);
+    on<<%= entityClass %>FilterValueChanged>(on<%= entityClass %>FilterValueChanged);
   }
 
   <%_ relationships.forEach(relationship => { %>
@@ -406,14 +409,98 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
         }
   <%_ }); _%>
 
-    @override
-    Future<void> close() {
-      <%_ fields.forEach(field => { _%>
-        <%_ if(!field.fieldIsEnum && field.fieldType !== 'bool') { _%>
-            <%= field.fieldName %>Controller.dispose();
-        <%_ } _%>
-      <%_ }); _%>
-      return super.close();
+  @override
+  Future<void> close() {
+    <%_ fields.forEach(field => { _%>
+      <%_ if(!field.fieldIsEnum && field.fieldType !== 'bool') { _%>
+          <%= field.fieldName %>Controller.dispose();
+      <%_ } _%>
+    <%_ }); _%>
+    return super.close();
+  }
+
+  void on<%= entityClass %>FilterChanged(
+    <%= entityClass %>FilterChanged event,
+    Emitter<TrxState> emit,
+  ) {
+    emit(
+      state.copyWith(filters: event.filters),
+    );
+  }
+
+  void on<%= entityClass %>FilterCondicionChanged(
+    <%= entityClass %>FilterCondicionChanged event,
+    Emitter<<%= entityClass %>State> emit,
+  ) {
+    emit(
+      state.copyWith(filterCondicion: event.filterCondicion),
+    );
+  }
+
+  void on<%= entityClass %>FilterValueChanged(
+    <%= entityClass %>FilterValueChanged event,
+    Emitter<<%= entityClass %>State> emit,
+  ) {
+    emit(
+      state.copyWith(filterValue: event.filterValue),
+    );
+  }
+  <%= entityClassPluralLowered %>: <%= entityClassPluralLowered %>,
+  totalRow: data.totalCount,
+  <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.done,
+
+  Future<void> on<%= entityClass %>Filter(
+    <%= entityClass %>Filter event,
+    Emitter<<%= entityClass %>State> emit,
+  ) async {
+    emit(state.copyWith(
+      <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.loading,
+    ));
+    String urlFilters = construirUrl(state.filters);
+
+    final result = await _<%= entityClass %>Repository.get<%= entityClassPlural %>Filter(
+      urlFilters: urlFilters,
+      page: event.page,
+      sort: event.sort,
+      ascending: event.ascending,
+    );
+
+    result.fold(
+      (Failure failure) {
+        Map<String, String> newFilter = Map<String, String>.from(state.filters);
+        newFilter.clear();
+        emit(
+          state.copyWith(
+            <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.error,
+            generalNotificationKey: failure.errorMessage,
+            filters: newFilter,
+          ),
+        );
+      },
+      (<%= entityClass %>Response data) {
+        List<<%= entityClass %>>? <%= entityClassPluralLowered %> = data.<%= entityClassPluralLowered %>;
+
+        emit(
+          state.copyWith(
+            <%= entityClassPluralLowered %>: <%= entityClassPluralLowered %>,
+            totalRow: data.totalCount,
+            <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.done,
+          ),
+        );
+      },
+    );
+  }
+  String construirUrl(Map<String, dynamic> mapa) {
+    if (mapa.isEmpty) {
+      return '';
     }
 
+    String cadena = '';
+    for (final clave in mapa.keys) {
+      final valor = mapa[clave];
+      cadena += '$clave.$valor&';
+    }
+    cadena = cadena.substring(0, cadena.length - 1);
+    return cadena;
+  }
 }

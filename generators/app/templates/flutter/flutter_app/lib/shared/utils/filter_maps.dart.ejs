@@ -1,0 +1,37 @@
+abstract class FilterMaps {
+  static const Map<String, String> filterBoolean = {
+    "True": "true",
+    "False": "false",
+  };
+
+  static const Map<String, String> filterTable = {
+    "Igual a": "equals",
+    "No igual": "notEquals",
+    "Es null": "specified=false", // specified=false es 'null'
+    "No es null": "specified=true", // specified=true no es 'null'
+    "Incluye a": "in",
+    "No incluye a": "notIn"
+  };
+
+  static const Map<String, String> filterOnlyString = {
+    "Contiene": "contains",
+    "No contiene": "doesNotContain"
+  };
+
+  static const Map<String, String> filterOnlyNumeric = {
+    "Mayor que": "greaterThan",
+    "Menor que": "lessThan",
+    "Mayor o igual que": "greaterThanOrEqual",
+    "Menor o igual que": "lessThanOrEqual"
+  };
+
+  static const Map<String, String> filterTableString = {
+    ...filterTable,
+    ...filterOnlyString,
+  };
+
+  static const Map<String, String> filterTableNumeric = {
+    ...filterTable,
+    ...filterOnlyNumeric,
+  };
+}

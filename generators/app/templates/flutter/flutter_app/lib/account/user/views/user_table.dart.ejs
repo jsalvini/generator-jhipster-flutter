@@ -30,114 +30,110 @@ class UserTable extends StatelessWidget {
     final widthSize = MediaQuery.of(context).size.width;
     final heigthSize = MediaQuery.of(context).size.height;
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 10, right: 16, left: 16),
-          child: Card(
-            margin: EdgeInsets.zero,
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () => context.push(UserRoutes.create),
-                    style: ButtonStyle(
-                      elevation: const MaterialStatePropertyAll(5.0),
-                      minimumSize:
-                          const MaterialStatePropertyAll(Size(250, 50)),
-                      backgroundColor: MaterialStatePropertyAll(
-                        context.read<ThemeBloc>().state == ThemeMode.dark
-                            ? Theme.of(context).colorScheme.primaryContainer
-                            : Theme.of(context).colorScheme.primary,
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: Card(
+              margin: EdgeInsets.zero,
+              elevation: 5,
+              surfaceTintColor: Theme.of(context).colorScheme.primary,
+              shadowColor: Theme.of(context).colorScheme.primary,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Wrap(
+                  direction: Axis.horizontal,
+                  alignment: widthSize < 1300
+                      ? WrapAlignment.center
+                      : WrapAlignment.end,
+                  runSpacing: 10,
+                  spacing: 10,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () => context.push(UserRoutes.create),
+                      style: ButtonStyle(
+                        elevation: const WidgetStatePropertyAll(5.0),
+                        minimumSize:
+                            const WidgetStatePropertyAll(Size(250, 50)),
+                        backgroundColor: WidgetStatePropertyAll(
+                          context.read<ThemeBloc>().state == ThemeMode.dark
+                              ? Theme.of(context).colorScheme.primaryContainer
+                              : Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      label: const Text(
+                        'Agregar usuario',
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
-                    icon: const Icon(Icons.add, color: Colors.white),
-                    label: const Text(
-                      'Agregar usuario',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      int pageQuery =
-                          blocContext.read<UserBloc>().state.currentPage - 1;
-                      String columnName =
-                          blocContext.read<UserBloc>().state.columnName;
-                      var order =
-                          blocContext.read<UserBloc>().state.sortAscending
-                              ? 'asc'
-                              : 'desc';
-                      blocContext.read<UserBloc>().add(LoadUserList(
-                            page: pageQuery,
-                            sort: columnName,
-                            ascending: order,
-                          ));
-                    },
-                    style: ButtonStyle(
-                      elevation: const MaterialStatePropertyAll(5.0),
-                      minimumSize:
-                          const MaterialStatePropertyAll(Size(200, 50)),
-                      backgroundColor: MaterialStatePropertyAll(
-                        context.read<ThemeBloc>().state == ThemeMode.dark
-                            ? Theme.of(context).colorScheme.primaryContainer
-                            : Theme.of(context).colorScheme.primary,
+                    const SizedBox(width: 10),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        int pageQuery =
+                            blocContext.read<UserBloc>().state.currentPage - 1;
+                        String columnName =
+                            blocContext.read<UserBloc>().state.columnName;
+                        var order =
+                            blocContext.read<UserBloc>().state.sortAscending
+                                ? 'asc'
+                                : 'desc';
+                        blocContext.read<UserBloc>().add(LoadUserList(
+                              page: pageQuery,
+                              sort: columnName,
+                              ascending: order,
+                            ));
+                      },
+                      style: ButtonStyle(
+                        elevation: const WidgetStatePropertyAll(5.0),
+                        minimumSize:
+                            const WidgetStatePropertyAll(Size(200, 50)),
+                        backgroundColor: WidgetStatePropertyAll(
+                          context.read<ThemeBloc>().state == ThemeMode.dark
+                              ? Theme.of(context).colorScheme.primaryContainer
+                              : Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      icon: const Icon(Icons.refresh_rounded,
+                          color: Colors.white),
+                      label: const Text(
+                        'Actualizar lista',
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
-                    icon:
-                        const Icon(Icons.refresh_rounded, color: Colors.white),
-                    label: const Text(
-                      'Actualizar lista',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Theme(
-            data: ThemeData(
-                iconTheme: const IconThemeData(color: Colors.white),
-                scrollbarTheme: ScrollbarThemeData(
-                    thickness: MaterialStateProperty.all(5),
-                    thumbVisibility: MaterialStateProperty.all(true),
-                    thumbColor: MaterialStateProperty.all<Color>(
-                        Theme.of(context).primaryColor))),
-            child: SizedBox(
-              height: !kIsWeb ? heigthSize * 0.70 : heigthSize * 0.65,
-              child: Card(
-                margin: EdgeInsets.zero,
-                elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(15)),
-                    child: AdaptiveScrollbar(
-                      controller: verticalScroll,
-                      width: widthScrollbar,
-                      scrollToClickDelta: 75,
-                      scrollToClickFirstDelay: 200,
-                      scrollToClickOtherDelay: 50,
-                      sliderDecoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(12.0))),
-                      sliderActiveDecoration: const BoxDecoration(
-                          color: Color.fromRGBO(206, 206, 206, 100),
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(12.0))),
-                      underColor: Colors.transparent,
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Theme(
+              data: ThemeData(
+                  iconTheme: const IconThemeData(color: Colors.white),
+                  scrollbarTheme: ScrollbarThemeData(
+                      thickness: WidgetStateProperty.all(5),
+                      thumbVisibility: WidgetStateProperty.all(true),
+                      thumbColor: WidgetStateProperty.all<Color>(
+                          Theme.of(context).primaryColor))),
+              child: SizedBox(
+                height: !kIsWeb ? heigthSize * 0.70 : heigthSize * 0.65,
+                child: Card(
+                  margin: EdgeInsets.zero,
+                  elevation: 5,
+                  surfaceTintColor: Theme.of(context).colorScheme.primary,
+                  shadowColor: Theme.of(context).colorScheme.primary,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(15)),
                       child: AdaptiveScrollbar(
-                        underSpacing: const EdgeInsets.only(bottom: 20),
-                        controller: horizontalScroll,
+                        controller: verticalScroll,
                         width: widthScrollbar,
-                        position: ScrollbarPosition.bottom,
+                        scrollToClickDelta: 75,
+                        scrollToClickFirstDelay: 200,
+                        scrollToClickOtherDelay: 50,
                         sliderDecoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.primary,
                             borderRadius:
@@ -147,52 +143,67 @@ class UserTable extends StatelessWidget {
                             borderRadius:
                                 BorderRadius.all(Radius.circular(12.0))),
                         underColor: Colors.transparent,
-                        child: SingleChildScrollView(
+                        child: AdaptiveScrollbar(
+                          underSpacing: const EdgeInsets.only(bottom: 20),
                           controller: horizontalScroll,
-                          scrollDirection: Axis.horizontal,
-                          child: SizedBox(
-                            width: 2000,
-                            child: DataTable2(
-                              headingRowColor: MaterialStateColor.resolveWith(
-                                  (states) => Theme.of(context).primaryColor),
-                              headingTextStyle:
-                                  const TextStyle(color: Colors.white),
-                              headingCheckboxTheme: const CheckboxThemeData(
-                                side:
-                                    BorderSide(color: Colors.white, width: 2.0),
+                          width: widthScrollbar,
+                          position: ScrollbarPosition.bottom,
+                          sliderDecoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius: const BorderRadius.all(
+                                  Radius.circular(12.0))),
+                          sliderActiveDecoration: const BoxDecoration(
+                              color: Color.fromRGBO(206, 206, 206, 100),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(12.0))),
+                          underColor: Colors.transparent,
+                          child: SingleChildScrollView(
+                            controller: horizontalScroll,
+                            scrollDirection: Axis.horizontal,
+                            child: SizedBox(
+                              width: 2000,
+                              child: DataTable2(
+                                headingRowColor: WidgetStateColor.resolveWith(
+                                    (states) => Theme.of(context).primaryColor),
+                                headingTextStyle:
+                                    const TextStyle(color: Colors.white),
+                                headingCheckboxTheme: const CheckboxThemeData(
+                                  side: BorderSide(
+                                      color: Colors.white, width: 2.0),
+                                ),
+                                isHorizontalScrollBarVisible: false,
+                                isVerticalScrollBarVisible: false,
+                                columnSpacing: 12,
+                                horizontalMargin: 12,
+                                sortArrowBuilder: null,
+                                border: TableBorder(
+                                    horizontalInside: BorderSide(
+                                        color: Theme.of(context).primaryColor),
+                                    right: BorderSide(
+                                        color: Theme.of(context).primaryColor)),
+                                dividerThickness: 1,
+                                bottomMargin: 10,
+                                minWidth: 900,
+                                sortColumnIndex: blocContext
+                                    .read<UserBloc>()
+                                    .state
+                                    .sortColumnIndex,
+                                sortAscending: blocContext
+                                    .read<UserBloc>()
+                                    .state
+                                    .sortAscending,
+                                sortArrowIcon: Icons.keyboard_arrow_up,
+                                sortArrowAnimationDuration:
+                                    const Duration(milliseconds: 500),
+                                columns: _columns(widthSize),
+                                empty: Center(
+                                    child: Container(
+                                        padding: const EdgeInsets.all(20),
+                                        color: Colors.grey[200],
+                                        child: const Text(
+                                            'No hay registros para mostrar.'))),
+                                rows: _rows(widthSize),
                               ),
-                              isHorizontalScrollBarVisible: false,
-                              isVerticalScrollBarVisible: false,
-                              columnSpacing: 12,
-                              horizontalMargin: 12,
-                              sortArrowBuilder: null,
-                              border: TableBorder(
-                                  horizontalInside: BorderSide(
-                                      color: Theme.of(context).primaryColor),
-                                  right: BorderSide(
-                                      color: Theme.of(context).primaryColor)),
-                              dividerThickness: 1,
-                              bottomMargin: 10,
-                              minWidth: 900,
-                              sortColumnIndex: blocContext
-                                  .read<UserBloc>()
-                                  .state
-                                  .sortColumnIndex,
-                              sortAscending: blocContext
-                                  .read<UserBloc>()
-                                  .state
-                                  .sortAscending,
-                              sortArrowIcon: Icons.keyboard_arrow_up,
-                              sortArrowAnimationDuration:
-                                  const Duration(milliseconds: 500),
-                              columns: _columns(widthSize),
-                              empty: Center(
-                                  child: Container(
-                                      padding: const EdgeInsets.all(20),
-                                      color: Colors.grey[200],
-                                      child: const Text(
-                                          'No hay registros para mostrar.'))),
-                              rows: _rows(widthSize),
                             ),
                           ),
                         ),
@@ -203,60 +214,67 @@ class UserTable extends StatelessWidget {
               ),
             ),
           ),
-        ),
-        SizedBox(
-          width: widthSize < 1300 ? (widthSize * 0.8) : (widthSize * 0.5),
-          child: Card(
-            margin: EdgeInsets.zero,
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text(
-                    'Total usuarios: ${blocContext.read<UserBloc>().state.totalRow}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    'Total paginas: ${cantidadDePaginas(
-                      blocContext.read<UserBloc>().state.totalRow,
-                      blocContext.read<UserBloc>().state.rowsPerPage,
-                    )}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Pager(
-                    currentPage: blocContext.read<UserBloc>().state.currentPage,
-                    totalPages: cantidadDePaginas(
-                      blocContext.read<UserBloc>().state.totalRow,
-                      blocContext.read<UserBloc>().state.rowsPerPage,
+          SizedBox(
+            width: widthSize < 1300 ? (widthSize * 0.8) : (widthSize * 0.5),
+            child: Card(
+              margin: EdgeInsets.zero,
+              elevation: 5,
+              shadowColor: Theme.of(context).colorScheme.primary,
+              surfaceTintColor: Theme.of(context).colorScheme.primary,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Wrap(
+                  alignment: WrapAlignment.spaceAround,
+                  runAlignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  runSpacing: 10,
+                  children: [
+                    Text(
+                      'Total usuarios: ${blocContext.read<UserBloc>().state.totalRow}',
+                      style: Theme.of(context).textTheme.headlineSmall,
                     ),
-                    onPageChanged: (page) {
-                      int pageQuery = page - 1;
-                      blocContext
-                          .read<UserBloc>()
-                          .add(UserCurrentPageChanged(currentPage: page));
-                      String columnName =
-                          blocContext.read<UserBloc>().state.columnName;
-                      var order =
-                          blocContext.read<UserBloc>().state.sortAscending
-                              ? 'asc'
-                              : 'desc';
-                      blocContext.read<UserBloc>().add(LoadUserList(
-                            page: pageQuery,
-                            sort: columnName,
-                            ascending: order,
-                          ));
-                    },
-                    numberButtonSelectedColor: Theme.of(context).primaryColor,
-                    numberTextUnselectedColor: Colors.grey,
-                  ),
-                ],
+                    Text(
+                      'Total paginas: ${cantidadDePaginas(
+                        blocContext.read<UserBloc>().state.totalRow,
+                        blocContext.read<UserBloc>().state.rowsPerPage,
+                      )}',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    Pager(
+                      currentPage:
+                          blocContext.read<UserBloc>().state.currentPage,
+                      totalPages: cantidadDePaginas(
+                        blocContext.read<UserBloc>().state.totalRow,
+                        blocContext.read<UserBloc>().state.rowsPerPage,
+                      ),
+                      onPageChanged: (page) {
+                        int pageQuery = page - 1;
+                        blocContext
+                            .read<UserBloc>()
+                            .add(UserCurrentPageChanged(currentPage: page));
+                        String columnName =
+                            blocContext.read<UserBloc>().state.columnName;
+                        var order =
+                            blocContext.read<UserBloc>().state.sortAscending
+                                ? 'asc'
+                                : 'desc';
+                        blocContext.read<UserBloc>().add(LoadUserList(
+                              page: pageQuery,
+                              sort: columnName,
+                              ascending: order,
+                            ));
+                      },
+                      numberButtonSelectedColor: Theme.of(context).primaryColor,
+                      numberTextUnselectedColor: Colors.grey,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

@@ -22,12 +22,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 <%_ if(hasDateTime) { _%>
 import 'package:intl/intl.dart';
-import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
 <%_ } _%>
-import 'package:<%= baseName %>/core/core.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_json_view/flutter_json_view.dart';
+import 'package:<%= baseName %>/core/constants/constants.dart';
+import 'package:<%= baseName %>/shared/utils/utils.dart';
+import 'package:<%= baseName %>/shared/widgets/widgets.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_model.dart';
-import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
 <%_ relationships.forEach(relationship => { %>
 <%_ if(!relationship.isList) { _%>
 import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/bloc/<%= relationship.otherEntityFileName %>_bloc.dart';
@@ -42,31 +44,40 @@ class <%= entityClass %>ViewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>ViewTitle<%_ } else { _%>'<%= entityClass %> View'<%_ } _%>),
+      appBar: CustomAppBar(
+        title: AppData.name,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(15.0),
-        child: BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
-          buildWhen: (previous, current) => previous.loaded<%= entityClass %> != current.loaded<%= entityClass %>,
-          builder: (context, state) {
-            return Visibility(
-              visible: state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.done,
-              replacement: const LoadingIndicator(),
-              child: Column(
-                  children: <Widget>[
-                    Card(
-                      elevation: 5,
-                      margin: const EdgeInsets.all(20),
-                      shadowColor: Theme.of(context).colorScheme.primary,
-                      child: const Form<%= entityClass %>(),
-                    ),
-                  ],
-              ),
-            );
-          }
+      body: CustomLayout(
+        title: Text(
+          'Detalle <%= entityInstance %>',
+          style: Theme.of(context).textTheme.displayMedium,
         ),
+        widgets: [
+          SingleChildScrollView(
+            child: BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
+              buildWhen: (previous, current) =>
+                  previous.loaded<%= entityClass %> != current.loaded<%= entityClass %>,
+              builder: (context, state) {
+                return Visibility(
+                  visible: state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.done,
+                  replacement: const LoadingIndicator(
+                    message: 'CARGANDO',
+                  ),
+                  child: Column(
+                    children: <Widget>[
+                      Card(
+                        elevation: 5,
+                        shadowColor: Theme.of(context).colorScheme.primary,
+                        surfaceTintColor: Theme.of(context).colorScheme.primary,
+                        child: const Form<%= entityClass %>(),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -77,21 +88,24 @@ class Form<%= entityClass %> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(top: 30, bottom: 30),
+    return Padding(
+      padding: const EdgeInsets.all(20),
       child: Center(
-        child: SizedBox(
-          width: 600,
+        child: Container(
+          constraints: const BoxConstraints(
+            maxWidth: 600,
+          ),
           child: Form(
-            child: Wrap(
-              runSpacing: 15,
+            child: Column(
               children: <Widget>[
                 <%_ fields.forEach(field => { _%>
                 <%= field.fieldNameCapitalized %>Field(),
+                SizedBox(height: 20),
                 <%_ }); _%>
                 <%_ relationships.forEach(relationship => { %>
                 <%_ if(!relationship.isList) { _%>
                 <%= relationship.otherEntityNameCapitalized %>Field(),
+                SizedBox(height: 20),
                 <%_ } _%>
                 <%_ }); _%>
                 EditButton(),
@@ -121,7 +135,7 @@ class EditButton extends StatelessWidget {
               ElevatedButton(
                 onPressed: () => context.push('${<%= entityClass %>Routes.editPath}${ state.loaded<%= entityClass %>.id}'),
                 style: ButtonStyle(
-                    backgroundColor: MaterialStatePropertyAll(
+                    backgroundColor: WidgetStatePropertyAll(
                         Theme.of(context).primaryColor)),
                 child: SizedBox(
                     width: MediaQuery.of(context).size.width * 0.2,
@@ -129,7 +143,10 @@ class EditButton extends StatelessWidget {
                     child: const Center(
                       child: Text(
                         'Editar',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
                       ),
                     ),
                 ),
@@ -153,36 +170,40 @@ class EditButton extends StatelessWidget {
       return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
         buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
         builder: (context, state) {
-          return DateTimeField(
-          controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-          enabled: false,
-          format: DateFormat("yyyy-MM-dd"),
-          keyboardType: TextInputType.datetime,
-          decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.date_range_rounded),
-              labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
-              labelStyle: TextStyle(
-                  height: 0.5,
-                 fontWeight: FontWeight.bold,
-                  fontSize: 16,
+          return Row(
+            children: [
+              SizedBox(
+                width: 150,
+                child: Text(
+                  '<%= field.fieldNameCapitalized %>',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
               ),
-              floatingLabelStyle: TextStyle(
-                  height: 0.5,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
+              Expanded(
+                child: FormBuilderDateTimePicker(
+                  name: '<%= field.fieldName %>',
+                  controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+                  enabled: false,
+                  initialEntryMode: DatePickerEntryMode.calendar,
+                  initialValue: state.loaded<%= entityClass %>.<%= field.fieldName %>,
+                  format: DateFormat('yyyy-MM-dd HH:mm'),
+                  inputType: InputType.both,
+                  style: const TextStyle(
+                    color: Color(0xff1b070b),
+                    fontSize: 16,
+                  ),
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.date_range_rounded),
+                  ),
+                  initialTime: const TimeOfDay(hour: 8, minute: 0),
+                  keyboardType: TextInputType.datetime,
+                ),
               ),
-          ),
-          onShowPicker: (context, currentValue) async {
-            return await showDatePicker(
-              locale: const Locale(<%_ if(enableTranslation) { _%>S.of(context).locale<%_ } else { _%>'en'<%_ } _%>),
-              context: context,
-              firstDate: DateTime(1950),
-              initialDate: currentValue ?? DateTime.now(),
-              lastDate: DateTime(2100));
-            },
+            ],
           );
-        });
-      }
+        }
+      );
+    }
   }
   <%_ } else if (field.fieldIsEnum) {_%>
   class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
@@ -192,45 +213,37 @@ class EditButton extends StatelessWidget {
     @override
     Widget build(BuildContext context) {
       return BlocBuilder<<%= entityClass %>Bloc,<%= entityClass %>State>(
-      buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
-      builder: (context, state) {
-        return Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+        buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
+        builder: (context, state) {
+          return Row(
             children: [
-            SizedBox(
-              width: 250,
-              child: DropdownButtonFormField<<%= field.fieldType %>>(
-                value: state.<%= field.fieldName %>.value,
-                dropdownColor: Colors.white,
-                icon: Icon(
-                Icons.arrow_drop_down,
-                color: Theme.of(context).primaryColor,
+              SizedBox(
+                width: 150,
+                child: Text(
+                  '<%= field.fieldNameCapitalized %>',
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
-                style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: Color(0xff49454f),
-                ),
-                decoration: const InputDecoration(
-                  labelStyle: TextStyle(
-                    height: 0.5,
-                    fontWeight: FontWeight.bold,
+              ),
+              Expanded(
+                child: DropdownButtonFormField<<%= field.fieldType %>>(
+                  value: state.<%= field.fieldName %>.value,
+                  dropdownColor: Colors.white,
+                  icon: Icon(
+                    Icons.arrow_drop_down,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  style: const TextStyle(
+                    color: Color(0xff1b070b),
                     fontSize: 16,
                   ),
-                  floatingLabelStyle: TextStyle(
-                      height: 0.5,
-                      fontSize: 18,
-                    ),
-                  ),
-                onChanged: null,
-                items: createDropdown<%= field.fieldType %>Items(<%= field.fieldType %>.values)),
-            ),
+                  onChanged: null,
+                  items: createDropdown<%= field.fieldType %>Items(<%= field.fieldType %>.values),
+                ),
+              ),
             ],
-          ),
-        );
-      });
+          );
+        }
+      );
     }
 
     <%_ fields.forEach(field => { _%>
@@ -258,30 +271,26 @@ class EditButton extends StatelessWidget {
     @override
     Widget build(BuildContext context) {
       return BlocBuilder<<%= entityClass %>Bloc,<%= entityClass %>State>(
-      buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
-      builder: (context, state) {
-        return Padding(
-          padding: const EdgeInsets.only(left: 3.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+        buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
+        builder: (context, state) {
+          return Row(
             children: <Widget>[
-              Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>, 
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+              SizedBox(
+                width: 130,
+                child: Text(
+                  '<%= field.fieldNameCapitalized %>',
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),
-              const SizedBox(width: 20),
               Switch(
                 value: state.<%= field.fieldName %>.value,
                 onChanged: null,
                 activeColor: Theme.of(context).primaryColor,
-                ),
+              ),
             ],
-          ),
-        );
-      });
+          );
+        }
+      );
     }
   }
   <%_ } else if(field.fieldType === 'int' ) {_%>
@@ -292,63 +301,44 @@ class EditButton extends StatelessWidget {
     @override
     Widget build(BuildContext context) {
       return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
-      buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
-      builder: (context, state) {
-      return TextFormField(
-        controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-        enabled: false,
-        keyboardType: const TextInputType.numberWithOptions(
-          signed: false,
-          decimal: false,
-          ),
-        maxLength: 15,
-        inputFormatters: <TextInputFormatter>[
-          LengthLimitingTextInputFormatter(15),
-        ],
-        decoration: InputDecoration(
-          prefixIcon: const Icon(Icons.numbers_rounded),
-          labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
-          labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
-            contentPadding: const EdgeInsets.symmetric(vertical: 10),
-          ),
-        );
-      }
-    );
-  }
-  }
-  <%_ } else if(field.fieldType === 'double' ) {_%>
-    class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
-
-      const <%= field.fieldNameCapitalized %>Field({super.key});
-
-      @override
-      Widget build(BuildContext context) {
-        return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
-          buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
-          builder: (context, state) {
-            return TextFormField(
-              controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-              enabled: false,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-                signed: true,
+        buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
+        builder: (context, state) {
+          return Row(
+            children: [
+              SizedBox(
+                width: 150,
+                child: Text(
+                  '<%= field.fieldNameCapitalized %>',
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
-              maxLength: 15,
-              inputFormatters: <TextInputFormatter>[
-                LengthLimitingTextInputFormatter(15),
-              ],
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.numbers_rounded),
-                labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
-                labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
-                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              ),
+              Expanded(
+                child: TextFormField(
+                  controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+                  readOnly: true,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    signed: false,
+                    decimal: false,
+                  ),
+                  style: const TextStyle(
+                    color: Color(0xff1b070b),
+                    fontSize: 16,
+                  ),
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(15),
+                  ],
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.numbers_rounded),
+                  ),
                 ),
-            );
-          }
-        );
+              ),
+            ],
+          );
+        }
+      );
     }
   }
-  <%_ } else  {_%>
+  <%_ } else if(field.fieldType === 'double' ) {_%>
   class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 
     const <%= field.fieldNameCapitalized %>Field({super.key});
@@ -358,25 +348,84 @@ class EditButton extends StatelessWidget {
       return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
         buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
         builder: (context, state) {
-          return TextFormField(
-            controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-            enabled: false,
-            keyboardType: TextInputType.text,
-            <%_ if(field.fieldValidateRules == 'maxlength') { _%>
-            maxLength: <%= field.fieldValidateRulesMaxlength %>,
-            <%_ } _%>
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.text_fields_rounded),
-              labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
-              labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
+          return Row(
+            children: [
+              SizedBox(
+                width: 150,
+                child: Text(
+                  '<%= field.fieldNameCapitalized %>',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
               ),
+              Expanded(
+                child: TextFormField(
+                  controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+                  readOnly: true,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: true,
+                  ),
+                  style: const TextStyle(
+                    color: Color(0xff1b070b),
+                    fontSize: 16,
+                  ),
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(15),
+                  ],
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.numbers_rounded),
+                  ),
+                ),
+              ),
+            ],
           );
         }
       );
     }
-    }
-  <%_ } _%>
+  }
+<%_ } else  {_%>
+class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
+
+  const <%= field.fieldNameCapitalized %>Field({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
+      buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
+      builder: (context, state) {
+        return Row(
+          children: [
+            SizedBox(
+              width: 150,
+              child: Text(
+                '<%= field.fieldNameCapitalized %>',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+            ),
+            Expanded(
+              child: TextFormField(
+                controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+                readOnly: true,
+                keyboardType: TextInputType.text,
+                <%_ if(field.fieldValidateRules == 'maxlength') { _%>
+                maxLength: <%= field.fieldValidateRulesMaxlength %>,
+                <%_ } _%>
+                style: const TextStyle(
+                  color: Color(0xff1b070b),
+                  fontSize: 16,
+                ),
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.text_fields_rounded),
+                ),
+              ),
+            ),
+          ],
+        );
+      }
+    );
+  }
+}
+<%_ } _%>
 <%_ }); _%>
 
 <%_ relationships.forEach(relationship => { %>
@@ -387,53 +436,48 @@ class EditButton extends StatelessWidget {
     @override
     Widget build(BuildContext context) {
       return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
-      builder: (context, state) {
-        return Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            SizedBox(
-              width: 250,
-              child: DropdownButtonFormField<<%= relationship.otherEntityNameCapitalized %>>(
-                dropdownColor: Colors.white,
-                icon: Icon(
-                  Icons.arrow_drop_down,
-                  color: Theme.of(context).primaryColor,
-                ),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Color(0xff49454f),
-                ),
-                decoration: const InputDecoration(
-                  labelStyle: TextStyle(
-                    height: 0.5,
-                    fontWeight: FontWeight.bold,
+        builder: (context, state) {
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              SizedBox(
+                width: 130,
+                child: Text('<%= relationship.otherEntityNameCapitalized %>',
+                    style: Theme.of(context).textTheme.headlineMedium),
+              ),
+              SizedBox(
+                width: 250,
+                child: DropdownButtonFormField<<%= relationship.otherEntityNameCapitalized %>>(
+                  dropdownColor: Colors.white,
+                  icon: Icon(
+                    Icons.arrow_drop_down,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  style: const TextStyle(
+                    color: Color(0xff1b070b),
                     fontSize: 16,
                   ),
-                ),
-                value: state
+                  value: state
+                        .<%= relationship.otherEntityName %>
+                        .id !=
+                      null
+                    ? state
                       .<%= relationship.otherEntityName %>
-                      .id !=
-                    null
-                  ? state
-                    .<%= relationship.otherEntityName %>
-                  : null,
-                onChanged: null,
-                items: [
-                  if (state.<%= relationship.otherEntityName %>.id != null)
-                    DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>(
-                      value: state.<%= relationship.otherEntityName %>,
-                      child: Text('${state.<%= relationship.otherEntityName %>.<%=relationship.otherEntityField %>}'),
-                    )
-                ],
+                    : null,
+                  onChanged: null,
+                  items: [
+                    if (state.<%= relationship.otherEntityName %>.id != null)
+                      DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>(
+                        value: state.<%= relationship.otherEntityName %>,
+                        child: Text('${state.<%= relationship.otherEntityName %>.<%=relationship.otherEntityField %>}'),
+                      )
+                  ],
                 ),
-            ),
-          ],
-          ),
-        );
-      },
+              ),
+            ],
+          );
+        },
       );
     }
     List<DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>> createDropdown<%= relationship.otherEntityNameCapitalizedPlural %>Items(

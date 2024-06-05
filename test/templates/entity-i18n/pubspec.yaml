@@ -21,8 +21,6 @@ dependencies:
     sdk: flutter
   cupertino_icons: 1.0.6
   http: 1.1.2
-  dart_json_mapper: ^2.2.10
-  dart_json_mapper_flutter: ^2.0.1
   flutter_secure_storage: 9.0.0
   url_launcher: 6.2.2
   datetime_picker_formfield_new: ^2.1.0

@@ -7,13 +7,12 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'app.dart';
-import 'main.mapper.g.dart' show initializeJsonMapper;
 <%_ if (!enableTranslation) { _%>
-import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart';
+  import 'package:intl/intl.dart';
+  import 'package:intl/date_symbol_data_local.dart';
 <%_ } _%>
+import 'package:<%= baseName %>/shared/storage/preferences.dart';
 import 'package:<%= baseName %>/environment.dart';
-import 'package:<%= baseName %>/shared/storage/secure_storage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,26 +28,20 @@ void main() async {
           center: true,
           fullScreen: false,
           minimumSize: Size(800, 720)
-          //backgroundColor: Colors.transparent,
-          //skipTaskbar: false,
-          //titleBarStyle: TitleBarStyle.normal,
           );
       windowManager.waitUntilReadyToShow(windowOptions, () async {
         await windowManager.show();
         await windowManager.focus();
       });
-      //WindowManager.instance.setMinimumSize(const Size(800, 720));
-      //WindowManager.instance.setFullScreen(true);
       WindowManager.instance.setResizable(true);
     }
   }
   Constants.setEnvironment(Environment.prod);
-  initializeJsonMapper();
   <%_ if (!enableTranslation) { _%>
-  Intl.defaultLocale = "es";
-  initializeDateFormatting();
+    Intl.defaultLocale = "es";
+    initializeDateFormatting();
   <%_ } _%>
-  SecureStorage.initSecureStorage();
+  await Preferences.initialize();
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory: kIsWeb
         ? HydratedStorage.webStorageDirectory

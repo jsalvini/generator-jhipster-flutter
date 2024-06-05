@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
-import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:<%= baseName %>/core/exceptions/exception.dart';
 import 'package:<%= baseName %>/core/exceptions/failure.dart';
 import 'package:<%= baseName %>/account/authority/models/authority_models.dart';
@@ -18,19 +17,21 @@ class AuthorityRepository {
     try {
       final Response response = await HttpUtils.getRequest(uriEndpoint);
 
+      const JsonDecoder decoder = JsonDecoder();
+
       if (response.statusCode >= 300 && response.statusCode < 600) {
-        ErrorResponse? errorResponse = JsonMapper.deserialize<ErrorResponse>(
-            utf8.decode(response.bodyBytes));
-        if (errorResponse != null) {
-          return Left(
-            ServerFailure(errorMessage: errorResponse.detail!),
-          );
-        }
+        ErrorResponse errorResponse = ErrorResponse.fromJson(
+            decoder.convert(utf8.decode(response.bodyBytes)));
+        return Left(
+          ServerFailure(errorMessage: errorResponse.detail),
+        );
       }
+
       String decode = utf8.decode(response.bodyBytes);
       decode =
           decode.replaceAll('[', '').replaceAll(']', '').replaceAll('"', '');
-      List<String> authorities = decode.split(',').map((e) => e.trim()).toList();
+      List<String> authorities =
+          decode.split(',').map((e) => e.trim()).toList();
 
       AuthorityResponse authorityResponse =
           AuthorityResponse(authorities: authorities);

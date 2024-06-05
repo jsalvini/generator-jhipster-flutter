@@ -1,0 +1,123 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:<%= baseName %>/account/authentication/bloc/authentication_bloc.dart';
+import 'package:<%= baseName %>/core/constants/constants.dart';
+import 'package:<%= baseName %>/core/router/routes.dart';
+
+class CustomDrawer extends StatelessWidget {
+  const CustomDrawer({super.key});
+
+  static const double iconSize = 24;
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          SizedBox(
+            height: 150.0,
+            child: DrawerHeader(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/header.jpg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    FontAwesomeIcons.circlePlay,
+                    color: Colors.white,
+                    size: 48,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    AppData.name,
+                    style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                          color: Colors.white,
+                          letterSpacing: 5.0,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ...<%= camelizedUpperFirstBaseName %>Routes.screens.entries.map(
+            (screen) {
+              return ListTile(
+                leading: screen.value['icon'],
+                title: Text(screen.key),
+                onTap: () => context.go(
+                  screen.value['routeName'],
+                ),
+              );
+            },
+          ),
+          BlocBuilder<AuthenticationBloc, AuthenticationState>(
+            builder: (context, state) {
+              if (state.user.authorities.contains('ROLE_ADMIN')) {
+                return ListTile(
+                  leading: const Icon(
+                    Icons.group,
+                    size: iconSize,
+                  ),
+                  title: const Text('Gestión usuarios'),
+                  onTap: () => context.go(<%= camelizedUpperFirstBaseName %>Routes.user),
+                );
+              } else {
+                return const SizedBox();
+              }
+            },
+          ),
+          AboutListTile(
+            icon: const Icon(
+              Icons.info,
+              size: iconSize,
+            ),
+            applicationIcon: const Icon(
+              Icons.local_play,
+              size: iconSize,
+            ),
+            applicationName: AppData.name,
+            applicationVersion: 'Versión ${AppData.version}',
+            applicationLegalese: 'Tipre 2024 ©',
+            child: const Text('Información'),
+          ),
+          const Divider(indent: 10, endIndent: 10),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(28, 16, 10, 10),
+            child: Text(
+              'Entidades',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
+          ...<%= camelizedUpperFirstBaseName %>Routes.screensEntities.entries.map(
+            (screen) {
+              return ListTile(
+                leading: screen.value['icon'],
+                title: Text(screen.key),
+                onTap: () => context.go(
+                  screen.value['routeName'],
+                ),
+              );
+            },
+          ),
+          const Divider(indent: 10, endIndent: 10),
+          ListTile(
+            leading: const Icon(
+              Icons.logout_rounded,
+              size: iconSize,
+            ),
+            title: const Text('Cerrar sesión'),
+            onTap: () => context
+                .read<AuthenticationBloc>()
+                .add(AuthenticationLogoutRequested()),
+          ),
+        ],
+      ),
+    );
+  }
+}

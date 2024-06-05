@@ -1,0 +1,10 @@
+import 'dart:convert';
+
+String validateJson(String source) {
+  try {
+    json.decode(source);
+    return source;
+  } on FormatException catch (_) {
+    return '{"data": "Json no valido."}';
+  }
+}

@@ -22,17 +22,19 @@ import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 <%_ if(hasDateTime) { _%>
-import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
 <%_ } _%>
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_models.dart';
+import 'package:<%= baseName %>/shared/widgets/widgets.dart';
+import 'package:<%= baseName %>/core/core.dart';
 <%_ relationships.forEach(relationship => { %>
 <%_ if(!relationship.isList) { _%>
 import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/bloc/<%= relationship.otherEntityFileName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/models/<%= relationship.otherEntityFileName %>_models.dart';
-import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
 <%_ } _%>
 <%_ }); _%>
 import '../<%= entityFileName %>_routes.dart';
@@ -46,66 +48,59 @@ class <%= entityClass %>UpdateScreen extends StatelessWidget {
       listener: (context, state) {
         if (state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.ok ||
             state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.error) {
-          Color colorBackground = Colors.green;
+          Color backgroundColor = Colors.green;
           IconData iconData = Icons.info_outline_rounded;
           if (state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.error) {
-            colorBackground = Colors.red;
+            backgroundColor = Colors.red;
             iconData = Icons.dangerous_outlined;
           }
 
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
-              SnackBar(
-				showCloseIcon: true,
-                closeIconColor: Colors.white,
-                duration: const Duration(seconds: 10),
-                content: Row(
-                  children: [
-                    Icon(iconData, color: Colors.white),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: Text(
-                        state.generalNotificationKey,
-                        maxLines: 4,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                backgroundColor: colorBackground,
-              ),
+				getSnack(
+					context: context,
+					message: state.generalNotificationKey,
+					backgroundColor: backgroundColor,
+					iconData: iconData,
+				  ),
             );
 			context.pushNamed('<%= entityInstance %>');
         }
-
-
       },
-      child: Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            title: BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
-                buildWhen: (previous, current) => previous.editMode != current.editMode,
-                builder: (context, state) {
-                	String title = state.editMode == true ? <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>UpdateTitle<%_ } else { _%>'Editar <%= entityClass %>'<%_ } _%> : <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>CreateTitle<%_ } else { _%>'Crear <%=entityClass%>'<%_ } _%>;
-                	return Text(title);
-                }
-            ),
+	  child: Scaffold(
+        appBar: const CustomAppBar(
+          title: 'ManagerMP',
+        ),
+        body: CustomLayout(
+          title: BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
+            buildWhen: (previous, current) =>
+                previous.editMode != current.editMode,
+            builder: (context, state) {
+				String title = state.editMode
+				? <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>UpdateTitle<%_ } else { _%>'Editar <%= entityClass %>'<%_ } _%>
+				: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %>CreateTitle<%_ } else { _%>'Crear <%=entityClass%>'<%_ } _%>;
+              return Text(
+                title,
+                style: Theme.of(context).textTheme.displayMedium,
+              );
+            },
           ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-				children: <Widget>[
-					Card(
-						elevation: 5,
-						margin: const EdgeInsets.all(20),
-						shadowColor: Theme.of(context).colorScheme.primary,
-						child: const Form<%= entityClass %>(),
-					),
-				],
-			),
-          ),
+          widgets: [
+            SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  Card(
+                    elevation: 5,
+                    shadowColor: Theme.of(context).colorScheme.primary,
+                    surfaceTintColor: Theme.of(context).colorScheme.primary,
+                    child: const Form<%= entityClass %>(),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -117,24 +112,30 @@ class Form<%= entityClass %> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 	return const Padding(
-		padding: EdgeInsets.only(top: 30, bottom: 30),
+		padding: const EdgeInsets.all(20),
 		child: Center(
-		  child: SizedBox(
-			width: 600,
-			child: Form(
-			  child: Wrap(runSpacing: 15, children: <Widget>[
-				<%_ fields.forEach(field => { _%>
-				<%= field.fieldNameCapitalized %>Field(),
-				<%_ }); _%>
-				<%_ relationships.forEach(relationship => { %>
-				<%_ if(!relationship.isList) { _%>
-				<%= relationship.otherEntityNameCapitalized %>Field(),
-				<%_ } _%>
-				<%_ }); _%>
-				SubmitForm(),
-			  ]),
+			child: Container(
+				constraints: const BoxConstraints(
+				  maxWidth: 600,
+				),
+				child: Form(
+					child: Column(
+						children: <Widget>[
+							<%_ fields.forEach(field => { _%>
+							<%= field.fieldNameCapitalized %>Field(),
+							SizedBox(height: 20),
+							<%_ }); _%>
+							<%_ relationships.forEach(relationship => { %>
+							<%_ if(!relationship.isList) { _%>
+							<%= relationship.otherEntityNameCapitalized %>Field(),
+							SizedBox(height: 20),
+							<%_ } _%>
+							<%_ }); _%>
+							SubmitForm(),
+						],
+					),
+				),
 			),
-		  ),
 		),
 	  );
   }
@@ -168,21 +169,10 @@ class SubmitForm extends StatelessWidget {
                           ? () => context.read<<%= entityClass %>Bloc>().add(<%= entityClass %>FormSubmitted())
                           : null,
                       style: ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(
+                        backgroundColor: WidgetStatePropertyAll(
                           state.isValid
-                              ? context.read<ThemeBloc>().state ==
-                                      ThemeMode.dark
-                                  ? Theme.of(context)
-                                      .colorScheme
-                                      .secondaryContainer
-                                  : Theme.of(context).colorScheme.primary
-                              : context.read<ThemeBloc>().state ==
-                                      ThemeMode.dark
-                                  ? Theme.of(context)
-                                      .colorScheme
-                                      .primary
-                                      .withOpacity(0.3)
-                                  : Theme.of(context)
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context)
                                       .colorScheme
                                       .secondary
                                       .withOpacity(0.3),
@@ -219,45 +209,63 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 		return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
 			buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
 			builder: (context, state) {
-			  return DateTimeField(
-				controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-				enabled: <%= !fieldOptions.readonly %>,
-				onChanged: (value) {
-				  context
-					  .read<<%= entityClass %>Bloc>()
-					  .add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value!));
-				},
-				format: DateFormat("yyyy-MM-dd"),
-				keyboardType: TextInputType.datetime,
-				decoration: const InputDecoration(
-					prefixIcon: Icon(Icons.date_range_rounded),
-					labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
-					<%_ if(!(field.fieldValidateRules != 'required')) { _%>
-					helperText: MessageValidation.campoRequerido,
-					<%_ } _%>
-					hintText: 'Ejemplo: 2024-01-24',
-					labelStyle: TextStyle(
-						height: 0.5,
-						fontWeight: FontWeight.bold,
-						fontSize: 16,
+				return Row(
+					children: [
+					  SizedBox(
+						width: 130,
+						child: Text('<%= field.fieldNameCapitalized %>',
+							style: Theme.of(context).textTheme.headlineMedium),
 					  ),
-					  floatingLabelStyle: TextStyle(
-						height: 0.5,
-						fontWeight: FontWeight.bold,
-						fontSize: 18,
+					  Expanded(
+						child: FormBuilderDateTimePicker(
+						  name: '<%= field.fieldName %>',
+						  controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+						  enabled: <%= !fieldOptions.readonly %>,
+						  initialEntryMode: DatePickerEntryMode.calendar,
+						  initialValue: state.loaded<%= entityClass %>.<%= field.fieldName %> ?? DateTime.now(),
+						  format: DateFormat('yyyy-MM-dd HH:mm'),
+						  inputType: InputType.both,
+						  style: const TextStyle(
+							color: Color(0xff1b070b),
+							fontSize: 16,
+						  ),
+						  decoration: const InputDecoration(
+							prefixIcon: Icon(Icons.date_range_rounded),
+							<%_ if(!(field.fieldValidateRules != 'required')) { _%>
+							helperText: MessageValidation.campoRequerido,
+							<%_ } _%>
+							hintText: 'Ejemplo: 2024-01-24',
+						  ),
+						  initialTime: const TimeOfDay(hour: 8, minute: 0),
+						  keyboardType: TextInputType.datetime,
+						  onChanged: (DateTime? newValue) {
+							if (newValue != null) {
+								String formattedDate =
+									DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'")
+										.format(newValue.toUtc());
+
+								DateTime parsedDate =
+									DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'")
+										.parseUtc(formattedDate);
+
+								context
+								  .read<<%= entityClass %>Bloc>()
+								  .add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value!));
+							}
+						  },
+						  validator: FormBuilderValidators.compose(
+							[
+							  FormBuilderValidators.required(
+								  errorText: '* Debe seleccionar un valor.'),
+							],
+						  ),
+						),
 					  ),
-					),
-				onShowPicker: (context, currentValue) async {
-				  return await showDatePicker(
-					  locale: const Locale(<%_ if(enableTranslation) { _%>S.of(context).locale<%_ } else { _%>'en'<%_ } _%>),
-					  context: context,
-					  firstDate: DateTime(1950),
-					  initialDate: currentValue ?? DateTime.now(),
-					  lastDate: DateTime(2100));
-			    },
-			  );
-			});
-		}
+					],
+				);
+			}
+		);
+	}
 }
 <%_ } else if (field.fieldIsEnum) {_%>
 class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
@@ -267,50 +275,42 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 	@override
 	Widget build(BuildContext context) {
 		return BlocBuilder<<%= entityClass %>Bloc,<%= entityClass %>State>(
-		buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
-		builder: (context, state) {
-			return Padding(
-				padding: const EdgeInsets.only(top: 10),
-				child: Row(
-				  mainAxisAlignment: MainAxisAlignment.start,
-				  children: [
-					SizedBox(
-					  width: 250,
-					  child: DropdownButtonFormField<<%= field.fieldType %>>(
-						  value: state.<%= field.fieldName %>.value,
-						  dropdownColor: Colors.white,
-						  icon: Icon(
-							Icons.arrow_drop_down,
-							color: Theme.of(context).primaryColor,
-						  ),
-						  style: const TextStyle(
-							fontWeight: FontWeight.bold,
-							fontSize: 16,
-							color: Color(0xff49454f),
-						  ),
-						  decoration: const InputDecoration(
-							labelText: 'Seleccione <%= field.fieldName %>',
-							labelStyle: TextStyle(
-							  height: 0.5,
-							  fontWeight: FontWeight.bold,
-							  fontSize: 16,
+			buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
+			builder: (context, state) {
+				return Row(
+					children: [
+						SizedBox(
+							width: 150,
+							child: Text(
+								'<%= field.fieldNameCapitalized %>',
+								style: Theme.of(context).textTheme.headlineMedium,
 							),
-							floatingLabelStyle: TextStyle(
-							  height: 0.5,
-							  fontSize: 18,
-							),
-						  ),
-						  <%_ if(fieldOptions.readonly) { %>
-						  onChanged: null,
-						  <%_ } else {_%>
-					  	  onChanged: (value) { context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value!)); },
-						  <%_ } _%>
-						  items: createDropdown<%= field.fieldType %>Items(<%= field.fieldType %>.values)),
-					),
-				  ],
-				),
-			);
-		});
+						),
+						Expanded(
+							child: DropdownButtonFormField<<%= field.fieldType %>>(
+									value: state.<%= field.fieldName %>.value,
+									dropdownColor: Colors.white,
+									icon: Icon(
+										Icons.arrow_drop_down,
+										color: Theme.of(context).primaryColor,
+									),
+									style: const TextStyle(
+										color: Color(0xff1b070b),
+										fontSize: 16,
+									),
+									<%_ if(fieldOptions.readonly) { %>
+									onChanged: null,
+									<%_ } else {_%>
+									onChanged: (value) { context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value!)); },
+									<%_ } _%>
+									items: createDropdown<%= field.fieldType %>Items(<%= field.fieldType %>.values),
+								),
+						),
+					],
+				);
+
+			}
+		);
 	}
 
 	<%_ fields.forEach(field => { _%>
@@ -341,32 +341,32 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 	  return BlocBuilder<<%= entityClass %>Bloc,<%= entityClass %>State>(
 	  buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
 	  builder: (context, state) {
-		return Padding(
-		  padding: const EdgeInsets.only(left: 3.0),
-		  child: Row(
-			mainAxisAlignment: MainAxisAlignment.start,
+		return Row(
 			children: <Widget>[
-			  Text(<%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
-				style: TextStyle(
-					fontSize: 18,
-					fontWeight: FontWeight.bold,
-					color: Theme.of(context).colorScheme.onSurfaceVariant,
+			  SizedBox(
+				width: 130,
+				child: Text(
+				  '<%= field.fieldNameCapitalized %>',
+				  style: Theme.of(context).textTheme.headlineMedium,
 				),
 			  ),
-			  const SizedBox(width: 20),
 			  Switch(
-				  value: state.<%= field.fieldName %>.value,
-				  <%_ if(fieldOptions.readonly) { %>
-				  onChanged: null,
-				  <%_ } else {_%>
-				  onChanged: (value) { context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value)); },
-				  <%_ } _%>
-				  activeColor: Theme.of(context).primaryColor,
-				  ),
+				value: state.<%= field.fieldName %>.value,
+				<%_ if(fieldOptions.readonly) { %>
+					onChanged: null,
+					<%_ } else {_%>
+					onChanged: (value) {
+						context
+						.read<<%= entityClass %>Bloc>()
+						.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value));
+					},
+					<%_ } _%>
+				activeColor: Theme.of(context).primaryColor,
+			  ),
 			],
-		  ),
-		);
-	  });
+		  );
+	    },
+	);
   }
 }
 <%_ } else if(field.fieldType === 'int' ) {_%>
@@ -379,34 +379,51 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 		return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
 		buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
 		builder: (context, state) {
-		return TextFormField(
-		  controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-		  enabled: <%= !fieldOptions.readonly %>,
-		  onChanged: (value) {
-			context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value));
-		  },
-		  keyboardType: const TextInputType.numberWithOptions(
-			signed: false,
-			decimal: false,
-		  ),
-		  maxLength: 15,
-		  inputFormatters: <TextInputFormatter>[
-			LengthLimitingTextInputFormatter(15),
-		  ],
-		  decoration: InputDecoration(
-			  prefixIcon: const Icon(Icons.numbers_rounded),
-			  labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
-			  <%_ if(!(field.fieldValidateRules != 'required')) { _%>
-			  helperText: MessageValidation.campoRequerido,
-			  <%_ } _%>
-			  hintText: 'Ejemplo: 99',
-			  labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
-		      contentPadding: const EdgeInsets.symmetric(vertical: 10),
-			  errorText: state.<%= field.fieldName %>.displayError != null
-                  ? '${state.<%= field.fieldName %>.error?.invalidMessage()}'
-                  : null,
-			  ),
-		    );
+			return Row(
+				children: [
+				  SizedBox(
+					width: 130,
+					child: Text(
+					  '<%= field.fieldNameCapitalized %>',
+					  style: Theme.of(context).textTheme.headlineMedium,
+					),
+				  ),
+				  Expanded(
+					child: TextFormField(
+						controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+						enabled: <%= !fieldOptions.readonly %>,
+						onChanged: (value) {
+							context
+								.read<<%= entityClass %>Bloc>()
+								.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value));
+						},
+						keyboardType: const TextInputType.numberWithOptions(
+							signed: false,
+							decimal: false,
+						),
+						style: const TextStyle(
+							color: Color(0xff1b070b),
+							fontSize: 16,
+						),
+						maxLength: 15,
+						inputFormatters: <TextInputFormatter>[
+							LengthLimitingTextInputFormatter(15),
+						],
+						decoration: InputDecoration(
+							prefixIcon: const Icon(Icons.numbers_rounded),
+							<%_ if(!(field.fieldValidateRules != 'required')) { _%>
+							helperText: MessageValidation.campoRequerido,
+							<%_ } _%>
+							hintText: 'Ejemplo: 99',
+							errorMaxLines: 2,
+							errorText: state.<%= field.fieldName %>.displayError != null
+							? '${state.<%= field.fieldName %>.error?.invalidMessage()}'
+							: null,
+						),
+					),
+				),
+			],
+			);
 		}
 	);
 }
@@ -421,32 +438,63 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 			return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
 			buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
 			builder: (context, state) {
+				return Row(
+					children: [
+					  SizedBox(
+						width: 130,
+						child: Text(
+						  '<%= field.fieldNameCapitalized %>',
+						  style: Theme.of(context).textTheme.headlineMedium,
+						),
+					  ),
+					  Expanded(
+						child: TextFormField(
+							controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+							enabled: <%= !fieldOptions.readonly %>,
+							onChanged: (value) {
+							  context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value));
+							},
+							keyboardType: const TextInputType.numberWithOptions(
+							  decimal: true,
+							  signed: true,
+							),
+							maxLength: 18,
+							inputFormatters: <TextInputFormatter>[
+							  LengthLimitingTextInputFormatter(18),
+							],
+							style: const TextStyle(
+								color: Color(0xff1b070b),
+								fontSize: 16,
+							),
+							maxLength: 18,
+							inputFormatters: <TextInputFormatter>[
+								LengthLimitingTextInputFormatter(18),
+							],
+							decoration: InputDecoration(
+								prefixIcon: const Icon(Icons.numbers_rounded),
+								<%_ if(!(field.fieldValidateRules != 'required')) { _%>
+								helperText: MessageValidation.campoRequerido,
+								<%_ } _%>
+								hintText: 'Ejemplo: -38.416097',
+								errorMaxLines: 2,
+								errorText: state.<%= field.fieldName %>.displayError != null
+									? '${state.<%= field.fieldName %>.error?.invalidMessage()}'
+									: null,
+							),
+						),
+					  ),
+					],
+				  );
 			return TextFormField(
-			  controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-			  enabled: <%= !fieldOptions.readonly %>,
-			  onChanged: (value) {
-				context.read<<%= entityClass %>Bloc>().add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value));
-			  },
-			  keyboardType: const TextInputType.numberWithOptions(
-				decimal: true,
-				signed: true,
-			  ),
-			  maxLength: 15,
-			  inputFormatters: <TextInputFormatter>[
-				LengthLimitingTextInputFormatter(15),
-			  ],
+
 			  decoration: InputDecoration(
 				  prefixIcon: const Icon(Icons.numbers_rounded),
-				  labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
-				  <%_ if(!(field.fieldValidateRules != 'required')) { _%>
-				  helperText: MessageValidation.campoRequerido,
-				  <%_ } _%>
+				  labelText: ,
+
 				  hintText: 'Ejemplo: 99.99',
 				  labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
 				  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-				  errorText: state.<%= field.fieldName %>.displayError != null
-					  ? '${state.<%= field.fieldName %>.error?.invalidMessage()}'
-					  : null,
+
 				  ),
 			  );
 			}
@@ -463,29 +511,47 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 		return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
 		buildWhen: (previous, current) => previous.<%= field.fieldName %> != current.<%= field.fieldName %>,
 		builder: (context, state) {
-		return TextFormField(
-			controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
-			enabled: <%= !fieldOptions.readonly %>,
-			onChanged: (value) { context.read<<%= entityClass %>Bloc>()
-			.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value)); },
-			keyboardType: TextInputType.text,
-			<%_ if(field.fieldValidateRules == 'maxlength') { _%>
-			maxLength: <%= field.fieldValidateRulesMaxlength %>,
-			<%_ } _%>
-			decoration: InputDecoration(
-				prefixIcon: const Icon(Icons.text_fields_rounded),
-				labelText: <%_ if(enableTranslation) { _%>S.of(context).pageEntities<%= entityClass %><%= field.fieldNameCapitalized %>Field<%_ } else { _%>'<%= field.fieldNameCapitalized %>'<%_ } _%>,
-				labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
-				contentPadding: const EdgeInsets.symmetric(vertical: 10),
-				errorText: state.<%= field.fieldName %>.displayError != null
-					? '${state.<%= field.fieldName %>.error?.invalidMessage()}'
-					: null,
-				),
-			);
-		}
-	);
+			return Row(
+				children: [
+				  SizedBox(
+					width: 130,
+					child: Text(
+					  '<%= field.fieldNameCapitalized %>',
+					  style: Theme.of(context).textTheme.headlineMedium,
+					),
+				  ),
+				  Expanded(
+					child: TextFormField(
+						controller: context.read<<%= entityClass %>Bloc>().<%= field.fieldName %>Controller,
+						enabled: <%= !fieldOptions.readonly %>,
+						onChanged: (value) {
+							context
+								.read<<%= entityClass %>Bloc>()
+								.add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value));
+						},
+						keyboardType: TextInputType.text,
+						style: const TextStyle(
+							color: Color(0xff1b070b),
+							fontSize: 16,
+						),
+						<%_ if(field.fieldValidateRules == 'maxlength') { _%>
+						maxLength: <%= field.fieldValidateRulesMaxlength %>,
+						<%_ } _%>
+						decoration: InputDecoration(
+							prefixIcon: const Icon(Icons.text_fields_rounded),
+							errorMaxLines: 2,
+							errorText: state.<%= field.fieldName %>.displayError != null
+									? '${state.<%= field.fieldName %>.error?.invalidMessage()}'
+									: null,
+						),
+					),
+				  ),
+				],
+			  );
+			}
+		);
 	}
-	}
+}
 <%_ } _%>
 <%_ }); _%>
 
@@ -504,58 +570,55 @@ class <%= relationship.otherEntityNameCapitalized %>Field extends StatelessWidge
 			  if (state.<%= relationship.otherEntityName %>StatusUI == <%= relationship.otherEntityNameCapitalized %>StatusUI.done) {
 				List<<%= relationship.otherEntityNameCapitalized %>> <%= relationship.otherEntityName %>List = state.<%= relationship.otherEntityNamePlural %>;
 
-				return Padding(
-					padding: const EdgeInsets.only(top: 10),
-				  child: Row(
-					mainAxisAlignment: MainAxisAlignment.start,
+				<%= relationship.otherEntityNameCapitalized %> <%= relationship.otherEntityName %> =
+				BlocProvider.of<<%= entityClass %>Bloc>(context)
+										.state
+										.<%= relationship.otherEntityName %>;
+				return Row(
 					children: <Widget>[
-					  SizedBox(
-						width: 250,
-						child: DropdownButtonFormField<<%= relationship.otherEntityNameCapitalized %>>(
-							dropdownColor: Colors.white,
-							icon: Icon(
-							Icons.arrow_drop_down,
-							color: Theme.of(context).primaryColor,
+						SizedBox(
+							width: 130,
+							child: Text(
+								'<%= relationship.otherEntityNameCapitalized %>',
+								style: Theme.of(context).textTheme.headlineMedium,
 							),
-							style: const TextStyle(
-							fontWeight: FontWeight.bold,
-							fontSize: 16,
-							color: Color(0xff49454f),
-							),
-							decoration: const InputDecoration(
-								labelText: 'Seleccione <%= relationship.otherEntityName %>',
-								labelStyle: TextStyle(
-									height: 0.5,
-									fontWeight: FontWeight.bold,
+						),
+						Expanded(
+							child: DropdownButtonFormField<<%= relationship.otherEntityNameCapitalized %>>(
+								dropdownColor: Colors.white,
+								icon: Icon(
+									Icons.arrow_drop_down,
+									color: Theme.of(context).primaryColor,
+								),
+								style: const TextStyle(
+									color: Color(0xff1b070b),
 									fontSize: 16,
 								),
-								floatingLabelStyle: TextStyle(
-									height: 0.5,
-									fontSize: 18,
+								decoration: const InputDecoration(
+									labelText: 'Seleccione <%= relationship.otherEntityName %>',
+									labelStyle: TextStyle(
+										height: 0.5,
+										fontWeight: FontWeight.bold,
+										fontSize: 16,
+									),
+									floatingLabelStyle: TextStyle(
+										height: 0.5,
+										fontSize: 18,
+									),
 								),
+								value: <%= relationship.otherEntityName %>.id != null ? <%= relationship.otherEntityName %> : null,
+								<%_ if(fieldOptions.readonly) { %>
+								onChanged: null,
+								<%_ } else {_%>
+								onChanged: (value) {
+									BlocProvider.of<<%= entityClass %>Bloc>(context)
+										.add(<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed(<%= relationship.otherEntityName %>: value!));
+									},
+								<%_ } _%>
+								items: createDropdown<%= relationship.otherEntityNameCapitalizedPlural %>Items(<%= relationship.otherEntityName %>List),
 							),
-							value: BlocProvider.of<<%= entityClass %>Bloc>(context)
-										.state
-										.<%= relationship.otherEntityName %>
-										.id !=
-									null
-								? BlocProvider.of<<%= entityClass %>Bloc>(context)
-									.state
-									.<%= relationship.otherEntityName %>
-								: null,
-							<%_ if(fieldOptions.readonly) { %>
-							onChanged: null,
-							<%_ } else {_%>
-							onChanged: (value) {
-								BlocProvider.of<<%= entityClass %>Bloc>(context)
-									.add(<%= entityClass %><%= relationship.otherEntityNameCapitalized %>Changed(<%= relationship.otherEntityName %>: value!));
-								},
-							<%_ } _%>
-							items: createDropdown<%= relationship.otherEntityNameCapitalizedPlural %>Items(<%= relationship.otherEntityName %>List),
 						),
-				  	  ),
 					],
-				  ),
 				);
 			  }
 			  if (BlocProvider.of<<%= relationship.otherEntityNameCapitalized %>Bloc>(context).state.<%= relationship.otherEntityName %>StatusUI ==
@@ -570,17 +633,22 @@ class <%= relationship.otherEntityNameCapitalized %>Field extends StatelessWidge
 	}
 	List<DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>> createDropdown<%= relationship.otherEntityNameCapitalizedPlural %>Items(
 		List<<%= relationship.otherEntityNameCapitalized %>> <%= relationship.otherEntityNamePlural %>) {
-	  List<DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>> <%= relationship.otherEntityName %>DropDown = [];
 
-	  for (<%= relationship.otherEntityNameCapitalized %> <%= relationship.otherEntityName %> in <%= relationship.otherEntityNamePlural %>) {
-		DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>> dropdown = DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>(
-		  value: <%= relationship.otherEntityName %>,
-		  child: Text('${<%= relationship.otherEntityName %>.<%=relationship.otherEntityField %>}'),
-		);
-		<%= relationship.otherEntityName %>DropDown.add(dropdown);
-	  }
-	  return <%= relationship.otherEntityName %>DropDown;
+		//Filtro Comercios Habilitados
+		//List<<%= relationship.otherEntityNameCapitalized %>> <%= relationship.otherEntityName %>Habilitados =
+		//	<%= relationship.otherEntityNamePlural %>.where((item) => item.habilitado ?? false).toList();
+
+		List<DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>> <%= relationship.otherEntityName %>DropDown = [];
+
+		for (<%= relationship.otherEntityNameCapitalized %> <%= relationship.otherEntityName %> in <%= relationship.otherEntityNamePlural %>) {
+			DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>> dropdown = DropdownMenuItem<<%= relationship.otherEntityNameCapitalized %>>(
+			value: <%= relationship.otherEntityName %>,
+			child: Text('${<%= relationship.otherEntityName %>.<%=relationship.otherEntityField %>}'),
+			);
+			<%= relationship.otherEntityName %>DropDown.add(dropdown);
+		}
+	  	return <%= relationship.otherEntityName %>DropDown;
 	}
-  }
+}
 <%_ } _%>
 <%_ }); _%>

@@ -4,10 +4,6 @@ enum Environment { dev, prod }
 
 class Constants {
   static Map<String, dynamic>? _config;
-  <%_ if (enableTranslation) { _%>
-  static final Map<String, String> languages = {'en':'English','es':'Español'};
-  static final String langStorageKey = 'locale';
-  <%_ } _%>
 
   static void setEnvironment(Environment env) {
     switch (env) {
@@ -41,13 +37,19 @@ class _Config {
 
   static String timeoutRequest = dotenv.env['TIMEOUT'] ?? '5';
 
+  static String ssl = dotenv.env['SSL'] ?? 'false';
+
   static Map<String, dynamic> devConstants = {
-    api: "http://$ipApi:$puertoApi/api",
+    api: ssl.contains('true')
+        ? "https://$ipApi:$puertoApi/api"
+        : "http://$ipApi:$puertoApi/api",
     timeout: timeoutRequest,
   };
 
   static Map<String, dynamic> prodConstants = {
-    api: "https://$ipApi/api",
+    api: ssl.contains('true')
+        ? "https://$ipApi:$puertoApi/api"
+        : "http://$ipApi:$puertoApi/api",
     timeout: timeoutRequest,
   };
 }

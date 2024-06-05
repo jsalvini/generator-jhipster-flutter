@@ -1,0 +1,43 @@
+import 'package:flutter/material.dart';
+
+class CustomLayout extends StatelessWidget {
+  const CustomLayout({
+    super.key,
+    this.title,
+    required this.widgets,
+  });
+
+  final Widget? title;
+  final List<Widget> widgets;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          flex: 4,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (title != null)
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(left: 20, top: 20, bottom: 10),
+                      child: title,
+                    ),
+                  const SizedBox(height: 10),
+                  ...widgets,
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

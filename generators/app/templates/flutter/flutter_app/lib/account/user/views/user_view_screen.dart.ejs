@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:<%= baseName %>/shared/widgets/widgets.dart';
 import 'package:<%= baseName %>/account/user/bloc/user_bloc.dart';
-import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
 import 'package:<%= baseName %>/account/authority/bloc/authority_bloc.dart';
+import 'package:<%= baseName %>/core/constants/constants.dart';
 import '../user_routes.dart';
 
 class UserViewScreen extends StatelessWidget {
@@ -15,31 +16,40 @@ class UserViewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('Usuario'),
+      appBar: CustomAppBar(
+        title: AppData.name,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(15.0),
-        child: BlocBuilder<UserBloc, UserState>(
-            buildWhen: (previous, current) =>
-                previous.loadedUser != current.loadedUser,
-            builder: (context, state) {
-              return Visibility(
-                visible: state.userStatusUI == UserStatusUI.done,
-                replacement: const LoadingIndicator(),
-                child: Column(
-                  children: <Widget>[
-                    Card(
-                      elevation: 5,
-                      margin: const EdgeInsets.all(20),
-                      shadowColor: Theme.of(context).colorScheme.primary,
-                      child: const FormUser(),
-                    ),
-                  ],
-                ),
-              );
-            }),
+      body: CustomLayout(
+        title: Text(
+          'Detalle usuario',
+          style: Theme.of(context).textTheme.displayMedium,
+        ),
+        widgets: [
+          SingleChildScrollView(
+            child: BlocBuilder<UserBloc, UserState>(
+              buildWhen: (previous, current) =>
+                  previous.loadedUser != current.loadedUser,
+              builder: (context, state) {
+                return Visibility(
+                  visible: state.userStatusUI == UserStatusUI.done,
+                  replacement: const LoadingIndicator(
+                    message: 'CARGANDO',
+                  ),
+                  child: Column(
+                    children: <Widget>[
+                      Card(
+                        elevation: 5,
+                        surfaceTintColor: Theme.of(context).colorScheme.primary,
+                        shadowColor: Theme.of(context).colorScheme.primary,
+                        child: const FormUser(),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -50,25 +60,36 @@ class FormUser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(top: 30, bottom: 30),
+    return Padding(
+      padding: const EdgeInsets.all(20),
       child: Center(
-        child: SizedBox(
-          width: 600,
-          child: Form(
-            child: Wrap(
-              runSpacing: 15,
+        child: Container(
+          constraints: const BoxConstraints(
+            maxWidth: 600,
+          ),
+          child: const Form(
+            child: Column(
               children: <Widget>[
                 LoginField(),
+                SizedBox(height: 20),
                 FirstNameField(),
+                SizedBox(height: 20),
                 LastNameField(),
+                SizedBox(height: 20),
                 EmailField(),
+                SizedBox(height: 20),
                 ActivatedField(),
+                SizedBox(height: 20),
                 CreatedByField(),
+                SizedBox(height: 20),
                 CreatedDateField(),
+                SizedBox(height: 20),
                 LastModifiedByField(),
+                SizedBox(height: 20),
                 LastModifiedDateField(),
+                SizedBox(height: 20),
                 AutorityField(),
+                SizedBox(height: 20),
                 EditButton(),
               ],
             ),
@@ -97,15 +118,18 @@ class EditButton extends StatelessWidget {
                 onPressed: () => context
                     .push('${UserRoutes.editPath}${state.loadedUser.login}'),
                 style: ButtonStyle(
-                    backgroundColor: MaterialStatePropertyAll(
-                        Theme.of(context).primaryColor)),
+                    backgroundColor:
+                        WidgetStatePropertyAll(Theme.of(context).primaryColor)),
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width * 0.2,
                   height: 50,
                   child: const Center(
                     child: Text(
                       'Editar',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18.0,
+                      ),
                     ),
                   ),
                 ),
@@ -124,29 +148,35 @@ class LoginField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) => previous.login != current.login,
-        builder: (context, state) {
-          return TextFormField(
-            controller: context.read<UserBloc>().loginController,
-            enabled: false,
-            keyboardType: TextInputType.text,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.text_fields_rounded),
-              labelText: 'Usuario',
-              labelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+      buildWhen: (previous, current) => previous.login != current.login,
+      builder: (context, state) {
+        return Row(
+          children: [
+            SizedBox(
+              width: 130,
+              child: Text(
+                'Usuario',
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
-              floatingLabelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-              contentPadding: EdgeInsets.symmetric(vertical: 10),
             ),
-          );
-        });
+            Expanded(
+              child: TextFormField(
+                controller: context.read<UserBloc>().loginController,
+                readOnly: true,
+                keyboardType: TextInputType.text,
+                style: const TextStyle(
+                  color: Color(0xff1b070b),
+                  fontSize: 16,
+                ),
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.text_fields_rounded),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -156,30 +186,35 @@ class FirstNameField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) =>
-            previous.firstName != current.firstName,
-        builder: (context, state) {
-          return TextFormField(
-            controller: context.read<UserBloc>().firstNameController,
-            enabled: false,
-            keyboardType: TextInputType.text,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.text_fields_rounded),
-              labelText: 'Nombre',
-              labelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+      buildWhen: (previous, current) => previous.firstName != current.firstName,
+      builder: (context, state) {
+        return Row(
+          children: [
+            SizedBox(
+              width: 130,
+              child: Text(
+                'Nombre',
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
-              floatingLabelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-              contentPadding: EdgeInsets.symmetric(vertical: 10),
             ),
-          );
-        });
+            Expanded(
+              child: TextFormField(
+                controller: context.read<UserBloc>().firstNameController,
+                readOnly: true,
+                keyboardType: TextInputType.text,
+                style: const TextStyle(
+                  color: Color(0xff1b070b),
+                  fontSize: 16,
+                ),
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.text_fields_rounded),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -189,29 +224,33 @@ class LastNameField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) => previous.lastName != current.lastName,
-        builder: (context, state) {
-          return TextFormField(
-            controller: context.read<UserBloc>().lastNameController,
-            enabled: false,
-            keyboardType: TextInputType.text,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.text_fields_rounded),
-              labelText: 'Apellido',
-              labelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              floatingLabelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-              contentPadding: EdgeInsets.symmetric(vertical: 10),
+      buildWhen: (previous, current) => previous.lastName != current.lastName,
+      builder: (context, state) {
+        return Row(
+          children: [
+            SizedBox(
+              width: 130,
+              child: Text('Apellido',
+                  style: Theme.of(context).textTheme.headlineMedium),
             ),
-          );
-        });
+            Expanded(
+              child: TextFormField(
+                controller: context.read<UserBloc>().lastNameController,
+                readOnly: true,
+                keyboardType: TextInputType.text,
+                style: const TextStyle(
+                  color: Color(0xff1b070b),
+                  fontSize: 16,
+                ),
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.text_fields_rounded),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -221,29 +260,33 @@ class EmailField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) => previous.email != current.email,
-        builder: (context, state) {
-          return TextFormField(
-            controller: context.read<UserBloc>().emailController,
-            enabled: false,
-            keyboardType: TextInputType.text,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.text_fields_rounded),
-              labelText: 'Email',
-              labelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              floatingLabelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-              contentPadding: EdgeInsets.symmetric(vertical: 10),
+      buildWhen: (previous, current) => previous.email != current.email,
+      builder: (context, state) {
+        return Row(
+          children: [
+            SizedBox(
+              width: 130,
+              child: Text('Email',
+                  style: Theme.of(context).textTheme.headlineMedium),
             ),
-          );
-        });
+            Expanded(
+              child: TextFormField(
+                controller: context.read<UserBloc>().emailController,
+                readOnly: true,
+                keyboardType: TextInputType.text,
+                style: const TextStyle(
+                  color: Color(0xff1b070b),
+                  fontSize: 16,
+                ),
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.text_fields_rounded),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -253,32 +296,27 @@ class ActivatedField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) =>
-            previous.activated != current.activated,
-        builder: (context, state) {
-          return Padding(
-            padding: const EdgeInsets.only(left: 3.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  'Activado',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Switch(
-                  value: state.activated.value,
-                  onChanged: null,
-                  activeColor: Theme.of(context).primaryColor,
-                ),
-              ],
+      buildWhen: (previous, current) => previous.activated != current.activated,
+      builder: (context, state) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(
+              width: 130,
+              child: Text(
+                'Activado',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
             ),
-          );
-        });
+            Switch(
+              value: state.activated.value,
+              onChanged: null,
+              activeColor: Theme.of(context).primaryColor,
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -292,8 +330,12 @@ class LangKeyField extends StatelessWidget {
         builder: (context, state) {
           return TextFormField(
             controller: context.read<UserBloc>().langKeyController,
-            enabled: false,
+            readOnly: true,
             keyboardType: TextInputType.text,
+            style: const TextStyle(
+              color: Color(0xff1b070b),
+              fontSize: 16,
+            ),
             decoration: const InputDecoration(
               prefixIcon: Icon(Icons.text_fields_rounded),
               labelText: 'Idioma',
@@ -320,31 +362,34 @@ class CreatedByField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) =>
-            previous.createdBy != current.createdBy,
-        builder: (context, state) {
-          return TextFormField(
-            controller: context.read<UserBloc>().createdByController,
-            enabled: false,
-            keyboardType: TextInputType.text,
-            maxLength: 50,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.text_fields_rounded),
-              labelText: 'Creado por',
-              labelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              floatingLabelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-              contentPadding: EdgeInsets.symmetric(vertical: 10),
+      buildWhen: (previous, current) => previous.createdBy != current.createdBy,
+      builder: (context, state) {
+        return Row(
+          children: [
+            SizedBox(
+              width: 130,
+              child: Text('Creado por',
+                  style: Theme.of(context).textTheme.headlineMedium),
             ),
-          );
-        });
+            Expanded(
+              child: TextFormField(
+                controller: context.read<UserBloc>().createdByController,
+                readOnly: true,
+                keyboardType: TextInputType.text,
+                style: const TextStyle(
+                  color: Color(0xff1b070b),
+                  fontSize: 16,
+                ),
+                maxLength: 50,
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.text_fields_rounded),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -354,38 +399,44 @@ class CreatedDateField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) =>
-            previous.createdDate != current.createdDate,
-        builder: (context, state) {
-          return DateTimeField(
-            controller: context.read<UserBloc>().createdDateController,
-            enabled: false,
-            format: DateFormat("yyyy-MM-dd"),
-            keyboardType: TextInputType.datetime,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.date_range_rounded),
-              labelText: 'Fecha de creación',
-              labelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              floatingLabelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+      buildWhen: (previous, current) =>
+          previous.createdDate != current.createdDate,
+      builder: (context, state) {
+        return Row(
+          children: [
+            SizedBox(
+              width: 130,
+              child: Text('Creado',
+                  style: Theme.of(context).textTheme.headlineMedium),
+            ),
+            Expanded(
+              child: FormBuilderDateTimePicker(
+                name: 'createdDate',
+                enabled: false,
+                controller: context.read<UserBloc>().createdDateController,
+                initialEntryMode: DatePickerEntryMode.calendar,
+                initialValue: state.loadedUser.createdDate != null
+                    ? state.loadedUser.createdDate!.isNotEmpty
+                        ? DateTime.parse(state.loadedUser.createdDate!)
+                        : null
+                    : null,
+                format: DateFormat('yyyy-MM-dd HH:mm:ss'),
+                inputType: InputType.both,
+                style: const TextStyle(
+                  color: Color(0xff1b070b),
+                  fontSize: 16,
+                ),
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.date_range_rounded),
+                ),
+                initialTime: const TimeOfDay(hour: 8, minute: 0),
+                keyboardType: TextInputType.datetime,
               ),
             ),
-            onShowPicker: (context, currentValue) async {
-              return await showDatePicker(
-                  locale: const Locale('en'),
-                  context: context,
-                  firstDate: DateTime(1950),
-                  initialDate: currentValue ?? DateTime.now(),
-                  lastDate: DateTime(2100));
-            },
-          );
-        });
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -395,31 +446,35 @@ class LastModifiedByField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) =>
-            previous.lastModifiedBy != current.lastModifiedBy,
-        builder: (context, state) {
-          return TextFormField(
-            controller: context.read<UserBloc>().lastModifiedByController,
-            enabled: false,
-            keyboardType: TextInputType.text,
-            maxLength: 50,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.text_fields_rounded),
-              labelText: 'Modificado por',
-              labelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              floatingLabelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-              contentPadding: EdgeInsets.symmetric(vertical: 10),
+      buildWhen: (previous, current) =>
+          previous.lastModifiedBy != current.lastModifiedBy,
+      builder: (context, state) {
+        return Row(
+          children: [
+            SizedBox(
+              width: 130,
+              child: Text('Modificado por',
+                  style: Theme.of(context).textTheme.headlineMedium),
             ),
-          );
-        });
+            Expanded(
+              child: TextFormField(
+                controller: context.read<UserBloc>().lastModifiedByController,
+                readOnly: true,
+                keyboardType: TextInputType.text,
+                style: const TextStyle(
+                  color: Color(0xff1b070b),
+                  fontSize: 16,
+                ),
+                maxLength: 50,
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.text_fields_rounded),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -429,38 +484,38 @@ class LastModifiedDateField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) =>
-            previous.lastModifiedDate != current.lastModifiedDate,
-        builder: (context, state) {
-          return DateTimeField(
-            controller: context.read<UserBloc>().lastModifiedDateController,
-            enabled: false,
-            format: DateFormat("yyyy-MM-dd"),
-            keyboardType: TextInputType.datetime,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.date_range_rounded),
-              labelText: 'Fecha de modificación',
-              labelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              floatingLabelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+      buildWhen: (previous, current) =>
+          previous.lastModifiedDate != current.lastModifiedDate,
+      builder: (context, state) {
+        return Row(
+          children: [
+            SizedBox(
+              width: 130,
+              child: Text(
+                'Modificado',
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
             ),
-            onShowPicker: (context, currentValue) async {
-              return await showDatePicker(
-                  locale: const Locale('en'),
-                  context: context,
-                  firstDate: DateTime(1950),
-                  initialDate: currentValue ?? DateTime.now(),
-                  lastDate: DateTime(2100));
-            },
-          );
-        });
+            Expanded(
+              child: FormBuilderDateTimePicker(
+                name: 'lastModified',
+                controller: context.read<UserBloc>().lastModifiedDateController,
+                enabled: false,
+                format: DateFormat("yyyy-MM-dd HH:mm:ss"),
+                keyboardType: TextInputType.datetime,
+                style: const TextStyle(
+                  color: Color(0xff1b070b),
+                  fontSize: 16,
+                ),
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.date_range_rounded),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -471,31 +526,27 @@ class AutorityField extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
       buildWhen: (previous, current) =>
-          previous.authorities != current.authorities,
+        previous.loadedUser.authorities != current.loadedUser.authorities,
       builder: (context, state) {
         return BlocBuilder<AuthorityBloc, AuthorityState>(
           builder: (context, authorityState) {
             if (authorityState.authorityStatusUI == AuthorityStatusUI.done) {
               return Column(
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 10, bottom: 20),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20, bottom: 20),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
                           'Perfiles',
-                          style: TextStyle(
-                            height: 0.5,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                          style: Theme.of(context).textTheme.headlineMedium,
                         ),
                       ],
                     ),
                   ),
                   MultiSelectChipDisplay(
-                    items: state.authorities
+                    items: state.loadedUser.authorities
                         .map((e) => MultiSelectItem(e, e))
                         .toList(),
                     onTap: (value) {},
@@ -504,7 +555,9 @@ class AutorityField extends StatelessWidget {
               );
             }
             if (authorityState.authorityStatusUI == AuthorityStatusUI.loading) {
-              return const LoadingIndicator();
+              return const LoadingIndicator(
+                message: 'Cargando perfiles',
+              );
             }
             return const Center(child: CircularProgressIndicator());
           },

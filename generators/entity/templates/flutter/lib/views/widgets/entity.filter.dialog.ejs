@@ -1,0 +1,348 @@
+<%_
+const pkType = context.pkType;
+const fields = context.fields;
+const relationships = context.relationships;
+const entityClass = context.entityClass;
+const entityInstance = context.entityInstance;
+const baseName = context.baseName;
+const idField = context.idField;
+const entityFileName = context.entityFileName;
+_%>
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
+import 'package:<%= baseName %>/shared/utils/utils.dart';
+import 'package:<%= baseName %>/shared/widgets/widgets.dart';
+
+class <%= entityClass %>FilterDialog extends StatefulWidget {
+  const <%= entityClass %>FilterDialog({
+    super.key,
+    required this.columnName,
+    required this.filter,
+    required this.type,
+    required this.blocContext,
+    required this.dialogContext,
+  });
+
+  final String columnName;
+  final Map<String, String> filter;
+  final String type;
+  final BuildContext blocContext;
+  final BuildContext dialogContext;
+
+  @override
+  State<<%= entityClass %>FilterDialog> createState() => _<%= entityClass %>FilterDialogState();
+}
+
+class _<%= entityClass %>FilterDialogState extends State<<%= entityClass %>FilterDialog> {
+  late TextEditingController filterController;
+  final formKey = GlobalKey<FormBuilderState>();
+  final List<Widget> fields = [];
+  String labelError = '';
+
+  @override
+  void initState() {
+    filterController = TextEditingController(text: '');
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    filterController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    <%= entityClass %>Bloc <%= entityFileName %>Bloc = widget.blocContext.read<<%= entityClass %>Bloc>();
+
+    switch (widget.type) {
+      case 'string':
+      case 'numeric':
+        fields.addAll(
+          [
+            FormBuilderTextField(
+              name: 'filter',
+              controller: filterController,
+              onChanged: (String? value) {
+                if (value != null) {
+                  <%= entityFileName %>Bloc.add(<%= entityClass %>FilterValueChanged(
+                    filterValue: value,
+                  ));
+                }
+              },
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(
+                    errorText: '* El valor es requerido.'),
+              ]),
+              maxLength: 30,
+              decoration: const InputDecoration(
+                labelText: 'Ingrese un valor',
+                floatingLabelStyle: TextStyle(
+                  height: 0.5,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            // DROPDOWN PARA FILTROS STRING
+            FilterTable(
+              filter: widget.filter,
+              onChanged: (String? newCondicion) {
+                if (newCondicion != null) {
+                  String? condicion = widget.filter[newCondicion];
+                  if (condicion != null) {
+                    <%= entityFileName %>Bloc.add(<%= entityClass %>FilterCondicionChanged(
+                      filterCondicion: condicion,
+                    ));
+                  }
+                }
+              },
+              validator: FormBuilderValidators.compose(
+                [
+                  FormBuilderValidators.required(
+                      errorText: '* Debe seleccionar un valor.'),
+                ],
+              ),
+            ),
+          ],
+        );
+        break;
+      case 'bool':
+        fields.addAll(
+          [
+            FilterTable(
+              filter: FilterMaps.filterBoolean,
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  String? value = FilterMaps.filterBoolean[newValue];
+
+                  if (value != null) {
+                    <%= entityFileName %>Bloc.add(<%= entityClass %>FilterValueChanged(
+                      filterValue: value,
+                    ));
+                  }
+                }
+              },
+              validator: FormBuilderValidators.compose(
+                [
+                  FormBuilderValidators.required(
+                      errorText: '* Debe seleccionar un valor.'),
+                ],
+              ),
+            ),
+            // DROPDOWN PARA FILTROS BOOLEAN
+            FilterTable(
+              filter: FilterMaps.filterTable,
+              onChanged: (String? newCondicion) {
+                if (newCondicion != null) {
+                  String? condicion = widget.filter[newCondicion];
+                  if (condicion != null) {
+                    <%= entityFileName %>Bloc.add(<%= entityClass %>FilterCondicionChanged(
+                      filterCondicion: condicion,
+                    ));
+                  }
+                }
+              },
+              validator: FormBuilderValidators.compose(
+                [
+                  FormBuilderValidators.required(
+                      errorText: '* Debe seleccionar un valor.'),
+                ],
+              ),
+            ),
+          ],
+        );
+        break;
+      case 'date':
+        fields.addAll(
+          [
+            // INPUT PARA FECHAS
+            FormBuilderDateTimePicker(
+              name: 'date',
+              initialEntryMode: DatePickerEntryMode.calendar,
+              initialValue: DateTime.now(),
+              format: DateFormat('yyyy-MM-dd HH:mm'),
+              inputType: InputType.both,
+              decoration: const InputDecoration(
+                labelText: 'Fecha',
+              ),
+              initialTime: const TimeOfDay(hour: 8, minute: 0),
+              onChanged: (DateTime? newValue) {
+                if (newValue != null) {
+                  DateFormat formato = DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'");
+                  String value = formato.format(newValue);
+
+                  <%= entityFileName %>Bloc.add(<%= entityClass %>FilterValueChanged(
+                    filterValue: value,
+                  ));
+                }
+              },
+              validator: FormBuilderValidators.compose(
+                [
+                  FormBuilderValidators.required(
+                      errorText: '* Debe seleccionar un valor.'),
+                ],
+              ),
+            ),
+            // DROPDOWN PARA FILTROS NUMERIC/DATE
+            FilterTable(
+              filter: widget.filter,
+              onChanged: (String? newCondicion) {
+                if (newCondicion != null) {
+                  String? condicion = widget.filter[newCondicion];
+                  //print('condicion: $condicion');
+                  if (condicion != null) {
+                    <%= entityFileName %>Bloc.add(<%= entityClass %>FilterCondicionChanged(
+                      filterCondicion: condicion,
+                    ));
+                  }
+                }
+              },
+              validator: FormBuilderValidators.compose(
+                [
+                  FormBuilderValidators.required(
+                      errorText: '* Debe seleccionar un valor.'),
+                ],
+              ),
+            ),
+          ],
+        );
+        break;
+      default:
+        fields.addAll(
+          [
+            FormBuilderTextField(
+              name: 'filter',
+              onChanged: (String? value) {
+                if (value != null) {
+                  <%= entityFileName %>Bloc.add(<%= entityClass %>FilterValueChanged(
+                    filterValue: value,
+                  ));
+                }
+              },
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(
+                    errorText: '* El valor es requerido.'),
+              ]),
+              maxLength: 30,
+              controller: filterController,
+              decoration: const InputDecoration(
+                labelText: 'Ingrese un valor',
+                floatingLabelStyle: TextStyle(
+                  height: 0.5,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            // DROPDOWN PARA FILTROS STRING
+            FilterTable(
+              filter: widget.filter,
+              onChanged: (String? newCondicion) {
+                if (newCondicion != null) {
+                  String? condicion = widget.filter[newCondicion];
+                  if (condicion != null) {
+                    <%= entityFileName %>Bloc.add(<%= entityClass %>FilterCondicionChanged(
+                      filterCondicion: condicion,
+                    ));
+                  }
+                }
+              },
+              validator: FormBuilderValidators.compose(
+                [
+                  FormBuilderValidators.required(
+                      errorText: '* Debe seleccionar un valor.'),
+                ],
+              ),
+            ),
+          ],
+        );
+    }
+
+    return BlocProvider<<%= entityClass %>Bloc>.value(
+      value: <%= entityFileName %>Bloc,
+      child: AlertDialog(
+        actionsPadding:
+            const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+        insetPadding: const EdgeInsets.all(10),
+        title: Text('Filtar por ${widget.columnName}'),
+        content: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.20,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FormBuilder(
+                  key: formKey,
+                  clearValueOnUnregister: true,
+                  child: Column(
+                    children: [
+                      ...fields,
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          FilledButton(
+            child: const Text('Aplicar'),
+            onPressed: () {
+              if (formKey.currentState?.saveAndValidate() ?? false) {
+                String columnNameSort = <%= entityFileName %>Bloc.state.columnName;
+                var order = <%= entityFileName %>Bloc.state.sortAscending ? 'asc' : 'desc';
+                int pageQuery = <%= entityFileName %>Bloc.state.currentPage - 1;
+
+                Map<String, String> newFilter =
+                    Map<String, String>.from(<%= entityFileName %>Bloc.state.filters);
+
+                if (<%= entityFileName %>Bloc.state.filterCondicion.contains('specified')) {
+                  newFilter[widget.columnName] = <%= entityFileName %>Bloc.state.filterCondicion;
+                } else {
+                  newFilter[widget.columnName] =
+                      '${<%= entityFileName %>Bloc.state.filterCondicion}=${<%= entityFileName %>Bloc.state.filterValue}';
+                }
+
+                <%= entityFileName %>Bloc.add(<%= entityClass %>FilterChanged(
+                  filters: newFilter,
+                ));
+
+                <%= entityFileName %>Bloc.add(<%= entityClass %>Filter(
+                  page: pageQuery,
+                  sort: columnNameSort,
+                  ascending: order,
+                ));
+
+                <%= entityFileName %>Bloc.add(const <%= entityClass %>FilterCondicionChanged(
+                  filterCondicion: '',
+                ));
+
+                <%= entityFileName %>Bloc.add(const <%= entityClass %>FilterValueChanged(
+                  filterValue: '',
+                ));
+
+                context.pop();
+              }
+            },
+          ),
+          FilledButton(
+            child: const Text('Cancelar'),
+            onPressed: () {
+              Map<String, String> newFilter =
+                  Map<String, String>.from(<%= entityFileName %>Bloc.state.filters);
+              newFilter.remove(widget.columnName);
+              <%= entityFileName %>Bloc.add(const <%= entityClass %>FilterCondicionChanged(
+                filterCondicion: '',
+              ));
+              context.pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}

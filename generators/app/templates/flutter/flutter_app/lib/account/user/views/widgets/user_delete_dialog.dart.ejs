@@ -20,7 +20,7 @@ class UserDeleteDialog extends StatelessWidget {
     return BlocProvider<UserBloc>.value(
       value: userBloc,
       child: AlertDialog(
-        title: const Text('Eliminar User'),
+        title: const Text('Eliminar usuario'),
         content: Text('Seguro que quiere eliminar el usuario $login?'),
         actions: <Widget>[
           TextButton(

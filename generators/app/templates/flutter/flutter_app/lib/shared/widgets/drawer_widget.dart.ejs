@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:<%= baseName %>/core/core.dart';
-import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/account/authentication/authentication.dart';
 import 'package:<%= baseName %>/account/user/user_routes.dart';
 import 'package:<%= baseName %>/core/router/routes.dart';
@@ -10,8 +9,8 @@ import 'package:<%= baseName %>/home/bloc/home_bloc.dart';
 import 'package:<%= baseName %>/shared/repository/account_repository.dart';
 // jhipster-merlin-needle-import-add
 
-class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
-  const <%= camelizedUpperFirstBaseName %>Drawer({super.key});
+class GatewaympDrawer extends StatelessWidget {
+  const GatewaympDrawer({super.key});
 
   static const double iconSize = 30;
 
@@ -47,8 +46,7 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                       child: const CircleAvatar(
                         radius: 70,
                         backgroundColor: Colors.white,
-                        backgroundImage:
-                            AssetImage('assets/images/user.png'),
+                        backgroundImage: AssetImage('assets/images/user.png'),
                       ),
                     ),
                   ),
@@ -96,12 +94,13 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                         ),
                         applicationIcon: Icon(
                           Icons.local_play,
-                          color: context.read<ThemeBloc>().state == ThemeMode.dark
-                            ? Colors.white
-                            : Colors.black,
+                          color:
+                              context.read<ThemeBloc>().state == ThemeMode.dark
+                                  ? Colors.white
+                                  : Colors.black,
                         ),
-                        applicationName: 'Template App',
-                        applicationVersion: 'Versión 20240209',
+                        applicationName: 'ManagerMP',
+                        applicationVersion: 'Versión 20240405',
                         applicationLegalese: 'Tipre 2024 ©',
                         child: const Text('Información'),
                       ),
@@ -109,16 +108,19 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                       Theme(
                         data: theme,
                         child: ExpansionTile(
+                          initiallyExpanded: true,
                           leading: const Icon(
                             Icons.list_alt_rounded,
                             size: iconSize,
                           ),
-                          textColor: context.read<ThemeBloc>().state == ThemeMode.dark
-                            ? Theme.of(context).colorScheme.primaryContainer
-                            : Theme.of(context).colorScheme.primary,
-                          iconColor: context.read<ThemeBloc>().state == ThemeMode.dark
-                            ? Theme.of(context).colorScheme.primaryContainer
-                            : Theme.of(context).colorScheme.primary,
+                          textColor: context.read<ThemeBloc>().state ==
+                                  ThemeMode.dark
+                              ? Theme.of(context).colorScheme.primaryContainer
+                              : Theme.of(context).colorScheme.primary,
+                          iconColor: context.read<ThemeBloc>().state ==
+                                  ThemeMode.dark
+                              ? Theme.of(context).colorScheme.primaryContainer
+                              : Theme.of(context).colorScheme.primary,
                           title: const Text(
                             'Entidades',
                             style: TextStyle(fontWeight: FontWeight.bold),
@@ -138,16 +140,14 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                     children: [
                       ElevatedButton(
                         key: const Key('cerrarSesion_elevatedButton'),
-                        onPressed: () =>
-                          context
-                              .read<AuthenticationBloc>()
-                              .add(AuthenticationLogoutRequested())
-                        ,
+                        onPressed: () => context
+                            .read<AuthenticationBloc>()
+                            .add(AuthenticationLogoutRequested()),
                         style: ButtonStyle(
-                          backgroundColor: MaterialStatePropertyAll(
+                          backgroundColor: WidgetStatePropertyAll(
                             context.read<ThemeBloc>().state == ThemeMode.dark
-                              ? Theme.of(context).colorScheme.primaryContainer
-                              : Theme.of(context).colorScheme.primary,
+                                ? Theme.of(context).colorScheme.primaryContainer
+                                : Theme.of(context).colorScheme.primary,
                           ),
                         ),
                         child: const SizedBox(
@@ -156,7 +156,8 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                           child: Center(
                             child: Text(
                               'Cerrar sesión',
-                              style: TextStyle(color: Colors.white, fontSize: 18),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
                             ),
                           ),
                         ),
@@ -164,29 +165,30 @@ class <%= camelizedUpperFirstBaseName %>Drawer extends StatelessWidget {
                     ],
                   ),
                 ),
-                Expanded(
+                /*Expanded(
                   flex: 1,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('Theme Light'),
+                        const Text('Tema claro'),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: Switch(
-                              value: context.read<ThemeBloc>().state == ThemeMode.dark,
+                              value: context.read<ThemeBloc>().state ==
+                                  ThemeMode.dark,
                               onChanged: (value) {
                                 context
                                     .read<ThemeBloc>()
                                     .add(ThemeChanged(isDark: value));
                               }),
                         ),
-                        const Text('Theme Dark'),
+                        const Text('Tema oscuro'),
                       ],
                     ),
                   ),
-                ),
+                ),*/
               ],
             ),
           );

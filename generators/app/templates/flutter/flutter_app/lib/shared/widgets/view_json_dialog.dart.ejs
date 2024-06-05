@@ -1,0 +1,36 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_json_view/flutter_json_view.dart';
+import 'package:go_router/go_router.dart';
+
+class ViewJsonDialog extends StatelessWidget {
+  const ViewJsonDialog({
+    super.key,
+    required this.context,
+    required this.title,
+    required this.jsonData,
+  });
+
+  final BuildContext context;
+  final String title;
+  final String jsonData;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(title),
+      content: JsonView.string(
+        jsonData,
+        theme: const JsonViewTheme(
+          viewType: JsonViewType.collapsible,
+          backgroundColor: Color(0xFF1E1F28),
+        ),
+      ),
+      actions: <Widget>[
+        FilledButton(
+          child: const Text('Cerrar'),
+          onPressed: () => context.pop(),
+        ),
+      ],
+    );
+  }
+}

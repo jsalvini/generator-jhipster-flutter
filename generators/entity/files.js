@@ -52,6 +52,10 @@ const flutterFiles = {
                     renameTo: (generator) => `${generator.context.entityFolderName}/views/widgets/${generator.context.entityFileName}_delete_dialog.dart`,
                 },
                 {
+                    file: 'views/widgets/entity.filter.dialog',
+                    renameTo: (generator) => `${generator.context.entityFolderName}/views/widgets/${generator.context.entityFileName}_filter_dialog.dart`,
+                },
+                {
                     file: 'entity.repository',
                     renameTo: (generator) => `${generator.context.entityFolderName}/${generator.context.entityFileName}_repository.dart`,
                 },

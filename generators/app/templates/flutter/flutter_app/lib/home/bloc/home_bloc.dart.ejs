@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:<%= baseName %>/account/user/models/user_model.dart';
+import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/shared/repository/account_repository.dart';
 
 part 'home_event.dart';
@@ -20,11 +21,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Init event,
     Emitter<HomeState> emit,
   ) async {
-    User? currentUser = await _accountRepository.getAccount();
+    final result = await _accountRepository.getAccount();
 
-    emit(state.copyWith(
-      currentUser: currentUser,
-    ));
+    result.fold(
+      (Failure failure) {},
+      (User? data) {
+        User? currentUser = data;
+        emit(
+          state.copyWith(
+            currentUser: currentUser,
+          ),
+        );
+      },
+    );
   }
 }
 

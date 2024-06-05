@@ -15,11 +15,10 @@ import 'package:http/http.dart';
 import 'package:<%= baseName %>/core/exceptions/exception.dart';
 import 'package:<%= baseName %>/core/exceptions/failure.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_models.dart';
-import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_response.dart';
 import 'package:<%= baseName %>/shared/exceptions/app_exception.dart';
 import 'package:<%= baseName %>/shared/models/error_response.dart';
 import 'package:<%= baseName %>/shared/utils/http_utils.dart';
-import 'package:dart_json_mapper/dart_json_mapper.dart';
+import 'package:gatewaymp/shared/utils/http_utils.dart';
 
 class <%= entityClass %>Repository {
     <%= entityClass %>Repository();
@@ -36,22 +35,30 @@ class <%= entityClass %>Repository {
       final Response response = await HttpUtils.getRequest(newUriEndpoint);
 
       if (response.statusCode >= 300 && response.statusCode < 600) {
-        ErrorResponse? errorResponse =
-            JsonMapper.deserialize<ErrorResponse>(utf8.decode(response.bodyBytes));
-        if (errorResponse != null) {
-          return Left(
-            ServerFailure(errorMessage: errorResponse.detail!),
-          );
-        }
+        ErrorResponse errorResponse = ErrorResponse.fromJson(
+            decoder.convert(utf8.decode(response.bodyBytes)));
+        return Left(
+          ServerFailure(errorMessage: errorResponse.detail),
+        );
       }
 
-      int count = int.parse(response.headers['x-total-count']!);
-      String link = response.headers['link'] as String;
-      List<<%= entityClass %>>? <%= entityClassPluralLowered %> =
-          JsonMapper.deserialize<List<<%= entityClass %>>>(utf8.decode(response.bodyBytes));
+      int count = int.parse(response.headers['x-total-count'] ?? '0');
+      String link = response.headers['link'] ?? newUriEndpoint;
 
-          <%= entityClass %>Response <%= entityInstance %>Response = <%= entityClass %>Response(
-            <%= entityClassPluralLowered %>: <%= entityClassPluralLowered %>!, totalCount: count, link: link);
+      List<<%= entityClass %>>? <%= entityClassPluralLowered %> = [];
+
+      final decodeResponse = decoder.convert(utf8.decode(response.bodyBytes));
+
+      for (var <%= entityInstance %> in decodeResponse) {
+        final new<%= entityClass %> = <%= entityClass %>.fromJson(<%= entityInstance %>);
+        <%= entityClassPluralLowered %>.add(newPos);
+      }
+
+      <%= entityClass %>Response <%= entityInstance %>Response = <%= entityClass %>Response(
+        <%= entityClassPluralLowered %>: <%= entityClassPluralLowered %>,
+        totalCount: count,
+        link: link,
+      );
 
       return Right(<%= entityInstance %>Response);
     } on ServerException catch (e) {
@@ -68,16 +75,16 @@ class <%= entityClass %>Repository {
   Future<Either<Failure, <%= entityClass %>?>> get<%= entityClass %>(int? id) async {
     try {
       final Response response = await HttpUtils.getRequest('$uriEndpoint/$id');
+      const JsonDecoder decoder = JsonDecoder();
+
       if (response.statusCode >= 300 && response.statusCode < 600) {
-        ErrorResponse? errorResponse =
-            JsonMapper.deserialize<ErrorResponse>(utf8.decode(response.bodyBytes));
-        if (errorResponse != null) {
-          return Left(
-            ServerFailure(errorMessage: errorResponse.detail!),
-          );
-        }
+        ErrorResponse errorResponse = ErrorResponse.fromJson(
+            decoder.convert(utf8.decode(response.bodyBytes)));
+        return Left(
+          ServerFailure(errorMessage: errorResponse.detail),
+        );
       }
-      <%= entityClass %>? <%= entityInstance %> = JsonMapper.deserialize<<%= entityClass %>>(utf8.decode(response.bodyBytes));
+      <%= entityClass %>? <%= entityInstance %> = <%= entityClass %>.fromJson(decoder.convert(utf8.decode(response.bodyBytes)));
       return Right(<%= entityInstance %>);
     } on ServerException catch (e) {
       return Left(
@@ -92,18 +99,17 @@ class <%= entityClass %>Repository {
 
   Future<Either<Failure, <%= entityClass %>?>> create(<%= entityClass %> <%= entityInstance %>) async {
     try {
-      final Response response =
-          await HttpUtils.postRequest(uriEndpoint, <%= entityInstance %>);
-      if (response.statusCode >= 300 && response.statusCode < 600) {
-        ErrorResponse? errorResponse =
-            JsonMapper.deserialize<ErrorResponse>(utf8.decode(response.bodyBytes));
-        if (errorResponse != null) {
+        final Response response = await HttpUtils.postRequest(uriEndpoint, <%= entityInstance %>);
+        const JsonDecoder decoder = JsonDecoder();
+
+        if (response.statusCode >= 300 && response.statusCode < 600) {
+          ErrorResponse errorResponse = ErrorResponse.fromJson(
+              decoder.convert(utf8.decode(response.bodyBytes)));
           return Left(
-            ServerFailure(errorMessage: errorResponse.detail!),
+            ServerFailure(errorMessage: errorResponse.detail),
           );
         }
-      }
-      <%= entityClass %>? new<%= entityClass %> = JsonMapper.deserialize<<%= entityClass %>>(utf8.decode(response.bodyBytes));
+      <%= entityClass %>? new<%= entityClass %> = = <%= entityClass %>.fromJson(decoder.convert(utf8.decode(response.bodyBytes)));
       return Right(new<%= entityClass %>);
     } on ServerException catch (e) {
       return Left(
@@ -119,18 +125,19 @@ class <%= entityClass %>Repository {
   Future<Either<Failure, <%= entityClass %>?>> update(<%= entityClass %> <%= entityInstance %>, int id) async {
     try {
       final Response response =
-          await HttpUtils.putRequest('$uriEndpoint/$id', <%= entityInstance %>);
+      await HttpUtils.putRequest('$uriEndpoint/$id', <%= entityInstance %>);
+      const JsonDecoder decoder = JsonDecoder();
+
       if (response.statusCode >= 300 && response.statusCode < 600) {
-        ErrorResponse? errorResponse =
-            JsonMapper.deserialize<ErrorResponse>(utf8.decode(response.bodyBytes));
-        if (errorResponse != null) {
-          return Left(
-            ServerFailure(errorMessage: errorResponse.detail!),
-          );
-        }
+        ErrorResponse errorResponse = ErrorResponse.fromJson(
+            decoder.convert(utf8.decode(response.bodyBytes)));
+        return Left(
+          ServerFailure(errorMessage: errorResponse.detail),
+        );
       }
-      <%= entityClass %>? updated<%= entityClass %> =
-          JsonMapper.deserialize<<%= entityClass %>>(utf8.decode(response.bodyBytes));
+
+      <%= entityClass %>? updated<%= entityClass %> = <%= entityClass %>.fromJson(decoder.convert(utf8.decode(response.bodyBytes)));
+
       return Right(updated<%= entityClass %>);
     } on ServerException catch (e) {
       return Left(
@@ -147,14 +154,14 @@ class <%= entityClass %>Repository {
     try {
       final Response response =
           await HttpUtils.deleteRequest('$uriEndpoint/$id');
+      const JsonDecoder decoder = JsonDecoder();
+
       if (response.statusCode >= 300 && response.statusCode < 600) {
-        ErrorResponse? errorResponse =
-            JsonMapper.deserialize<ErrorResponse>(utf8.decode(response.bodyBytes));
-        if (errorResponse != null) {
-          return Left(
-            ServerFailure(errorMessage: errorResponse.detail!),
-          );
-        }
+        ErrorResponse errorResponse = ErrorResponse.fromJson(
+            decoder.convert(utf8.decode(response.bodyBytes)));
+        return Left(
+          ServerFailure(errorMessage: errorResponse.detail),
+        );
       }
       return const Right("OK");
     } on ServerException catch (e) {

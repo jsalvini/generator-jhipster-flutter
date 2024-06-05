@@ -26,11 +26,18 @@ class LoginState extends Equatable {
       username: username ?? this.username,
       password: password ?? this.password,
       status: status ?? this.status,
-      generalNotificationKey: generalNotificationKey ?? this.generalNotificationKey,
+      generalNotificationKey:
+          generalNotificationKey ?? this.generalNotificationKey,
       isValid: isValid ?? this.isValid,
     );
   }
 
   @override
-  List<Object> get props => [username, password, status, generalNotificationKey, isValid];
+  List<Object> get props => [
+        username,
+        password,
+        status,
+        generalNotificationKey,
+        isValid,
+      ];
 }

@@ -47,6 +47,9 @@ class <%= entityClass %>State extends Equatable {
   <%_ } _%>
   <%_ }); _%>
 
+  final Map<String, String> filters;
+  final String filterCondicion;
+  final String filterValue;
 
   const <%= entityClass %>State({
     this.<%= entityClassPluralLowered %> = const [],
@@ -66,6 +69,9 @@ class <%= entityClass %>State extends Equatable {
     this.formStatus = FormzSubmissionStatus.initial,
     this.isValid = false,
     this.generalNotificationKey = '',
+    this.filters = const {},
+    this.filterCondicion = '',
+    this.filterValue = '',
     this.deleteStatus = <%= entityClass %>DeleteStatus.none,
     <%_ fields.forEach(field => { _%>
     <%_ if(field.fieldType === 'DateTime') { _%>
@@ -98,6 +104,9 @@ class <%= entityClass %>State extends Equatable {
     FormzSubmissionStatus? formStatus,
 	  bool? isValid,
     String? generalNotificationKey,
+    Map<String, String>? filters,
+    String? filterCondicion,
+    String? filterValue,
     <%_ fields.forEach(field => { _%>
     <%= entityClass %><%= field.fieldNameCapitalized %>Input? <%= field.fieldName %>,
     <%_ }); _%>
@@ -124,6 +133,9 @@ class <%= entityClass %>State extends Equatable {
 	    isValid: isValid ?? this.isValid,
       generalNotificationKey: generalNotificationKey ?? this.generalNotificationKey,
       deleteStatus: deleteStatus ?? this.deleteStatus,
+      filters: filters ?? this.filters,
+      filterCondicion: filterCondicion ?? this.filterCondicion,
+      filterValue: filterValue ?? this.filterValue,
       <%_ fields.forEach(field => { _%>
       <%= field.fieldName %>: <%= field.fieldName %> ?? this.<%= field.fieldName %>,
       <%_ }); _%>
@@ -138,7 +150,18 @@ class <%= entityClass %>State extends Equatable {
   @override
   List<Object> get props => [<%= entityClassPluralLowered %>, initialRow, rowsPerPage, sortAscending, sortColumnIndex,
     <%= entityInstance %>StatusUI,
-      selectAll, totalRow, columnName, currentPage, loaded<%= entityClass %>, editMode, deleteStatus, formStatus, isValid, generalNotificationKey,
+      selectAll,
+      totalRow,
+      columnName,
+      currentPage,
+      loaded<%= entityClass %>,
+      editMode, deleteStatus,
+      formStatus,
+      isValid,
+      generalNotificationKey,
+      filters,
+      filterCondicion,
+      filterValue,
      <%_ fields.forEach(field => { _%><%= field.fieldName %>%>,<%_ }); _%>
      <%_ relationships.forEach(relationship => { %>
      <%_ if(!relationship.isList) { _%>

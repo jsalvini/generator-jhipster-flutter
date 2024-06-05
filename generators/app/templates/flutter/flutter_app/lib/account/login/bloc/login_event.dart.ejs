@@ -25,4 +25,13 @@ class LoginPasswordChanged extends LoginEvent {
   List<Object> get props => [password];
 }
 
+class StatusChanged extends LoginEvent {
+  final FormzSubmissionStatus status;
+
+  const StatusChanged({required this.status});
+
+  @override
+  List<Object> get props => [status];
+}
+
 class LoginSubmitted extends LoginEvent {}

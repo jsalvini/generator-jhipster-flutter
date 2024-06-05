@@ -1,0 +1,46 @@
+import 'package:equatable/equatable.dart';
+import 'package:<%= baseName %>/shared/utils/utils.dart';
+import 'package:myapp/shared/utils/json_serializable.dart';
+
+class Authentication extends Equatable implements JsonSerializable {
+  final String username;
+  final String password;
+  final bool? rememberMe;
+
+  const Authentication({
+    required this.username,
+    required this.password,
+    this.rememberMe = false,
+  });
+
+  Authentication copyWith({
+    String? username,
+    String? password,
+    bool? rememberMe,
+  }) =>
+      Authentication(
+        username: username ?? this.username,
+        password: password ?? this.password,
+        rememberMe: rememberMe ?? this.rememberMe,
+      );
+
+  factory Authentication.fromMap(Map<String, dynamic> json) => Authentication(
+        username: json["username"],
+        password: json["password"],
+        rememberMe: json["rememberMe"],
+      );
+
+  @override
+  Map<String, dynamic> toJson() => {
+        "username": username,
+        "password": password,
+        "rememberMe": rememberMe,
+      };
+
+  @override
+  List<Object?> get props => [
+        username,
+        password,
+        rememberMe,
+      ];
+}

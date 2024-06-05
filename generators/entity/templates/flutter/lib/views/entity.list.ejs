@@ -12,13 +12,12 @@ _%>
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:<%= baseName %>/core/core.dart';
+import 'package:<%= baseName %>/core/constants/app_data.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_model.dart';
-import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
-import '../../../shared/widgets/drawer_widget.dart';
+import 'package:<%= baseName %>/entities/<%= entityFileName %>/views/<%= entityFileName %>_table.dart';
+import 'package:<%= baseName %>/shared/widgets/widgets.dart';
 import '../<%= entityFileName %>_routes.dart';
-import '<%= entityFileName %>_table.dart';
 
 class <%= entityClass %>ListScreen extends StatelessWidget {
     <%= entityClass %>ListScreen({Key? key}) : super(key: <%= entityClass %>Routes.listScreenKey);
@@ -29,52 +28,44 @@ class <%= entityClass %>ListScreen extends StatelessWidget {
     return  BlocListener<<%= entityClass %>Bloc, <%= entityClass %>State>(
       listener: (context, state) {
         if(state.deleteStatus == <%= entityClass %>DeleteStatus.ok ||
-            state.deleteStatus == <%= entityClass %>DeleteStatus.error) {
-		Color colorBackground = Colors.green;
+            state.deleteStatus == <%= entityClass %>DeleteStatus.error ||
+            state.<%= entityFileName %>StatusUI == <%= entityClass %>StatusUI.error) {
+		Color backgroundColor = Colors.green;
 		IconData iconData = Icons.info_outline_rounded;
-		if (state.deleteStatus == <%= entityClass %>DeleteStatus.error) {
-            colorBackground = Colors.red;
+		if (state.deleteStatus == <%= entityClass %>DeleteStatus.error ||
+        state.<%= entityFileName %>StatusUI == <%= entityClass %>StatusUI.error) {
+            backgroundColor = Colors.red;
             iconData = Icons.dangerous_outlined;
         }
 
 	    ScaffoldMessenger.of(context)
 			..hideCurrentSnackBar()
 			..showSnackBar(
-        SnackBar(
-          showCloseIcon: true,
-          closeIconColor: Colors.white,
-          duration: const Duration(seconds: 10),
-          content: Row(
-            children: [
-              Icon(iconData, color: Colors.white),
-              const SizedBox(width: 10),
-              Flexible(
-                child: Text(
-                  state.generalNotificationKey,
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: colorBackground,
-        ),
-			);
+            getSnack(
+              context: context,
+              message: state.generalNotificationKey,
+              backgroundColor: backgroundColor,
+              iconData: iconData,
+            ),
+          );
         }
       },
       child: Scaffold(
         key: scaffoldKey,
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text(
-            '<%= entityClassPlural %>',
-            style: TextStyle(color: Colors.white),
-          ),
+        appBar: CustomAppBar(
+          title: AppData.name,
         ),
-        body: const <%= entityClass %>View(),
-        drawer: const <%= camelizedUpperFirstBaseName %>Drawer(),
-		  ),
+        drawer: const CustomDrawer(),
+        body: CustomLayout(
+          title: Text(
+            '<%= entityClass %>',
+            style: Theme.of(context).textTheme.displayMedium,
+          ),
+          widgets: const [
+          <%= entityClass %>View(),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -85,19 +76,21 @@ class <%= entityClass %>View extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(builder: (context, state) {
+      List<<%= entityClass %>> <%= entityInstance %>List = state.<%= entityClassPluralLowered %>;
       switch (state.<%= entityInstance %>StatusUI) {
         case <%= entityClass %>StatusUI.done:
-          List<<%= entityClass %>> <%= entityInstance %>List = state.<%= entityClassPluralLowered %>;
+        case <%= entityClass %>StatusUI.error:
           return <%= entityClass %>Table(
             <%= entityClassPluralLowered %>: <%= entityInstance %>List,
-            blocContext: context,
           );
         case <%= entityClass %>StatusUI.loading:
-          return const LoadingIndicator();
-        case <%= entityClass %>StatusUI.error:
-          return ErrorView(message: state.generalNotificationKey);
+          return const LoadingIndicator(
+            message: 'CARGANDO',
+          );
         default:
-          return const LoadingIndicator();
+          return const LoadingIndicator(
+            message: 'CARGANDO',
+          );
       }
     });
   }

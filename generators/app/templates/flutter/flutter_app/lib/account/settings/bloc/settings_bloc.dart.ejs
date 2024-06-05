@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:formz/formz.dart';
 import 'package:<%= baseName %>/account/settings/models/settings_models.dart';
 import 'package:<%= baseName %>/account/user/models/user_model.dart';
+import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/shared/repository/account_repository.dart';
 import 'package:<%= baseName %>/shared/utils/http_utils.dart';
 
@@ -82,41 +83,48 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     Emitter<SettingsState> emit,
   ) async {
     if (state.isValid) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
-      SettingsAction action = SettingsAction.none;
-      try {
-        User newCurrentUser = User(
-          id: state.currentUser.id,
-          login: state.currentUser.login,
-          email: state.email.value,
-          imageUrl: state.currentUser.imageUrl,
-          firstName: state.firstname.value,
-          lastName: state.lastname.value,
-          activated: true,
-          authorities: const ['ROLE_USER'],
-        );
+      emit(
+        state.copyWith(
+          formStatus: FormzSubmissionStatus.inProgress,
+        ),
+      );
 
-        String? result = await _accountRepository.saveAccount(newCurrentUser);
+      User newCurrentUser = User(
+        id: state.currentUser.id,
+        login: state.currentUser.login,
+        email: state.email.value,
+        imageUrl: state.currentUser.imageUrl,
+        firstName: state.firstname.value,
+        lastName: state.lastname.value,
+        activated: true,
+        langKey: 'es',
+        createdBy: 'system',
+        createdDate: null,
+        authorities: state.currentUser.authorities,
+      );
 
-        if (result?.compareTo(HttpUtils.successResult) != 0) {
-          emit(state.copyWith(
-            formStatus: FormzSubmissionStatus.failure,
-            generalNotificationKey: result,
-          ));
-        } else {
-          emit(state.copyWith(
-            currentUser: newCurrentUser,
-            formStatus: FormzSubmissionStatus.success,
-            action: action,
-            generalNotificationKey: '¡Ajustes guardados correctamente.!',
-          ));
-        }
-      } catch (_) {
-        emit(state.copyWith(
-          formStatus: FormzSubmissionStatus.failure,
-          generalNotificationKey: HttpUtils.errorServerKey,
-        ));
-      }
+      final result = await _accountRepository.saveAccount(newCurrentUser);
+
+      result.fold(
+        (Failure failure) {
+          emit(
+            state.copyWith(
+              formStatus: FormzSubmissionStatus.failure,
+              settingsStatusUI: SettingsStatusUI.error,
+              generalNotificationKey: failure.errorMessage,
+            ),
+          );
+        },
+        (String data) {
+          emit(
+            state.copyWith(
+                currentUser: newCurrentUser,
+                formStatus: FormzSubmissionStatus.success,
+                settingsStatusUI: SettingsStatusUI.done,
+                generalNotificationKey: 'Ajustes actualizados correctamente.'),
+          );
+        },
+      );
     }
   }
 
@@ -124,28 +132,55 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     LoadCurrentUser event,
     Emitter<SettingsState> emit,
   ) async {
-    User? currentUser = await _accountRepository.getAccount();
+    final result = await _accountRepository.getAccount();
+    result.fold(
+      (Failure failure) {
+        emit(
+          state.copyWith(
+            settingsStatusUI: SettingsStatusUI.error,
+            generalNotificationKey: failure.errorMessage,
+          ),
+        );
+      },
+      (User? data) {
+        User? currentUser = data;
 
-    String firstName = (currentUser?.firstName ?? '');
-    String lastName = (currentUser?.lastName ?? '');
-    String email = (currentUser?.email ?? '');
+        if (currentUser != null) {
+          String firstName = (currentUser.firstName ?? '');
+          String lastName = (currentUser.lastName ?? '');
+          String email = (currentUser.email ?? '');
 
-    final firstNameInput = FirstnameInput.dirty(firstName);
-    final lastNameInput = LastnameInput.dirty(lastName);
-    final emailInput = EmailInput.dirty(email);
+          final firstNameInput = FirstnameInput.dirty(firstName);
+          final lastNameInput = LastnameInput.dirty(lastName);
+          final emailInput = EmailInput.dirty(email);
 
-    emit(state.copyWith(
-      firstname: firstNameInput,
-      lastname: lastNameInput,
-      email: emailInput,
-      currentUser: currentUser,
-      formStatus: FormzSubmissionStatus.initial,
-      isValid: Formz.validate([firstNameInput, lastNameInput, emailInput]),
-    ));
+          emailController.text = email;
+          lastNameController.text = lastName;
+          firstNameController.text = firstName;
 
-    emailController.text = email;
-    lastNameController.text = lastName;
-    firstNameController.text = firstName;
+          emit(
+            state.copyWith(
+              firstname: firstNameInput,
+              lastname: lastNameInput,
+              email: emailInput,
+              currentUser: currentUser,
+              formStatus: FormzSubmissionStatus.initial,
+              isValid: Formz.validate(
+                [firstNameInput, lastNameInput, emailInput],
+              ),
+              settingsStatusUI: SettingsStatusUI.done,
+            ),
+          );
+        } else {
+          emit(
+            state.copyWith(
+              settingsStatusUI: SettingsStatusUI.error,
+              generalNotificationKey: 'No se puede cargar el usuario.',
+            ),
+          );
+        }
+      },
+    );
   }
 
   @override

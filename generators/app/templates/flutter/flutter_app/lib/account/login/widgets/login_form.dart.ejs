@@ -1,0 +1,234 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:formz/formz.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:<%= baseName %>/account/login/models/models.dart';
+import 'package:<%= baseName %>/account/login/bloc/login_bloc.dart';
+import 'package:<%= baseName %>/shared/widgets/widgets.dart';
+
+class LoginForm extends StatelessWidget {
+  const LoginForm({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<LoginBloc, LoginState>(
+      listener: (context, state) {
+        if (state.status.isFailure) {
+          ScaffoldMessenger.of(context)
+            ..removeCurrentSnackBar()
+            ..showSnackBar(
+              getSnack(
+                context: context,
+                message: state.generalNotificationKey,
+              ),
+            );
+          context
+              .read<LoginBloc>()
+              .add(const StatusChanged(status: FormzSubmissionStatus.initial));
+        }
+      },
+      child: BlocBuilder<LoginBloc, LoginState>(
+        buildWhen: (previous, current) => (previous.username.displayError !=
+                current.username.displayError ||
+            previous.password.displayError != current.password.displayError),
+        builder: (context, state) {
+          return Container(
+            height: (state.username.displayError != null &&
+                    state.password.displayError != null)
+                ? 380
+                : 320,
+            constraints: const BoxConstraints(
+              maxWidth: 570,
+              maxHeight: 380,
+            ),
+            child: const Padding(
+              padding: EdgeInsets.only(right: 20, left: 20),
+              child: Card(
+                shadowColor: Color(0xffffdb04),
+                margin: EdgeInsets.zero,
+                elevation: 4,
+                child: Padding(
+                  padding: EdgeInsets.only(right: 16, left: 16),
+                  child: FormView(),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class FormView extends StatelessWidget {
+  const FormView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeInUp(
+      delay: const Duration(milliseconds: 800),
+      child: const Padding(
+        padding: EdgeInsets.only(left: 10, right: 10),
+        child: Form(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _UsernameInput(),
+              SizedBox(height: 20),
+              _PasswordInput(),
+              SizedBox(height: 30),
+              _LoginButton(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _UsernameInput extends StatelessWidget {
+  const _UsernameInput();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LoginBloc, LoginState>(
+      buildWhen: (previous, current) => previous.username != current.username,
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: Text(
+                'Usuario',
+                style: Theme.of(context).textTheme.displaySmall!.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+              ),
+            ),
+            TextFormField(
+              key: const Key('loginForm_usernameInput_textField'),
+              //autofocus: true,
+              onChanged: (value) {
+                context
+                    .read<LoginBloc>()
+                    .add(LoginUsernameChanged(username: value));
+              },
+              keyboardType: TextInputType.text,
+              style: Theme.of(context).textTheme.displaySmall,
+              decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.people_alt_rounded),
+                  fillColor: Colors.white,
+                  errorMaxLines: 2,
+                  errorText: state.username.displayError != null
+                      ? UsernameValidationError.invalid.invalidMessage
+                      : null),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _PasswordInput extends StatelessWidget {
+  const _PasswordInput();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LoginBloc, LoginState>(
+      buildWhen: (previous, current) => previous.password != current.password,
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: Text(
+                'Contraseña',
+                style: Theme.of(context).textTheme.displaySmall!.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+              ),
+            ),
+            TextFormField(
+              key: const Key('loginForm_passwordInput_textField'),
+              onChanged: (value) {
+                context
+                    .read<LoginBloc>()
+                    .add(LoginPasswordChanged(password: value));
+              },
+              obscureText: true,
+              style: Theme.of(context).textTheme.displaySmall,
+              decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.password_rounded),
+                  fillColor: Colors.white,
+                  errorMaxLines: 2,
+                  errorText: state.password.displayError != null
+                      ? PasswordValidationError.invalid.invalidMessage
+                      : null),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _LoginButton extends StatelessWidget {
+  const _LoginButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LoginBloc, LoginState>(
+      builder: (context, state) {
+        return state.status.isInProgress
+            ? const Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                  ],
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      key: const Key('loginForm_elevatedButton'),
+                      onPressed: state.isValid
+                          ? () =>
+                              context.read<LoginBloc>().add(LoginSubmitted())
+                          : null,
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(
+                          state.isValid
+                              ? const Color(0xff191918)
+                              : const Color(0xff191918).withOpacity(0.3),
+                        ),
+                      ),
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width < 800
+                            ? MediaQuery.of(context).size.width * 0.40
+                            : MediaQuery.of(context).size.width * 0.15,
+                        height: 50,
+                        child: const Center(
+                          child: Text(
+                            'Ingresar',
+                            style: TextStyle(color: Colors.white, fontSize: 24),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+      },
+    );
+  }
+}

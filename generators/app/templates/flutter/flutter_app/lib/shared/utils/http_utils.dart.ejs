@@ -1,17 +1,15 @@
 import 'dart:async';
-import 'dart:convert' show Encoding, utf8;
+import 'dart:convert' show Encoding, jsonEncode, utf8;
 import 'dart:io';
-
-import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-import 'package:<%= baseName %>/shared/storage/secure_storage.dart';
+import 'package:<%= baseName %>/shared/storage/preferences.dart';
+import 'package:<%= baseName %>/shared/utils/utils.dart';
 import 'package:<%= baseName %>/shared/exceptions/app_exception.dart';
-
 import '../../environment.dart';
 
 class HttpUtils {
-  static String errorHeader = 'x-<%= dasherizedBaseName %>app-error';
+  static String errorHeader = 'x-gatewaympapp-error';
   static String successResult = 'success';
   static String keyForJWTToken = 'jwt-token';
   static String badRequestServerKey = 'error.400';
@@ -23,7 +21,8 @@ class HttpUtils {
   }
 
   static Future<Map<String, String>> headers() async {
-    String? jwt = await SecureStorage.storage.read(key: HttpUtils.keyForJWTToken);
+    String? jwt = Preferences.prefs.getString(HttpUtils.keyForJWTToken);
+
     if (jwt != null) {
       return {
         'Accept': 'application/json',
@@ -35,13 +34,24 @@ class HttpUtils {
     }
   }
 
-  static Future<Response> postRequest<T>(String endpoint, T body) async {
+  static Future<Response> postRequest<T extends JsonSerializable>(
+      String endpoint, T body) async {
     var headers = await HttpUtils.headers();
-    final String json = JsonMapper.serialize(body, const SerializationOptions(indent: ''));
+    String jsonData = '';
+    try {
+      jsonData = jsonEncode(body.toJson());
+    } catch (e) {
+      throw FetchDataException(
+          'Error al serializar el cuerpo de la solicitud: $e');
+    }
     Response? response;
     try {
-      response = await http.post(Uri.parse('${Constants.api}$endpoint'), headers: headers, body: json,
-          encoding: Encoding.getByName('utf-8')).timeout(Duration(seconds: Constants.timeout));
+      response = await http
+          .post(Uri.parse('${Constants.api}$endpoint'),
+              headers: headers,
+              body: jsonData,
+              encoding: Encoding.getByName('utf-8'))
+          .timeout(Duration(seconds: Constants.timeout));
     } on SocketException {
       throw FetchDataException('No hay conexión con el servidor.');
     } on TimeoutException {
@@ -53,7 +63,9 @@ class HttpUtils {
   static Future<Response> getRequest(String endpoint) async {
     var headers = await HttpUtils.headers();
     try {
-      return await http.get(Uri.parse('${Constants.api}$endpoint'), headers: headers)
+      //log('Req: ${Constants.api}$endpoint');
+      return await http
+          .get(Uri.parse('${Constants.api}$endpoint'), headers: headers)
           .timeout(Duration(seconds: Constants.timeout));
     } on SocketException {
       throw FetchDataException('No hay conexión con el servidor.');
@@ -62,13 +74,24 @@ class HttpUtils {
     }
   }
 
-  static Future<Response> putRequest<T>(String endpoint, T body) async {
+  static Future<Response> putRequest<T extends JsonSerializable>(
+      String endpoint, T body) async {
     var headers = await HttpUtils.headers();
-    final String json = JsonMapper.serialize(body, const SerializationOptions(indent: ''));
+    String jsonData = '';
+    try {
+      jsonData = jsonEncode(body.toJson());
+    } catch (e) {
+      throw FetchDataException(
+          'Error al serializar el cuerpo de la solicitud: $e');
+    }
     Response response;
     try {
-      response = await http.put(Uri.parse('${Constants.api}$endpoint'), headers: headers, body: json,
-          encoding: Encoding.getByName('utf-8')).timeout(Duration(seconds: Constants.timeout));
+      response = await http
+          .put(Uri.parse('${Constants.api}$endpoint'),
+              headers: headers,
+              body: jsonData,
+              encoding: Encoding.getByName('utf-8'))
+          .timeout(Duration(seconds: Constants.timeout));
     } on SocketException {
       throw FetchDataException('No hay conexión con el servidor.');
     } on TimeoutException {
@@ -80,7 +103,8 @@ class HttpUtils {
   static Future<Response> deleteRequest(String endpoint) async {
     var headers = await HttpUtils.headers();
     try {
-      return await http.delete(Uri.parse('${Constants.api}$endpoint'), headers: headers)
+      return await http
+          .delete(Uri.parse('${Constants.api}$endpoint'), headers: headers)
           .timeout(Duration(seconds: Constants.timeout));
     } on SocketException {
       throw FetchDataException('No hay conexión con el servidor.');
@@ -101,8 +125,7 @@ class HttpUtils {
       case 500:
       default:
         throw FetchDataException(
-            'Se produjo un error durante la comunicación con el servidor con codígo de estado: ${response
-                .statusCode}');
+            'Se produjo un error durante la comunicación con el servidor con codígo de estado: ${response.statusCode}');
     }
   }
 }

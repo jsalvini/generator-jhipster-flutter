@@ -1,14 +1,12 @@
 import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart';
-import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:<%= baseName %>/core/exceptions/exception.dart';
 import 'package:<%= baseName %>/core/exceptions/failure.dart';
 import 'package:<%= baseName %>/account/user/models/user_models.dart';
 import 'package:<%= baseName %>/shared/exceptions/app_exception.dart';
 import 'package:<%= baseName %>/shared/models/error_response.dart';
 import 'package:<%= baseName %>/shared/utils/http_utils.dart';
-
 
 class UserRepository {
   UserRepository();
@@ -24,27 +22,25 @@ class UserRepository {
         '$uriEndpoint?sort=$sort%2C$ascending&page=$page&size=20';
     try {
       final Response response = await HttpUtils.getRequest(newUriEndpoint);
+      const JsonDecoder decoder = JsonDecoder();
 
       if (response.statusCode >= 300 && response.statusCode < 600) {
-        ErrorResponse? errorResponse = JsonMapper.deserialize<ErrorResponse>(
-            utf8.decode(response.bodyBytes));
-        if (errorResponse != null) {
-          return Left(
-            ServerFailure(errorMessage: errorResponse.detail!),
-          );
-        }
+        ErrorResponse errorResponse = ErrorResponse.fromJson(
+            decoder.convert(utf8.decode(response.bodyBytes)));
+        return Left(
+          ServerFailure(errorMessage: errorResponse.detail),
+        );
       }
 
-      int count = int.parse(response.headers['x-total-count']!);
-      String link = response.headers['link'] as String;
+      int count = int.parse(response.headers['x-total-count'] ?? '0');
+      String link = response.headers['link'] ?? newUriEndpoint;
 
       final decode = utf8.decode(response.bodyBytes);
-      const JsonDecoder decoder = JsonDecoder();
       List<User> users = [];
       final decodeResponse = decoder.convert(decode);
 
       for (var user in decodeResponse) {
-        final newUser = User.fromMap(user);
+        final newUser = User.fromJson(user);
         users.add(newUser);
       }
 
@@ -71,18 +67,17 @@ class UserRepository {
     try {
       final Response response =
           await HttpUtils.getRequest('$uriEndpoint/$login');
-      if (response.statusCode >= 300 && response.statusCode < 600) {
-        ErrorResponse? errorResponse = JsonMapper.deserialize<ErrorResponse>(
-            utf8.decode(response.bodyBytes));
-        if (errorResponse != null) {
-          return Left(
-            ServerFailure(errorMessage: errorResponse.detail!),
-          );
-        }
-      }
       const JsonDecoder decoder = JsonDecoder();
+
+      if (response.statusCode >= 300 && response.statusCode < 600) {
+        ErrorResponse errorResponse = ErrorResponse.fromJson(
+            decoder.convert(utf8.decode(response.bodyBytes)));
+        return Left(
+          ServerFailure(errorMessage: errorResponse.detail),
+        );
+      }
       User? user =
-          User.fromMap(decoder.convert(utf8.decode(response.bodyBytes)));
+          User.fromJson(decoder.convert(utf8.decode(response.bodyBytes)));
       return Right(user);
     } on ServerException catch (e) {
       return Left(
@@ -98,18 +93,18 @@ class UserRepository {
   Future<Either<Failure, User?>> create(User user) async {
     try {
       final Response response = await HttpUtils.postRequest(uriEndpoint, user);
-      if (response.statusCode >= 300 && response.statusCode < 600) {
-        ErrorResponse? errorResponse = JsonMapper.deserialize<ErrorResponse>(
-            utf8.decode(response.bodyBytes));
-        if (errorResponse != null) {
-          return Left(
-            ServerFailure(errorMessage: errorResponse.detail!),
-          );
-        }
-      }
       const JsonDecoder decoder = JsonDecoder();
+
+      if (response.statusCode >= 300 && response.statusCode < 600) {
+        ErrorResponse errorResponse = ErrorResponse.fromJson(
+            decoder.convert(utf8.decode(response.bodyBytes)));
+        return Left(
+          ServerFailure(errorMessage: errorResponse.detail),
+        );
+      }
+
       var decode = utf8.decode(response.bodyBytes);
-      User? newUser = User.fromMap(decoder.convert(decode));
+      User? newUser = User.fromJson(decoder.convert(decode));
       return Right(newUser);
     } on ServerException catch (e) {
       return Left(
@@ -125,18 +120,17 @@ class UserRepository {
   Future<Either<Failure, User?>> update(User user) async {
     try {
       final Response response = await HttpUtils.putRequest(uriEndpoint, user);
-      if (response.statusCode >= 300 && response.statusCode < 600) {
-        ErrorResponse? errorResponse = JsonMapper.deserialize<ErrorResponse>(
-            utf8.decode(response.bodyBytes));
-        if (errorResponse != null) {
-          return Left(
-            ServerFailure(errorMessage: errorResponse.detail!),
-          );
-        }
-      }
       const JsonDecoder decoder = JsonDecoder();
+
+      if (response.statusCode >= 300 && response.statusCode < 600) {
+        ErrorResponse errorResponse = ErrorResponse.fromJson(
+            decoder.convert(utf8.decode(response.bodyBytes)));
+        return Left(
+          ServerFailure(errorMessage: errorResponse.detail),
+        );
+      }
       User? updatedUser =
-          User.fromMap(decoder.convert(utf8.decode(response.bodyBytes)));
+          User.fromJson(decoder.convert(utf8.decode(response.bodyBytes)));
       return Right(updatedUser);
     } on ServerException catch (e) {
       return Left(
@@ -153,14 +147,14 @@ class UserRepository {
     try {
       final Response response =
           await HttpUtils.deleteRequest('$uriEndpoint/$login');
+      const JsonDecoder decoder = JsonDecoder();
+
       if (response.statusCode >= 300 && response.statusCode < 600) {
-        ErrorResponse? errorResponse = JsonMapper.deserialize<ErrorResponse>(
-            utf8.decode(response.bodyBytes));
-        if (errorResponse != null) {
-          return Left(
-            ServerFailure(errorMessage: errorResponse.detail!),
-          );
-        }
+        ErrorResponse errorResponse = ErrorResponse.fromJson(
+            decoder.convert(utf8.decode(response.bodyBytes)));
+        return Left(
+          ServerFailure(errorMessage: errorResponse.detail),
+        );
       }
       return const Right("OK");
     } on ServerException catch (e) {

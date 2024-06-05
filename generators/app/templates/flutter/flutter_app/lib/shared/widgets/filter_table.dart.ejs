@@ -1,0 +1,67 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+
+class FilterTable extends StatelessWidget {
+  final Map<String, String> filter;
+  final String? selectedFilter;
+  final ValueChanged<String?> onChanged;
+  final String? Function(String?)? validator;
+
+  const FilterTable({
+    super.key,
+    required this.filter,
+    this.selectedFilter,
+    required this.onChanged,
+    this.validator,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(
+            width: 220,
+            child: FormBuilderDropdown<String>(
+              name: 'filterTable',
+              dropdownColor: Colors.white,
+              icon: Icon(
+                Icons.arrow_drop_down,
+                color: Theme.of(context).primaryColor,
+              ),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Color(0xff49454f),
+              ),
+              decoration: const InputDecoration(
+                labelText: 'Seleccione condición filtro',
+                floatingLabelStyle: TextStyle(
+                  height: 0.5,
+                  fontSize: 18,
+                ),
+              ),
+              onChanged: onChanged,
+              validator: validator,
+              items: createDropdownFilterItems(filter),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<DropdownMenuItem<String>> createDropdownFilterItems(
+      Map<String, String> filter) {
+    return filter.entries.map((entry) {
+      final value = entry.key; // Key from the map entry
+      //final displayText = entry.value; // Value from the map entry
+      return DropdownMenuItem<String>(
+        value: value,
+        child: Text(value),
+      );
+    }).toList();
+  }
+}

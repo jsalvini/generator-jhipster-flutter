@@ -1,0 +1,68 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:dartz/dartz.dart';
+import 'package:http/http.dart';
+import 'package:<%= baseName %>/account/authentication/models/authentication.dart';
+import 'package:<%= baseName %>/core/core.dart';
+import 'package:<%= baseName %>/shared/exceptions/app_exception.dart';
+import 'package:<%= baseName %>/shared/models/error_response.dart';
+import 'package:<%= baseName %>/shared/storage/preferences.dart';
+import 'package:<%= baseName %>/shared/models/jwt_token.dart';
+import 'package:<%= baseName %>/shared/utils/http_utils.dart';
+
+enum AuthenticationStatus { authenticated, unauthenticated }
+
+class AuthenticationRepository {
+  AuthenticationRepository();
+
+  final _authenticateController = StreamController<AuthenticationStatus>();
+
+  Stream<AuthenticationStatus> get status async* {
+    yield* _authenticateController.stream;
+  }
+
+  Future<Either<Failure, bool>> authenticate(
+      Authentication authentication) async {
+    try {
+      final Response response = await HttpUtils.postRequest<Authentication>(
+          "/authenticate", authentication);
+      const JsonDecoder decoder = JsonDecoder();
+
+      if (response.statusCode >= 300 && response.statusCode < 600) {
+        ErrorResponse errorResponse = ErrorResponse.fromJson(
+            decoder.convert(utf8.decode(response.bodyBytes)));
+        return Left(
+          ServerFailure(errorMessage: errorResponse.detail),
+        );
+      }
+
+      JwtToken token =
+          JwtToken.fromJson(decoder.convert(utf8.decode(response.bodyBytes)));
+      if (token.idToken != null) {
+        await Preferences.prefs.remove(HttpUtils.keyForJWTToken);
+        await Preferences.prefs
+            .setString(HttpUtils.keyForJWTToken, token.idToken!);
+
+        _authenticateController.add(AuthenticationStatus.authenticated);
+      }
+      return const Right(true);
+    } on ServerException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: e.errorMessage),
+      );
+    } on FetchDataException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: '${e.prefix} ${e.message}'),
+      );
+    }
+  }
+
+  Future<void> logout() async {
+    await Preferences.prefs.remove(HttpUtils.keyForJWTToken);
+
+    _authenticateController.add(AuthenticationStatus.unauthenticated);
+  }
+
+  void dispose() => _authenticateController.close();
+}
+

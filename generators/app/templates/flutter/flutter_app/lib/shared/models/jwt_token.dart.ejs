@@ -1,24 +1,27 @@
-import 'package:dart_json_mapper/dart_json_mapper.dart';
+import 'package:equatable/equatable.dart';
 
-@jsonSerializable
-class JWTToken {
+class JwtToken extends Equatable {
+  final String? idToken;
 
-  @JsonProperty(name: 'id_token')
-  String? idToken;
+  const JwtToken({
+    this.idToken = '',
+  });
 
+  JwtToken copyWith({
+    String? idToken,
+  }) =>
+      JwtToken(
+        idToken: idToken ?? this.idToken,
+      );
+
+  factory JwtToken.fromJson(Map<String, dynamic> json) => JwtToken(
+        idToken: json["id_token"] ?? '',
+      );
+
+  Map<String, dynamic> toMap() => {
+        "id_token": idToken,
+      };
 
   @override
-  String toString() {
-    return 'JWTToken{idToken: $idToken}';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is JWTToken &&
-          runtimeType == other.runtimeType &&
-          idToken == other.idToken;
-
-  @override
-  int get hashCode => idToken.hashCode;
+  List<Object?> get props => [idToken];
 }

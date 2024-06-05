@@ -1,10 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:developer';
 import 'package:equatable/equatable.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/account/user/models/user_model.dart';
 import 'package:<%= baseName %>/shared/repository/account_repository.dart';
-import 'package:<%= baseName %>/shared/repository/authentication_repository.dart';
+import 'package:<%= baseName %>/account/authentication/authentication_repository.dart';
 
 part 'authentication_event.dart';
 part 'authentication_state.dart';
@@ -31,7 +32,7 @@ class AuthenticationBloc
   }
 
   bool get isAuthenticated =>
-  state.status == AuthenticationStatus.authenticated;
+      state.status == AuthenticationStatus.authenticated;
 
   @override
   Future<void> close() {
@@ -49,16 +50,28 @@ class AuthenticationBloc
           status: AuthenticationStatus.unauthenticated,
         ));
       case AuthenticationStatus.authenticated:
-        final user = await _tryGetUser();
-        if (user != null) {
-          return emit(state.copyWith(
-            status: AuthenticationStatus.authenticated,
-            user: user,
-          ));
-        }
-        return emit(state.copyWith(
-          status: AuthenticationStatus.unauthenticated,
-        ));
+        final result = await _accountRepository.getAccount();
+
+        result.fold(
+          (Failure failure) {
+            return emit(
+              state.copyWith(
+                status: AuthenticationStatus.unauthenticated,
+              ),
+            );
+          },
+          (User? data) {
+            User? user = data;
+            if (user != null) {
+              return emit(
+                state.copyWith(
+                  status: AuthenticationStatus.authenticated,
+                  user: user,
+                ),
+              );
+            }
+          },
+        );
     }
   }
 
@@ -69,19 +82,10 @@ class AuthenticationBloc
     _authenticationRepository.logout();
   }
 
-  Future<User?> _tryGetUser() async {
-    try {
-      final user = await _accountRepository.getAccount();
-      return user;
-    } catch (_) {
-      return null;
-    }
-  }
-
   @override
   AuthenticationState? fromJson(Map<String, dynamic> json) {
     try {
-      return AuthenticationState.fromMap(json);
+      return AuthenticationState.fromJson(json);
     } catch (e) {
       throw Exception(e);
     }

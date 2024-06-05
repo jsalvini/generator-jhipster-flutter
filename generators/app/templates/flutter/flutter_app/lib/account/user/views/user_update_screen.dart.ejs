@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:<%= baseName %>/shared/widgets/widgets.dart';
 import 'package:<%= baseName %>/account/authority/bloc/authority_bloc.dart';
-import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
+import 'package:<%= baseName %>/core/constants/constants.dart';
 import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/account/user/bloc/user_bloc.dart';
 import 'package:<%= baseName %>/account/user/models/user_models.dart';
@@ -21,64 +23,57 @@ class UserUpdateScreen extends StatelessWidget {
       listener: (context, state) {
         if (state.userStatusUI == UserStatusUI.ok ||
             state.userStatusUI == UserStatusUI.error) {
-          Color colorBackground = Colors.green;
+          Color backgroundColor = Colors.green;
           IconData iconData = Icons.info_outline_rounded;
           if (state.userStatusUI == UserStatusUI.error) {
-            colorBackground = Colors.red;
+            backgroundColor = Colors.red;
             iconData = Icons.dangerous_outlined;
           }
 
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
-              SnackBar(
-                showCloseIcon: true,
-                closeIconColor: Colors.white,
-                duration: const Duration(seconds: 10),
-                content: Row(
-                  children: [
-                    Icon(iconData, color: Colors.white),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: Text(
-                        state.generalNotificationKey,
-                        maxLines: 4,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                backgroundColor: colorBackground,
+              getSnack(
+                context: context,
+                message: state.generalNotificationKey,
+                backgroundColor: backgroundColor,
+                iconData: iconData,
               ),
             );
           context.pushNamed('user');
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: BlocBuilder<UserBloc, UserState>(
-              buildWhen: (previous, current) =>
-                  previous.editMode != current.editMode,
-              builder: (context, state) {
-                String title =
-                    state.editMode == true ? 'Editar Usuario' : 'Crear Usuario';
-                return Text(title);
-              }),
+        appBar: CustomAppBar(
+          title: AppData.name,
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            children: <Widget>[
-              Card(
-                elevation: 5,
-                margin: const EdgeInsets.all(20),
-                shadowColor: Theme.of(context).colorScheme.primary,
-                child: const FormUser(),
-              ),
-            ],
+        body: CustomLayout(
+          title: BlocBuilder<UserBloc, UserState>(
+            buildWhen: (previous, current) =>
+                previous.editMode != current.editMode,
+            builder: (context, state) {
+              String title =
+                  state.editMode ? 'Editar usuario' : 'Crear usuario';
+              return Text(
+                title,
+                style: Theme.of(context).textTheme.displayMedium,
+              );
+            },
           ),
+          widgets: [
+            SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  Card(
+                    elevation: 5,
+                    surfaceTintColor: Theme.of(context).colorScheme.primary,
+                    shadowColor: Theme.of(context).colorScheme.primary,
+                    child: const FormUser(),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -90,27 +85,30 @@ class FormUser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(top: 30, bottom: 30),
+    return Padding(
+      padding: const EdgeInsets.all(20),
       child: Center(
-        child: SizedBox(
-          width: 600,
-          child: Form(
-            child: Wrap(runSpacing: 15, children: <Widget>[
-              LoginField(),
-              FirstNameField(),
-              LastNameField(),
-              EmailField(),
-              //ImageUrlField(),
-              ActivatedField(),
-              AutorityField(),
-              //LangKeyField(),
-              //CreatedByField(),
-              //CreatedDateField(),
-              //LastModifiedByField(),
-              //LastModifiedDateField(),
-              SubmitForm(),
-            ]),
+        child: Container(
+          constraints: const BoxConstraints(
+            maxWidth: 700,
+          ),
+          child: const Form(
+            child: Column(
+              children: <Widget>[
+                LoginField(),
+                SizedBox(height: 20),
+                FirstNameField(),
+                SizedBox(height: 20),
+                LastNameField(),
+                SizedBox(height: 20),
+                EmailField(),
+                SizedBox(height: 20),
+                ActivatedField(),
+                SizedBox(height: 20),
+                AutorityField(),
+                SubmitForm(),
+              ],
+            ),
           ),
         ),
       ),
@@ -147,7 +145,7 @@ class SubmitForm extends StatelessWidget {
                               context.read<UserBloc>().add(UserFormSubmitted())
                           : null,
                       style: ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(
+                        backgroundColor: WidgetStatePropertyAll(
                           state.isValid
                               ? context.read<ThemeBloc>().state ==
                                       ThemeMode.dark
@@ -192,35 +190,41 @@ class LoginField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) => previous.login != current.login,
-        builder: (context, state) {
-          return TextFormField(
-            controller: context.read<UserBloc>().loginController,
-            enabled: true,
-            onChanged: (value) {
-              context.read<UserBloc>().add(UserLoginChanged(login: value));
-            },
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.text_fields_rounded),
-              labelText: 'Usuario',
-              labelStyle: const TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+      buildWhen: (previous, current) => previous.login != current.login,
+      builder: (context, state) {
+        return Row(
+          children: [
+            SizedBox(
+              width: 75,
+              child: Text(
+                'Usuario',
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
-              floatingLabelStyle: const TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              errorText: state.login.displayError != null
-                  ? '${state.login.error?.invalidMessage()}'
-                  : null,
             ),
-          );
-        });
+            Expanded(
+              child: TextFormField(
+                controller: context.read<UserBloc>().loginController,
+                enabled: true,
+                onChanged: (value) {
+                  context.read<UserBloc>().add(UserLoginChanged(login: value));
+                },
+                keyboardType: TextInputType.text,
+                style: const TextStyle(
+                  color: Color(0xff1b070b),
+                  fontSize: 16,
+                ),
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.text_fields_rounded),
+                  errorText: state.login.displayError != null
+                      ? '${state.login.error?.invalidMessage()}'
+                      : null,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -230,38 +234,42 @@ class FirstNameField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) =>
-            previous.firstName != current.firstName,
-        builder: (context, state) {
-          return TextFormField(
-            controller: context.read<UserBloc>().firstNameController,
-            enabled: true,
-            onChanged: (value) {
-              context
-                  .read<UserBloc>()
-                  .add(UserFirstNameChanged(firstName: value));
-            },
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.text_fields_rounded),
-              labelText: 'Nombre',
-              labelStyle: const TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              floatingLabelStyle: const TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              errorText: state.firstName.displayError != null
-                  ? '${state.firstName.error?.invalidMessage()}'
-                  : null,
+      buildWhen: (previous, current) => previous.firstName != current.firstName,
+      builder: (context, state) {
+        return Row(
+          children: [
+            SizedBox(
+              width: 75,
+              child: Text('Nombre',
+                  style: Theme.of(context).textTheme.headlineMedium),
             ),
-          );
-        });
+            Expanded(
+              child: TextFormField(
+                controller: context.read<UserBloc>().firstNameController,
+                enabled: true,
+                onChanged: (value) {
+                  context
+                      .read<UserBloc>()
+                      .add(UserFirstNameChanged(firstName: value));
+                },
+                keyboardType: TextInputType.text,
+                style: const TextStyle(
+                  color: Color(0xff1b070b),
+                  fontSize: 16,
+                ),
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.text_fields_rounded),
+                  //labelText: 'Nombre',
+                  errorText: state.firstName.displayError != null
+                      ? '${state.firstName.error?.invalidMessage()}'
+                      : null,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -271,37 +279,42 @@ class LastNameField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) => previous.lastName != current.lastName,
-        builder: (context, state) {
-          return TextFormField(
-            controller: context.read<UserBloc>().lastNameController,
-            enabled: true,
-            onChanged: (value) {
-              context
-                  .read<UserBloc>()
-                  .add(UserLastNameChanged(lastName: value));
-            },
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.text_fields_rounded),
-              labelText: 'Apellido',
-              labelStyle: const TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              floatingLabelStyle: const TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              errorText: state.lastName.displayError != null
-                  ? '${state.lastName.error?.invalidMessage()}'
-                  : null,
+      buildWhen: (previous, current) => previous.lastName != current.lastName,
+      builder: (context, state) {
+        return Row(
+          children: [
+            SizedBox(
+              width: 75,
+              child: Text('Apellido',
+                  style: Theme.of(context).textTheme.headlineMedium),
             ),
-          );
-        });
+            Expanded(
+              child: TextFormField(
+                controller: context.read<UserBloc>().lastNameController,
+                enabled: true,
+                onChanged: (value) {
+                  context
+                      .read<UserBloc>()
+                      .add(UserLastNameChanged(lastName: value));
+                },
+                keyboardType: TextInputType.text,
+                style: const TextStyle(
+                  color: Color(0xff1b070b),
+                  fontSize: 16,
+                ),
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.text_fields_rounded),
+                  //labelText: 'Apellido',
+                  errorText: state.lastName.displayError != null
+                      ? '${state.lastName.error?.invalidMessage()}'
+                      : null,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -311,35 +324,40 @@ class EmailField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) => previous.email != current.email,
-        builder: (context, state) {
-          return TextFormField(
-            controller: context.read<UserBloc>().emailController,
-            enabled: true,
-            onChanged: (value) {
-              context.read<UserBloc>().add(UserEmailChanged(email: value));
-            },
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.email_rounded),
-              labelText: 'Email',
-              labelStyle: const TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              floatingLabelStyle: const TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              errorText: state.email.displayError != null
-                  ? '${state.email.error?.invalidMessage()}'
-                  : null,
+      buildWhen: (previous, current) => previous.email != current.email,
+      builder: (context, state) {
+        return Row(
+          children: [
+            SizedBox(
+              width: 75,
+              child: Text('Email',
+                  style: Theme.of(context).textTheme.headlineMedium),
             ),
-          );
-        });
+            Expanded(
+              child: TextFormField(
+                controller: context.read<UserBloc>().emailController,
+                enabled: true,
+                onChanged: (value) {
+                  context.read<UserBloc>().add(UserEmailChanged(email: value));
+                },
+                keyboardType: TextInputType.text,
+                style: const TextStyle(
+                  color: Color(0xff1b070b),
+                  fontSize: 16,
+                ),
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.email_rounded),
+                  //labelText: 'Email',
+                  errorText: state.email.displayError != null
+                      ? '${state.email.error?.invalidMessage()}'
+                      : null,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -360,6 +378,10 @@ class ImageUrlField extends StatelessWidget {
                   .add(UserImageUrlChanged(imageUrl: value));
             },
             keyboardType: TextInputType.text,
+            style: const TextStyle(
+              color: Color(0xff1b070b),
+              fontSize: 16,
+            ),
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.text_fields_rounded),
               labelText: 'ImageUrl',
@@ -389,36 +411,31 @@ class ActivatedField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) =>
-            previous.activated != current.activated,
-        builder: (context, state) {
-          return Padding(
-            padding: const EdgeInsets.only(left: 3.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  'Activado',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Switch(
-                  value: state.activated.value,
-                  onChanged: (value) {
-                    context
-                        .read<UserBloc>()
-                        .add(UserActivatedChanged(activated: value));
-                  },
-                  activeColor: Theme.of(context).primaryColor,
-                ),
-              ],
+      buildWhen: (previous, current) => previous.activated != current.activated,
+      builder: (context, state) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(
+              width: 75,
+              child: Text(
+                'Activado',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
             ),
-          );
-        });
+            Switch(
+              value: state.activated.value,
+              onChanged: (value) {
+                context
+                    .read<UserBloc>()
+                    .add(UserActivatedChanged(activated: value));
+              },
+              activeColor: Theme.of(context).primaryColor,
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -428,35 +445,40 @@ class LangKeyField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) => previous.langKey != current.langKey,
-        builder: (context, state) {
-          return TextFormField(
-            controller: context.read<UserBloc>().langKeyController,
-            enabled: true,
-            onChanged: (value) {
-              context.read<UserBloc>().add(UserLangKeyChanged(langKey: value));
-            },
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.text_fields_rounded),
-              labelText: 'LangKey',
-              labelStyle: const TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              floatingLabelStyle: const TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              errorText: state.langKey.displayError != null
-                  ? '${state.langKey.error?.invalidMessage()}'
-                  : null,
+      buildWhen: (previous, current) => previous.langKey != current.langKey,
+      builder: (context, state) {
+        return TextFormField(
+          controller: context.read<UserBloc>().langKeyController,
+          enabled: true,
+          onChanged: (value) {
+            context.read<UserBloc>().add(UserLangKeyChanged(langKey: value));
+          },
+          keyboardType: TextInputType.text,
+          style: const TextStyle(
+            color: Color(0xff1b070b),
+            fontSize: 16,
+          ),
+          decoration: InputDecoration(
+            prefixIcon: const Icon(Icons.text_fields_rounded),
+            labelText: 'LangKey',
+            labelStyle: const TextStyle(
+              height: 0.5,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
-          );
-        });
+            floatingLabelStyle: const TextStyle(
+              height: 0.5,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+            contentPadding: const EdgeInsets.symmetric(vertical: 10),
+            errorText: state.langKey.displayError != null
+                ? '${state.langKey.error?.invalidMessage()}'
+                : null,
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -466,39 +488,43 @@ class CreatedByField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) =>
-            previous.createdBy != current.createdBy,
-        builder: (context, state) {
-          return TextFormField(
-            controller: context.read<UserBloc>().createdByController,
-            enabled: true,
-            onChanged: (value) {
-              context
-                  .read<UserBloc>()
-                  .add(UserCreatedByChanged(createdBy: value));
-            },
-            keyboardType: TextInputType.text,
-            maxLength: 50,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.text_fields_rounded),
-              labelText: 'CreatedBy',
-              labelStyle: const TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              floatingLabelStyle: const TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              errorText: state.createdBy.displayError != null
-                  ? '${state.createdBy.error?.invalidMessage()}'
-                  : null,
+      buildWhen: (previous, current) => previous.createdBy != current.createdBy,
+      builder: (context, state) {
+        return TextFormField(
+          controller: context.read<UserBloc>().createdByController,
+          enabled: true,
+          onChanged: (value) {
+            context
+                .read<UserBloc>()
+                .add(UserCreatedByChanged(createdBy: value));
+          },
+          keyboardType: TextInputType.text,
+          style: const TextStyle(
+            color: Color(0xff1b070b),
+            fontSize: 16,
+          ),
+          maxLength: 50,
+          decoration: InputDecoration(
+            prefixIcon: const Icon(Icons.text_fields_rounded),
+            labelText: 'CreatedBy',
+            labelStyle: const TextStyle(
+              height: 0.5,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
-          );
-        });
+            floatingLabelStyle: const TextStyle(
+              height: 0.5,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+            contentPadding: const EdgeInsets.symmetric(vertical: 10),
+            errorText: state.createdBy.displayError != null
+                ? '${state.createdBy.error?.invalidMessage()}'
+                : null,
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -508,44 +534,57 @@ class CreatedDateField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) =>
-            previous.createdDate != current.createdDate,
-        builder: (context, state) {
-          return DateTimeField(
-            controller: context.read<UserBloc>().createdDateController,
-            enabled: true,
-            onChanged: (value) {
+      buildWhen: (previous, current) =>
+          previous.createdDate != current.createdDate,
+      builder: (context, state) {
+        return FormBuilderDateTimePicker(
+          name: 'createdDate',
+          controller: context.read<UserBloc>().createdDateController,
+          initialEntryMode: DatePickerEntryMode.calendar,
+          initialValue: state.loadedUser.createdDate != null
+              ? DateTime.parse(state.loadedUser.createdDate!)
+              : DateTime.now(),
+          format: DateFormat('yyyy-MM-dd'),
+          inputType: InputType.both,
+          style: const TextStyle(
+            color: Color(0xff1b070b),
+            fontSize: 16,
+          ),
+          decoration: const InputDecoration(
+            prefixIcon: Icon(Icons.date_range_rounded),
+            labelText: 'CreatedDate',
+            hintText: 'Ejemplo: 2024-01-24',
+            labelStyle: TextStyle(
+              height: 0.5,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+            floatingLabelStyle: TextStyle(
+              height: 0.5,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+          initialTime: const TimeOfDay(hour: 8, minute: 0),
+          keyboardType: TextInputType.datetime,
+          onChanged: (DateTime? newValue) {
+            if (newValue != null) {
+              //DateFormat formato = DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'");
+              //String value = formato.format(newValue);
               context
                   .read<UserBloc>()
-                  .add(UserCreatedDateChanged(createdDate: value!));
-            },
-            format: DateFormat("yyyy-MM-dd"),
-            keyboardType: TextInputType.datetime,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.date_range_rounded),
-              labelText: 'CreatedDate',
-              hintText: 'Ejemplo: 2024-01-24',
-              labelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              floatingLabelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-            onShowPicker: (context, currentValue) async {
-              return await showDatePicker(
-                  locale: const Locale('en'),
-                  context: context,
-                  firstDate: DateTime(1950),
-                  initialDate: currentValue ?? DateTime.now(),
-                  lastDate: DateTime(2100));
-            },
-          );
-        });
+                  .add(UserCreatedDateChanged(createdDate: newValue));
+            }
+          },
+          validator: FormBuilderValidators.compose(
+            [
+              FormBuilderValidators.required(
+                  errorText: '* Debe seleccionar un valor.'),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -555,39 +594,40 @@ class LastModifiedByField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) =>
-            previous.lastModifiedBy != current.lastModifiedBy,
-        builder: (context, state) {
-          return TextFormField(
-            controller: context.read<UserBloc>().lastModifiedByController,
-            enabled: true,
-            onChanged: (value) {
-              context
-                  .read<UserBloc>()
-                  .add(UserLastModifiedByChanged(lastModifiedBy: value));
-            },
-            keyboardType: TextInputType.text,
-            maxLength: 50,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.text_fields_rounded),
-              labelText: 'LastModifiedBy',
-              labelStyle: const TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              floatingLabelStyle: const TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              errorText: state.lastModifiedBy.displayError != null
-                  ? '${state.lastModifiedBy.error?.invalidMessage()}'
-                  : null,
+      buildWhen: (previous, current) =>
+          previous.lastModifiedBy != current.lastModifiedBy,
+      builder: (context, state) {
+        return TextFormField(
+          controller: context.read<UserBloc>().lastModifiedByController,
+          enabled: true,
+          onChanged: (value) {
+            context
+                .read<UserBloc>()
+                .add(UserLastModifiedByChanged(lastModifiedBy: value));
+          },
+          keyboardType: TextInputType.text,
+          maxLength: 50,
+          decoration: InputDecoration(
+            prefixIcon: const Icon(Icons.text_fields_rounded),
+            labelText: 'LastModifiedBy',
+            labelStyle: const TextStyle(
+              height: 0.5,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
-          );
-        });
+            floatingLabelStyle: const TextStyle(
+              height: 0.5,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+            contentPadding: const EdgeInsets.symmetric(vertical: 10),
+            errorText: state.lastModifiedBy.displayError != null
+                ? '${state.lastModifiedBy.error?.invalidMessage()}'
+                : null,
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -597,44 +637,58 @@ class LastModifiedDateField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserBloc, UserState>(
-        buildWhen: (previous, current) =>
-            previous.lastModifiedDate != current.lastModifiedDate,
-        builder: (context, state) {
-          return DateTimeField(
-            controller: context.read<UserBloc>().lastModifiedDateController,
-            enabled: true,
-            onChanged: (value) {
+      buildWhen: (previous, current) =>
+          previous.lastModifiedDate != current.lastModifiedDate,
+      builder: (context, state) {
+        return FormBuilderDateTimePicker(
+          name: 'lastModified',
+          controller: context.read<UserBloc>().lastModifiedDateController,
+          enabled: true,
+          initialEntryMode: DatePickerEntryMode.calendar,
+          initialValue: state.loadedUser.lastModifiedDate != null
+              ? DateTime.parse(state.loadedUser.lastModifiedDate!)
+              : DateTime.now(),
+          format: DateFormat('yyyy-MM-dd'),
+          inputType: InputType.both,
+          style: const TextStyle(
+            color: Color(0xff1b070b),
+            fontSize: 16,
+          ),
+          decoration: const InputDecoration(
+            prefixIcon: Icon(Icons.date_range_rounded),
+            labelText: 'LastModifiedDate',
+            hintText: 'Ejemplo: 2024-01-24',
+            labelStyle: TextStyle(
+              height: 0.5,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+            floatingLabelStyle: TextStyle(
+              height: 0.5,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+          initialTime: const TimeOfDay(hour: 8, minute: 0),
+          keyboardType: TextInputType.datetime,
+          onChanged: (DateTime? newValue) {
+            if (newValue != null) {
+              //DateFormat formato = DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'");
+              //String value = formato.format(newValue);
               context
                   .read<UserBloc>()
-                  .add(UserLastModifiedDateChanged(lastModifiedDate: value!));
-            },
-            format: DateFormat("yyyy-MM-dd"),
-            keyboardType: TextInputType.datetime,
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.date_range_rounded),
-              labelText: 'LastModifiedDate',
-              hintText: 'Ejemplo: 2024-01-24',
-              labelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              floatingLabelStyle: TextStyle(
-                height: 0.5,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-            onShowPicker: (context, currentValue) async {
-              return await showDatePicker(
-                  locale: const Locale('en'),
-                  context: context,
-                  firstDate: DateTime(1950),
-                  initialDate: currentValue ?? DateTime.now(),
-                  lastDate: DateTime(2100));
-            },
-          );
-        });
+                  .add(UserLastModifiedDateChanged(lastModifiedDate: newValue));
+            }
+          },
+          validator: FormBuilderValidators.compose(
+            [
+              FormBuilderValidators.required(
+                  errorText: '* Debe seleccionar un valor.'),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -716,7 +770,9 @@ class AutorityField extends StatelessWidget {
               );
             }
             if (authorityState.authorityStatusUI == AuthorityStatusUI.loading) {
-              return const LoadingIndicator();
+              return const LoadingIndicator(
+                message: 'CARGANDO',
+              );
             }
             return const Center(child: CircularProgressIndicator());
           },

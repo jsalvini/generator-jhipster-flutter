@@ -1,0 +1,67 @@
+import 'package:intl/intl.dart';
+
+class CustomDateTime {
+  static String formatearFecha(String? fechaOriginal) {
+    String fechaFormateada = '';
+    DateTime fecha = DateTime.now();
+
+    if (fechaOriginal != null && fechaOriginal != '') {
+      fecha = DateTime.parse(fechaOriginal);
+    }
+    fechaFormateada = DateFormat('dd-MM-yyyy').format(fecha);
+
+    return fechaFormateada;
+  }
+
+  static String formatearHora(String? fechaOriginal) {
+    String horaFormateada = '';
+    DateTime fecha = DateTime.now();
+    if (fechaOriginal != null && fechaOriginal != '') {
+      fecha = DateTime.parse(fechaOriginal);
+    }
+    horaFormateada = DateFormat('HH:mm:ss').format(fecha);
+    return horaFormateada;
+  }
+
+  static String formatearFechaHora(DateTime fecha) {
+    String fechaFormateada = '';
+    fechaFormateada = DateFormat('dd-MM-yyyy HH:mm:ss').format(fecha);
+
+    return fechaFormateada;
+  }
+
+  static String formatearFechaHoraTabla(String? fechaOriginal) {
+    String horaFormateada = '';
+    DateTime fecha = DateTime.now();
+    if (fechaOriginal != null && fechaOriginal != '') {
+      fecha = DateTime.parse(fechaOriginal);
+    }
+    horaFormateada = DateFormat('yyyy-MM-dd HH:mm:ss').format(fecha);
+    return horaFormateada;
+  }
+
+  static String formatearFechaHoraMin(String? fechaOriginal) {
+    String horaFormateada = '';
+    DateTime fecha = DateTime.now();
+    if (fechaOriginal != null && fechaOriginal != '') {
+      fecha = DateTime.parse(fechaOriginal);
+    }
+    horaFormateada = DateFormat('yyyy-MM-dd HH:mm').format(fecha);
+    return horaFormateada;
+  }
+
+  static DateTime convertToDate(String fechaOriginal) {
+    String horaFormateada = '';
+    DateTime fecha = DateTime.now();
+    try {
+      fecha =
+          DateFormat('yyyy-MM-dd HH:mm', 'en').parseStrict(fechaOriginal);
+      return fecha;
+    } catch (e) {
+      horaFormateada = DateFormat('yyyy-MM-dd HH:mm').format(fecha);
+      fecha =
+          DateFormat('yyyy-MM-dd HH:mm', 'en').parseStrict(horaFormateada);
+      return fecha;
+    }
+  }
+}

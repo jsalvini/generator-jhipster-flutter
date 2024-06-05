@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:<%= baseName %>/core/constants/constants.dart';
 import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/account/user/bloc/user_bloc.dart';
 import 'package:<%= baseName %>/account/user/models/user_model.dart';
-import 'package:<%= baseName %>/shared/widgets/loading_indicator_widget.dart';
-import '../../../shared/widgets/drawer_widget.dart';
+import 'package:<%= baseName %>/shared/widgets/widgets.dart';
 import '../user_routes.dart';
 import 'user_table.dart';
 
@@ -18,50 +18,40 @@ class UserListScreen extends StatelessWidget {
       listener: (context, state) {
         if (state.deleteStatus == UserDeleteStatus.ok ||
             state.deleteStatus == UserDeleteStatus.error) {
-          Color colorBackground = Colors.green;
+          Color backgroundColor = Colors.green;
           IconData iconData = Icons.info_outline_rounded;
           if (state.deleteStatus == UserDeleteStatus.error) {
-            colorBackground = Colors.red;
+            backgroundColor = Colors.red;
             iconData = Icons.dangerous_outlined;
           }
 
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
-              SnackBar(
-                showCloseIcon: true,
-                closeIconColor: Colors.white,
-                duration: const Duration(seconds: 10),
-                content: Row(
-                  children: [
-                    Icon(iconData, color: Colors.white),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: Text(
-                        state.generalNotificationKey,
-                        maxLines: 4,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                backgroundColor: colorBackground,
+              getSnack(
+                context: context,
+                message: state.generalNotificationKey,
+                backgroundColor: backgroundColor,
+                iconData: iconData,
               ),
             );
         }
       },
       child: Scaffold(
         key: scaffoldKey,
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text(
-            'Usuarios',
-            style: TextStyle(color: Colors.white),
-          ),
+        appBar: CustomAppBar(
+          title: AppData.name,
         ),
-        body: const UserView(),
-        drawer: const GatewaympDrawer(),
+        drawer: const CustomDrawer(),
+        body: CustomLayout(
+          title: Text(
+            'Usuarios',
+            style: Theme.of(context).textTheme.displayMedium,
+          ),
+          widgets: const [
+            UserView(),
+          ],
+        ),
       ),
     );
   }
@@ -72,21 +62,27 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<UserBloc, UserState>(builder: (context, state) {
-      switch (state.userStatusUI) {
-        case UserStatusUI.done:
-          List<User> userList = state.users;
-          return UserTable(
-            users: userList,
-            blocContext: context,
-          );
-        case UserStatusUI.loading:
-          return const LoadingIndicator();
-        case UserStatusUI.error:
-          return ErrorView(message: state.generalNotificationKey);
-        default:
-          return const LoadingIndicator();
-      }
-    });
+    return BlocBuilder<UserBloc, UserState>(
+      builder: (context, state) {
+        switch (state.userStatusUI) {
+          case UserStatusUI.done:
+            List<User> userList = state.users;
+            return UserTable(
+              users: userList,
+              blocContext: context,
+            );
+          case UserStatusUI.loading:
+            return const LoadingIndicator(
+              message: 'CARGANDO',
+            );
+          case UserStatusUI.error:
+            return ErrorView(message: state.generalNotificationKey);
+          default:
+            return const LoadingIndicator(
+              message: 'CARGANDO',
+            );
+        }
+      },
+    );
   }
 }

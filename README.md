@@ -28,7 +28,6 @@ Get started and (Full not yet) documentation on my blog [here](https://cyril-cas
   - Change language in user preferences UI
   - Apply the preferred locale instead of the device one
 - BLoC Architecture [More informations](https://pub.dev/packages/flutter_bloc)
-- JSON serializer / deserializer Java Jackson like [More informations](https://pub.dev/packages/dart_json_mapper)
 - Language choice
   - Java / Kotlin for Android
   - Objective C / Swift for iOS

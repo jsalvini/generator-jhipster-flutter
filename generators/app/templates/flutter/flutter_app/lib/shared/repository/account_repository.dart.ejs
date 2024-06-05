@@ -1,39 +1,62 @@
 import 'dart:convert';
-import 'dart:developer';
+import 'package:dartz/dartz.dart';
+import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/account/user/models/user_model.dart';
+import 'package:<%= baseName %>/shared/exceptions/app_exception.dart';
+import 'package:<%= baseName %>/shared/models/error_response.dart';
 import 'package:<%= baseName %>/shared/utils/http_utils.dart';
 
 class AccountRepository {
   User? _user;
-
   AccountRepository();
 
-  Future<User?> getAccount() async {
-    final response = await HttpUtils.getRequest("/account");
-    var decode = utf8.decode(response.bodyBytes);
-    const JsonDecoder decoder = JsonDecoder();
+  Future<Either<Failure, User?>> getAccount() async {
     try {
-      _user = User.fromMap(decoder.convert(decode));
-    } catch (e) {
-      log('Error decodificación json: $e');
-    }
+      final response = await HttpUtils.getRequest("/account");
+      const JsonDecoder decoder = JsonDecoder();
 
-    return _user;
+      if (response.statusCode >= 300 && response.statusCode < 600) {
+        ErrorResponse errorResponse = ErrorResponse.fromJson(
+            decoder.convert(utf8.decode(response.bodyBytes)));
+        return Left(
+          ServerFailure(errorMessage: errorResponse.detail),
+        );
+      }
+      var userDecode = decoder.convert(utf8.decode(response.bodyBytes));
+      _user = User.fromJson(userDecode);
+      return Right(_user);
+    } on ServerException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: e.errorMessage),
+      );
+    } on FetchDataException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: '${e.prefix} ${e.message}'),
+      );
+    }
   }
 
-  Future<String?> saveAccount(User user) async {
-    final response = await HttpUtils.postRequest<User>("/account", user);
-    String? result;
-    if (response.statusCode != 200) {
-      if (response.headers[HttpUtils.errorHeader] != null) {
-        result = response.headers[HttpUtils.errorHeader];
-      } else {
-        result = HttpUtils.errorServerKey;
-      }
-    } else {
-      result = HttpUtils.successResult;
-    }
+  Future<Either<Failure, String>> saveAccount(User user) async {
+    try {
+      final response = await HttpUtils.postRequest<User>("/account", user);
+      const JsonDecoder decoder = JsonDecoder();
 
-    return result;
+      if (response.statusCode >= 300 && response.statusCode < 600) {
+        ErrorResponse errorResponse = ErrorResponse.fromJson(
+            decoder.convert(utf8.decode(response.bodyBytes)));
+        return Left(
+          ServerFailure(errorMessage: errorResponse.detail),
+        );
+      }
+      return const Right("OK");
+    } on ServerException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: e.errorMessage),
+      );
+    } on FetchDataException catch (e) {
+      return Left(
+        ServerFailure(errorMessage: '${e.prefix} ${e.message}'),
+      );
+    }
   }
 }

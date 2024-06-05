@@ -1,6 +1,6 @@
 part of 'settings_bloc.dart';
 
-enum SettingsAction { none, reloadForLanguage }
+enum SettingsStatusUI { init, loading, error, done, ok }
 
 class SettingsState extends Equatable {
   final FirstnameInput firstname;
@@ -8,7 +8,7 @@ class SettingsState extends Equatable {
   final EmailInput email;
   final FormzSubmissionStatus formStatus;
   final bool isValid;
-  final SettingsAction action;
+  final SettingsStatusUI settingsStatusUI;
   final String generalNotificationKey;
   final User currentUser;
 
@@ -16,22 +16,23 @@ class SettingsState extends Equatable {
     this.firstname = const FirstnameInput.pure(),
     this.lastname = const LastnameInput.pure(),
     this.email = const EmailInput.pure(),
-    this.action = SettingsAction.none,
+    this.settingsStatusUI = SettingsStatusUI.init,
     this.formStatus = FormzSubmissionStatus.initial,
     this.isValid = false,
     this.generalNotificationKey = HttpUtils.generalNoErrorKey,
     this.currentUser = const User(authorities: ['ROLE_USER']),
   });
 
-  SettingsState copyWith(
-      {FirstnameInput? firstname,
-      LastnameInput? lastname,
-      EmailInput? email,
-      FormzSubmissionStatus? formStatus,
-      bool? isValid,
-      String? generalNotificationKey,
-      SettingsAction? action,
-      User? currentUser}) {
+  SettingsState copyWith({
+    FirstnameInput? firstname,
+    LastnameInput? lastname,
+    EmailInput? email,
+    FormzSubmissionStatus? formStatus,
+    bool? isValid,
+    String? generalNotificationKey,
+    SettingsStatusUI? settingsStatusUI,
+    User? currentUser,
+  }) {
     return SettingsState(
         firstname: firstname ?? this.firstname,
         lastname: lastname ?? this.lastname,
@@ -40,7 +41,7 @@ class SettingsState extends Equatable {
         isValid: isValid ?? this.isValid,
         generalNotificationKey:
             generalNotificationKey ?? this.generalNotificationKey,
-        action: action ?? this.action,
+        settingsStatusUI: settingsStatusUI ?? this.settingsStatusUI,
         currentUser: currentUser ?? this.currentUser);
   }
 
@@ -52,7 +53,7 @@ class SettingsState extends Equatable {
         formStatus,
         isValid,
         generalNotificationKey,
-        action,
+        settingsStatusUI,
         currentUser
       ];
 }

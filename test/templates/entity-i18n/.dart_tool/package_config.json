@@ -3,21 +3,21 @@
   "packages": [
     {
       "name": "_fe_analyzer_shared",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/_fe_analyzer_shared-61.0.0",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/_fe_analyzer_shared-67.0.0",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.0"
     },
     {
       "name": "analyzer",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-5.13.0",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/analyzer-6.4.1",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "3.0"
     },
     {
       "name": "args",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/args-2.4.2",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/args-2.5.0",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "3.0"
     },
     {
       "name": "async",
@@ -51,9 +51,9 @@
     },
     {
       "name": "build_daemon",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/build_daemon-4.0.1",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/build_daemon-4.0.2",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.4"
     },
     {
       "name": "build_resolvers",
@@ -63,9 +63,9 @@
     },
     {
       "name": "build_runner",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/build_runner-2.4.8",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/build_runner-2.4.10",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.4"
     },
     {
       "name": "build_runner_core",
@@ -81,7 +81,7 @@
     },
     {
       "name": "built_value",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/built_value-8.9.1",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/built_value-8.9.2",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -134,22 +134,10 @@
       "languageVersion": "2.19"
     },
     {
-      "name": "dart_json_mapper",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/dart_json_mapper-2.2.10",
-      "packageUri": "lib/",
-      "languageVersion": "2.17"
-    },
-    {
-      "name": "dart_json_mapper_flutter",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/dart_json_mapper_flutter-2.0.1",
-      "packageUri": "lib/",
-      "languageVersion": "2.12"
-    },
-    {
       "name": "dart_style",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/dart_style-2.3.2",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/dart_style-2.3.6",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "3.0"
     },
     {
       "name": "datetime_picker_formfield_new",
@@ -191,7 +179,7 @@
       "name": "flutter",
       "rootUri": "file:///C:/flutter/packages/flutter",
       "packageUri": "lib/",
-      "languageVersion": "3.2"
+      "languageVersion": "3.3"
     },
     {
       "name": "flutter_bloc",
@@ -213,31 +201,31 @@
     },
     {
       "name": "flutter_secure_storage_linux",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_secure_storage_linux-1.2.0",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_secure_storage_linux-1.2.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
     {
       "name": "flutter_secure_storage_macos",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_secure_storage_macos-3.0.1",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_secure_storage_macos-3.1.2",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
     {
       "name": "flutter_secure_storage_platform_interface",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_secure_storage_platform_interface-1.0.2",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_secure_storage_platform_interface-1.1.2",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
     {
       "name": "flutter_secure_storage_web",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_secure_storage_web-1.1.2",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_secure_storage_web-1.2.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
     {
       "name": "flutter_secure_storage_windows",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_secure_storage_windows-3.0.0",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_secure_storage_windows-3.1.2",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -245,7 +233,7 @@
       "name": "flutter_test",
       "rootUri": "file:///C:/flutter/packages/flutter_test",
       "packageUri": "lib/",
-      "languageVersion": "3.2"
+      "languageVersion": "3.3"
     },
     {
       "name": "flutter_web_plugins",
@@ -261,9 +249,9 @@
     },
     {
       "name": "frontend_server_client",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/frontend_server_client-3.2.0",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/frontend_server_client-4.0.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "3.0"
     },
     {
       "name": "glob",
@@ -321,27 +309,27 @@
     },
     {
       "name": "json_annotation",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/json_annotation-4.8.1",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/json_annotation-4.9.0",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "3.0"
     },
     {
       "name": "leak_tracker",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/leak_tracker-10.0.0",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/leak_tracker-10.0.4",
       "packageUri": "lib/",
-      "languageVersion": "3.1"
+      "languageVersion": "3.2"
     },
     {
       "name": "leak_tracker_flutter_testing",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/leak_tracker_flutter_testing-2.0.1",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/leak_tracker_flutter_testing-3.0.3",
       "packageUri": "lib/",
-      "languageVersion": "3.1"
+      "languageVersion": "3.2"
     },
     {
       "name": "leak_tracker_testing",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/leak_tracker_testing-2.0.1",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/leak_tracker_testing-3.0.1",
       "packageUri": "lib/",
-      "languageVersion": "3.1"
+      "languageVersion": "3.2"
     },
     {
       "name": "lints",
@@ -369,7 +357,7 @@
     },
     {
       "name": "meta",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/meta-1.11.0",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/meta-1.12.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -405,21 +393,21 @@
     },
     {
       "name": "path_provider",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider-2.1.2",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider-2.1.3",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.1"
     },
     {
       "name": "path_provider_android",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_android-2.2.2",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_android-2.2.5",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.4"
     },
     {
       "name": "path_provider_foundation",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_foundation-2.3.2",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_foundation-2.4.0",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.2"
     },
     {
       "name": "path_provider_linux",
@@ -471,15 +459,15 @@
     },
     {
       "name": "pubspec_parse",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/pubspec_parse-1.2.3",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/pubspec_parse-1.3.0",
       "packageUri": "lib/",
-      "languageVersion": "2.18"
+      "languageVersion": "3.0"
     },
     {
       "name": "reflectable",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/reflectable-4.0.5",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/reflectable-4.0.6",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "3.0"
     },
     {
       "name": "regexpattern",
@@ -501,9 +489,9 @@
     },
     {
       "name": "shelf_web_socket",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/shelf_web_socket-1.0.4",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/shelf_web_socket-2.0.0",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.0"
     },
     {
       "name": "sky_engine",
@@ -549,7 +537,7 @@
     },
     {
       "name": "test_api",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/test_api-0.6.1",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/test_api-0.7.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -573,13 +561,13 @@
     },
     {
       "name": "url_launcher_android",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher_android-6.3.0",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher_android-6.3.3",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.4"
     },
     {
       "name": "url_launcher_ios",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher_ios-6.2.5",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher_ios-6.3.0",
       "packageUri": "lib/",
       "languageVersion": "3.2"
     },
@@ -591,9 +579,9 @@
     },
     {
       "name": "url_launcher_macos",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher_macos-3.1.0",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher_macos-3.2.0",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "3.1"
     },
     {
       "name": "url_launcher_platform_interface",
@@ -621,9 +609,9 @@
     },
     {
       "name": "vm_service",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/vm_service-13.0.0",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/vm_service-14.2.1",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.3"
     },
     {
       "name": "watcher",
@@ -645,13 +633,13 @@
     },
     {
       "name": "win32",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/win32-5.3.0",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/win32-5.5.1",
       "packageUri": "lib/",
-      "languageVersion": "3.3"
+      "languageVersion": "3.4"
     },
     {
       "name": "window_manager",
-      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/window_manager-0.3.8",
+      "rootUri": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache/hosted/pub.dev/window_manager-0.3.9",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -674,7 +662,10 @@
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2024-03-27T14:58:36.813068Z",
+  "generated": "2024-06-04T20:12:47.348472Z",
   "generator": "pub",
-  "generatorVersion": "3.3.0"
+  "generatorVersion": "3.4.1",
+  "flutterRoot": "file:///C:/flutter",
+  "flutterVersion": "3.22.1",
+  "pubCache": "file:///C:/Users/lenovo/AppData/Local/Pub/Cache"
 }

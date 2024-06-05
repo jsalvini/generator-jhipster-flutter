@@ -1,0 +1,53 @@
+import 'package:flutter/material.dart';
+
+SnackBar getSnack({
+  required BuildContext context,
+  required String message,
+  Color? textColor = Colors.white,
+  Color? backgroundColor = Colors.red,
+  IconData? iconData = Icons.info_outline_rounded,
+  int duration = 3,
+  bool showCloseIcon = false,
+}) {
+  final size = MediaQuery.of(context).size;
+  return SnackBar(
+    elevation: 5,
+    margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+    behavior: SnackBarBehavior.floating,
+    showCloseIcon: showCloseIcon,
+    closeIconColor: textColor,
+    duration: Duration(seconds: duration),
+    dismissDirection: DismissDirection.startToEnd,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16.0),
+    ),
+    content: Row(
+      children: [
+        if (size.width > 500)
+          Icon(
+            iconData,
+            color: textColor,
+            size: size.height < 600 ? 24 : 32,
+          ),
+        const SizedBox(width: 10),
+        Flexible(
+          child: Text(
+            message,
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
+            style: size.width < 800
+                ? Theme.of(context)
+                    .textTheme
+                    .displaySmall!
+                    .copyWith(color: textColor)
+                : Theme.of(context)
+                    .textTheme
+                    .displayMedium!
+                    .copyWith(color: textColor),
+          ),
+        ),
+      ],
+    ),
+    backgroundColor: backgroundColor,
+  );
+}

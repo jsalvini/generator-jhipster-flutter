@@ -117,3 +117,45 @@ class Load<%= entityClass %>ByIdForView extends <%= entityClass %>Event {
   @override
   List<Object> get props => [id as int];
 }
+
+class <%= entityClass %>FilterChanged extends <%= entityClass %>Event {
+  final Map<String, String> filters;
+  const <%= entityClass %>FilterChanged({
+    required this.filters,
+  });
+
+  @override
+  List<Object> get props => [filters];
+}
+
+class <%= entityClass %>FilterCondicionChanged extends <%= entityClass %>Event {
+  final String filterCondicion;
+  const <%= entityClass %>FilterCondicionChanged({
+    required this.filterCondicion,
+  });
+
+  @override
+  List<Object> get props => [filterCondicion];
+}
+
+class <%= entityClass %>FilterValueChanged extends <%= entityClass %>Event {
+  final String filterValue;
+  const <%= entityClass %>FilterValueChanged({
+    required this.filterValue,
+  });
+
+  @override
+  List<Object> get props => [filterValue];
+}
+
+class <%= entityClass %>Filter extends <%= entityClass %>Event {
+  final int page;
+  final String sort;
+  final String ascending;
+
+  const <%= entityClass %>Filter({
+    required this.page,
+    required this.sort,
+    required this.ascending,
+  });
+}

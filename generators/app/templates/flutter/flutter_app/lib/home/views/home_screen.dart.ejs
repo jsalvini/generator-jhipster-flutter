@@ -1,45 +1,118 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:<%= baseName %>/account/authentication/authentication.dart';
+import 'package:<%= baseName %>/core/constants/constants.dart';
+import 'package:<%= baseName %>/core/router/routes.dart';
 import 'package:<%= baseName %>/home/home_routes.dart';
-import 'package:<%= baseName %>/shared/widgets/drawer_widget.dart';
+import 'package:<%= baseName %>/home/widgets/entity_card.dart';
+import 'package:<%= baseName %>/shared/utils/utils.dart';
+import 'package:<%= baseName %>/shared/widgets/widgets.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: HomeRoutes.screenKey);
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
-      //backgroundColor: const Color(0xff191918),
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('Home'),
+      appBar: CustomAppBar(
+        title: AppData.name,
       ),
-      body: const HomeBody(),
-      drawer: const <%= camelizedUpperFirstBaseName %>Drawer(),
-    );
-  }
-}
-
-class HomeBody extends StatelessWidget {
-  const HomeBody({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.80,
-              child: const Text('Bienvenido a <%= camelizedUpperFirstBaseName %>',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 48),
-				        ),
+      drawer: const CustomDrawer(),
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            flex: 4,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                      buildWhen: (previous, current) =>
+                          previous.user != current.user,
+                      builder: (context, state) {
+                        return SizedBox(
+                          width: size.width,
+                          height: 80,
+                          child: Card(
+                            elevation: 5,
+                            shadowColor: Theme.of(context).colorScheme.primary,
+                            surfaceTintColor: const Color(0xffffdb04),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 10, right: 10),
+                              child: Wrap(
+                                alignment: WrapAlignment.start,
+                                runAlignment: WrapAlignment.center,
+                                spacing: 20,
+                                runSpacing: 10,
+                                children: [
+                                  SizedBox(
+                                    width: size.width * 0.45,
+                                    child: Text(
+                                      'Bienvenido, ${state.user.firstName}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .displaySmall,
+                                    ),
+                                  ),
+                                  /*Container(
+                                    width: size.width * 0.45,
+                                    color: Colors.amber,
+                                    child: Text(
+                                      'Fecha/Hora: ${CustomDateTime.formatearFechaHora(DateTime.now())}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .displaySmall,
+                                    ),
+                                  ),*/
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 200,
+                      child: ScrollConfiguration(
+                        behavior: CustomScrollBehavior(),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          itemCount:
+                          <%= camelizedUpperFirstBaseName %>Routes.screensEntities.entries.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            String title = <%= camelizedUpperFirstBaseName %>Routes.screensEntities.keys
+                                .elementAt(index);
+                            Map<String, dynamic> data =
+                              <%= camelizedUpperFirstBaseName %>Routes.screensEntities[title];
+                            //log('data: $data');
+                            return EntityCard(
+                              title: title,
+                              icon: data['icon'],
+                              onPressed: () => context.go(
+                                data['routeName'],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }

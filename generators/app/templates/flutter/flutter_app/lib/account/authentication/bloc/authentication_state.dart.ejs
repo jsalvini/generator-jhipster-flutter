@@ -25,19 +25,21 @@ class AuthenticationState extends Equatable {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'status': status.index,
-      'user': user.toMap(),
+      'user': user.toJson(),
     };
   }
 
-  factory AuthenticationState.fromMap(Map<String, dynamic> map) {
+  factory AuthenticationState.fromJson(Map<String, dynamic> map) {
+    User u = const User(authorities: ["ROLE_USER"]);
+    try {
+      u = User.fromJson(map['user']);
+    } catch (e) {
+      log('Error fromJson: $e');
+    }
+
     return AuthenticationState(
       status: AuthenticationStatus.values[map['status']],
-      user: User.fromMap(map['user']),
+      user: u,
     );
   }
-
-  String toJson() => json.encode(toMap());
-
-  factory AuthenticationState.fromJson(String source) =>
-      AuthenticationState.fromMap(json.decode(source) as Map<String, dynamic>);
 }

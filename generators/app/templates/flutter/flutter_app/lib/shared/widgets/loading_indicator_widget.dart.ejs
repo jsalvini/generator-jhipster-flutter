@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class LoadingIndicator extends StatelessWidget {
-  const LoadingIndicator({super.key});
+  const LoadingIndicator({
+    super.key,
+    required this.message,
+  });
+
+  final String message;
 
   @override
   Widget build(BuildContext context) {
@@ -9,15 +15,31 @@ class LoadingIndicator extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 40),
         child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.75,
+          height: MediaQuery.of(context).size.height * 0.60,
           child: Center(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const CircularProgressIndicator(),
-                  const Padding(padding: EdgeInsets.only(top: 15)),
-				  Text('Loading...', style: TextStyle(color: Theme.of(context).colorScheme.primary,)),
-            ]),
+              //mainAxisAlignment: MainAxisAlignment.center,
+              //crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                LottieBuilder.asset(
+                  'assets/lotties/loading.json',
+                  width: 100,
+                  height: 100,
+                ),
+                const SizedBox(height: 15),
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.displayMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          letterSpacing: 1.0,
+                        ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

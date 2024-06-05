@@ -737,6 +737,21 @@ module.exports = class extends BaseGenerator {
                     this.stripMargin(newRoute)
                 ]
             }, this);
+
+            const newScreens = `'${entityClassPlural}': {
+                'routeName': '${entityInstance}',
+                'icon': FaIcon(
+                  FontAwesomeIcons.calendarDays,
+                  size: iconSize,
+                ),
+              },`;
+            utils.rewriteFile({
+                file: routesPath,
+                needle: 'jhipster-merlin-needle-screens-entry-add',
+                splicable: [
+                    this.stripMargin(newScreens)
+                ]
+            }, this);
         } catch (e) {
             this.log(`${chalk.yellow('\nUnable to find ') + routersClassPath + chalk.yellow(' or missing required jhipster-needle. Reference to ') + entityClass})}`);
             this.debug('Error:', e);

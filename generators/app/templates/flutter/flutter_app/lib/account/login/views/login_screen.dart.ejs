@@ -1,11 +1,8 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
-import 'package:<%= baseName %>/account/login/bloc/login_bloc.dart';
 import 'package:<%= baseName %>/account/login/login_routes.dart';
-import 'package:<%= baseName %>/account/login/views/login_form.dart';
-import 'package:<%= baseName %>/shared/repository/authentication_repository.dart';
+import 'package:<%= baseName %>/account/login/widgets/footer_bar.dart';
+import 'package:<%= baseName %>/account/login/widgets/login_form.dart';
+import 'package:<%= baseName %>/core/constants/constants.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: LoginRoutes.screenKey);
@@ -14,75 +11,123 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return BlocProvider<LoginBloc>(
-      create: (context) => LoginBloc(
-        authenticationRepository:
-            RepositoryProvider.of<AuthenticationRepository>(context),
-      ),
-      child: Container(
-        alignment: Alignment.center,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/images/fondo.jpg"),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: SingleChildScrollView(
-            child: Stack(
-              children: [
-                Container(
-                  height: size.height,
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: ClipPath(
-                    clipper: OvalTopBorderClipper(),
-                    child: Container(
-                      width: size.width,
-                      height: 130,
-                      color: const Color(0xff191918),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 10,
-                  right: (size.width / 2) - 125,
-                  child: const Center(child: LoginFooter()),
-                ),
-                const LoginForm(),
-              ],
-            ),
-          ),
-        ),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: const Color(0xff191918),
+        body: (size.width > 1000)
+            //Desktop
+            ? const _DesktopLayout()
+            //Mobile
+            : const _MobileLayout(),
       ),
     );
   }
 }
 
-class LoginFooter extends StatelessWidget {
-  const LoginFooter({super.key});
+class _DesktopLayout extends StatelessWidget {
+  const _DesktopLayout();
 
   @override
   Widget build(BuildContext context) {
-    return FadeInDown(
-      delay: const Duration(milliseconds: 800),
-      child: Container(
-        height: 90,
-        constraints: const BoxConstraints(
-          maxWidth: 570.0,
-        ),
-        child: const Padding(
-          padding: EdgeInsets.only(top: 20),
-          child: Image(
-            image: AssetImage('assets/images/banner.png'),
-            width: 250,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+                minWidth: constraints.maxWidth,
+                minHeight: constraints.maxHeight),
+            child: const IntrinsicHeight(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Logo(),
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: LoginForm(),
+                    ),
+                  ),
+                  Spacer(),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: FooterBar(),
+                  ),
+                ],
+              ),
+            ),
           ),
+        );
+      },
+    );
+  }
+}
+
+class _MobileLayout extends StatelessWidget {
+  const _MobileLayout();
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+                minWidth: constraints.maxWidth,
+                minHeight: constraints.maxHeight),
+            child: const IntrinsicHeight(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Logo(),
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: LoginForm(),
+                    ),
+                  ),
+                  Spacer(),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: FooterBar(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class Logo extends StatelessWidget {
+  const Logo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    return Column(
+      children: [
+        Icon(
+          Icons.dashboard_outlined,
+          size: size.height < 600 ? 64 : 128,
+          color: Theme.of(context).colorScheme.onPrimary,
         ),
-      ),
+        Text(
+          AppData.name.toUpperCase(),
+          style: size.height < 600
+              ? Theme.of(context).textTheme.displaySmall!.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  )
+              : Theme.of(context).textTheme.displayLarge!.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+        ),
+        SizedBox(
+          height: size.height < 600 ? 5 : 50,
+        ),
+      ],
     );
   }
 }

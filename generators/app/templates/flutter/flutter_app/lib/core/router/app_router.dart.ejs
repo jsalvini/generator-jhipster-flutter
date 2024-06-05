@@ -2,15 +2,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:<%= baseName %>/shared/storage/secure_storage.dart';
 import 'package:<%= baseName %>/shared/utils/http_utils.dart';
-import 'package:<%= baseName %>/error/views/error_screen.dart';
+import 'package:<%= baseName %>/error/views/not_found_screen.dart';
+import 'package:<%= baseName %>/shared/storage/preferences.dart';
 import 'package:<%= baseName %>/account/user/user_routes.dart';
 import 'package:<%= baseName %>/account/authentication/authentication.dart';
 import 'package:<%= baseName %>/account/login/login_routes.dart';
 import 'package:<%= baseName %>/account/settings/settings_routes.dart';
 import 'package:<%= baseName %>/home/home_routes.dart';
-import 'package:<%= baseName %>/shared/repository/authentication_repository.dart';
 import 'package:<%= baseName %>/splash/splash_routes.dart';
 // jhipster-merlin-needle-import-add - JHipster will add new imports here
 
@@ -28,16 +27,16 @@ abstract class AppRouter {
     errorPageBuilder: (context, state) {
       GoException? goException = state.error;
       return MaterialPage(
-          child: ErrorScreen(
+          child: NotFoundScreen(
         message: goException?.message ?? 'Exception page builder.',
       ));
     },
     redirect: (context, state) async {
       final isAuthenticated =
-          context.read<AuthenticationBloc>().isAuthenticated;
+      context.read<AuthenticationBloc>().isAuthenticated;
 
-      String? jwt =
-          await SecureStorage.storage.read(key: HttpUtils.keyForJWTToken);
+      String? jwt = Preferences.prefs.getString(HttpUtils.keyForJWTToken);
+
       final irA = state.matchedLocation;
       bool tokenValid;
 
@@ -50,7 +49,7 @@ abstract class AppRouter {
           tokenValid = true;
         } else {
           tokenValid = false;
-          await SecureStorage.storage.delete(key: HttpUtils.keyForJWTToken);
+          await Preferences.prefs.remove(HttpUtils.keyForJWTToken);
         }
       } else {
         tokenValid = false;
