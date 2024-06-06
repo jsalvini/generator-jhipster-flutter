@@ -421,7 +421,7 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
 
   void on<%= entityClass %>FilterChanged(
     <%= entityClass %>FilterChanged event,
-    Emitter<TrxState> emit,
+    Emitter<<%= entityClass %>State> emit,
   ) {
     emit(
       state.copyWith(filters: event.filters),
@@ -445,9 +445,6 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
       state.copyWith(filterValue: event.filterValue),
     );
   }
-  <%= entityClassPluralLowered %>: <%= entityClassPluralLowered %>,
-  totalRow: data.totalCount,
-  <%= entityInstance %>StatusUI: <%= entityClass %>StatusUI.done,
 
   Future<void> on<%= entityClass %>Filter(
     <%= entityClass %>Filter event,
@@ -458,7 +455,7 @@ class <%= entityClass %>Bloc extends Bloc<<%= entityClass %>Event, <%= entityCla
     ));
     String urlFilters = construirUrl(state.filters);
 
-    final result = await _<%= entityClass %>Repository.get<%= entityClassPlural %>Filter(
+    final result = await _<%= entityInstance %>Repository.get<%= entityClassPlural %>Filter(
       urlFilters: urlFilters,
       page: event.page,
       sort: event.sort,

@@ -90,6 +90,7 @@ class _<%= entityClass %>FilterDialogState extends State<<%= entityClass %>Filte
             ),
             // DROPDOWN PARA FILTROS STRING
             FilterTable(
+              entity: '<%= entityClass %>',
               filter: widget.filter,
               onChanged: (String? newCondicion) {
                 if (newCondicion != null) {
@@ -115,6 +116,7 @@ class _<%= entityClass %>FilterDialogState extends State<<%= entityClass %>Filte
         fields.addAll(
           [
             FilterTable(
+              entity: '<%= entityClass %>',
               filter: FilterMaps.filterBoolean,
               onChanged: (String? newValue) {
                 if (newValue != null) {
@@ -136,6 +138,7 @@ class _<%= entityClass %>FilterDialogState extends State<<%= entityClass %>Filte
             ),
             // DROPDOWN PARA FILTROS BOOLEAN
             FilterTable(
+              entity: '<%= entityClass %>',
               filter: FilterMaps.filterTable,
               onChanged: (String? newCondicion) {
                 if (newCondicion != null) {
@@ -190,6 +193,7 @@ class _<%= entityClass %>FilterDialogState extends State<<%= entityClass %>Filte
             ),
             // DROPDOWN PARA FILTROS NUMERIC/DATE
             FilterTable(
+              entity: '<%= entityClass %>',
               filter: widget.filter,
               onChanged: (String? newCondicion) {
                 if (newCondicion != null) {
@@ -240,6 +244,7 @@ class _<%= entityClass %>FilterDialogState extends State<<%= entityClass %>Filte
             ),
             // DROPDOWN PARA FILTROS STRING
             FilterTable(
+              entity: '<%= entityClass %>',
               filter: widget.filter,
               onChanged: (String? newCondicion) {
                 if (newCondicion != null) {

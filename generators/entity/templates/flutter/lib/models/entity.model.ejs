@@ -9,7 +9,7 @@ const idField = context.idField;
 _%>
 // ignore_for_file: constant_identifier_names
 import 'package:equatable/equatable.dart';
-import 'package:gatewaymp/shared/utils/utils.dart';
+import 'package:<%= baseName %>/shared/utils/utils.dart';
 <%_ relationships.forEach(relation => { if (relation.desc === 'relationship') { _%>
 <%_ if (relation.relationshipNameCapitalized === 'User') { _%>
 import 'package:<%- baseName %>/shared/models/user.dart';
@@ -66,7 +66,7 @@ class <%= entityClass %> extends Equatable implements JsonSerializable {
         <%= relationship.relationshipFieldName %>: <%= relationship.relationshipFieldName %> ?? this.<%= relationship.relationshipFieldName %>,
         <%_ } _%>
         <%_ }); _%>
-    )
+    );
 
     factory <%= entityClass %>.fromJson(Map<String, dynamic> json) => <%= entityClass %>(
         <%= idField.fieldName %>: json['<%= idField.fieldName %>'],
@@ -74,7 +74,7 @@ class <%= entityClass %> extends Equatable implements JsonSerializable {
         <%_ if(field.fieldType === 'DateTime') { _%>
         <%= field.fieldName %>: json['<%= field.fieldName %>'] != null ? CustomDateTime.convertToDate(json['<%= field.fieldName %>']) : null,
         <%_ } else if(field.fieldIsEnum) { _%>
-        <%= field.fieldName %>: json['<%= field.fieldName %>'] != null ? estadoValues.map[json['<%= field.fieldName %>']] : null,
+        <%= field.fieldName %>: json['<%= field.fieldName %>'] != null ? <%= field.fieldName %>Values.map[json['<%= field.fieldName %>']] : null,
         <%_ } else if(field.fieldType === 'double') { _%>
         <%= field.fieldName %>: json['<%= field.fieldName %>']?.toDouble(),
         <%_ } else { _%>
@@ -103,13 +103,13 @@ class <%= entityClass %> extends Equatable implements JsonSerializable {
         <%_ relationships.forEach(relationship => { %>
         "<%- relationship.relationshipFieldName _%>": <%- relationship.relationshipFieldName _%>?.toJson(),
         <%_ }); _%>
-    }
+    };
 
     @override
     List<Object?> get props => [
         <%_ fields.forEach(field => { %> <%= field.fieldName %>, <%_ }); _%>
     ];
-    }
+}
 
 
 <%_ const enumsAlreadyDeclared = [];

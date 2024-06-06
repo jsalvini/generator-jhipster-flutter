@@ -10,6 +10,7 @@ const enableTranslation = context.enableTranslation;
 const fields = context.fields;
 const idField = context.idField;
 const relationships = context.relationships;
+const filtering = context.filtering;
 let filtro = 1;
 _%>
 import 'package:adaptive_scrollbar/adaptive_scrollbar.dart';
@@ -28,6 +29,7 @@ import 'package:<%= baseName %>/core/core.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_model.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/<%= entityFileName %>_routes.dart';
+import 'package:<%= baseName %>/entities/<%= entityFileName %>/views/widgets/<%= entityFileName %>_delete_dialog.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/views/widgets/<%= entityFileName %>_filter_dialog.dart';
 <%_ relationships.forEach(relationship => { %>
 <%_ if(!relationship.isList) { _%>
@@ -220,6 +222,7 @@ class <%= entityClass %>Table extends StatelessWidget {
                               ),
                               width: 8000,
                               child: DataTable2(
+                                headingRowHeight: 65,
                                 smRatio: 0.75,
                                 lmRatio: 1.5,
                                 headingRowColor: WidgetStateColor.resolveWith(
@@ -344,13 +347,13 @@ class <%= entityClass %>Table extends StatelessWidget {
     );
   }
 
-  List<DataRow> _rows(double widthSize) {
+  List<DataRow> _rows(double widthSize, BuildContext buildContext,) {
     List<DataRow> rows = List<DataRow>.empty();
     if (<%= entityClassPluralLowered %>.isNotEmpty) {
       rows = <%= entityClassPluralLowered %>.map((<%= entityInstance %>) {
         return DataRow2.byIndex(
           index: <%= entityInstance %>.id,
-          cells: _cell(<%= entityInstance %>, widthSize),
+          cells: _cell(<%= entityInstance %>, widthSize, buildContext),
         );
       }).toList();
     }
@@ -365,15 +368,6 @@ class <%= entityClass %>Table extends StatelessWidget {
     return state.<%= entityClassPluralLowered %>.isNotEmpty ? true : false;
   }
 
-  // Función para obtener la clave a partir de un valor
-  String? obtenerClavePorValor(Map<String, String> mapa, String valor) {
-    try {
-      return mapa.entries.firstWhere((entrada) => entrada.value == valor).key;
-    } catch (e) {
-      return null; // Retorna null si no se encuentra la clave
-    }
-  }
-
   List<DataColumn> _columns(
     double widthSize,
     BuildContext context,
@@ -382,86 +376,141 @@ class <%= entityClass %>Table extends StatelessWidget {
     return [
       DataColumn2(
         label: const Text(''),
-        size: ColumnSize.S,
-        fixedWidth: widthSize < 1200 ? 80 : 100,
+        fixedWidth: widthSize < 1200 ? 150 : 300,
       ),
+      <%_ if(filtering) { _%>
       DataColumn2(
-        label: Align(
-          alignment: Alignment.centerLeft,
-          child: _buildColumnLabel(
-          context,
-          '<%= context.idField.fieldNameHumanized %>',
-          'id',
-          FilterMaps.filterTableNumeric,
-          'numeric',
-        ),
-        size: ColumnSize.S,
-        numeric: true,
-        onSort: (columnIndex, ascending) => sort(columnIndex, ascending, blocContext),
-        ),
-      ),
-    <%_ fields.forEach(field => { %>
-      DataColumn2(
-        <%_ if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
         label: Align(
           alignment: Alignment.centerLeft,
           child: _buildColumnLabel(
             context,
-            '<%= field.fieldNameHumanized %>',
-            '<%- field.fieldName -%>',
+            '<%= context.idField.fieldNameHumanized %>',
+            'id',
             FilterMaps.filterTableNumeric,
             'numeric',
           ),
         ),
-        numeric: true,
-        <%_ } else if(field.fieldType === 'bool' ) {_%>
-        label: Align(
-          alignment: Alignment.centerLeft,
-          child: _buildColumnLabel(
-            context,
-            '<%= field.fieldNameHumanized %>',
-            '<%- field.fieldName -%>',
-            FilterMaps.filterTable,
-            'bool',
-          ),
-        ),
         size: ColumnSize.S,
-        <%_ } else if(field.fieldType === 'String' ) {_%>
-        label: Align(
-          alignment: Alignment.centerLeft,
-          child: _buildColumnLabel(
-            context,
-            '<%= field.fieldNameHumanized %>',
-            '<%- field.fieldName -%>',
-            FilterMaps.filterTableString,
-            'string',
+        numeric: true,
+        onSort: (columnIndex, ascending) => sort(columnIndex, ascending, blocContext),
+      ),
+      <%_ } else { _%>
+        DataColumn2(
+          label: Align(
+            alignment: Alignment.centerLeft,
+            child: Text('<%= context.idField.fieldNameHumanized %>',),
           ),
+          size: ColumnSize.S,
+          numeric: true,
+          onSort: (columnIndex, ascending) => sort(columnIndex, ascending, blocContext),
         ),
-        <%_ } else if(field.fieldType === 'DateTime' ) {_%>
-        label: Align(
-          alignment: Alignment.centerLeft,
-          child: _buildColumnLabel(
-            context,
-            '<%= field.fieldNameHumanized %>',
-            '<%- field.fieldName -%>',
-            FilterMaps.filterTableNumeric,
-            'date',
+      <%_ } _%>
+    <%_ fields.forEach(field => { %>
+      <%_ if(filtering) { _%>
+        <%_ if(field.enableFilter) { _%>
+        DataColumn2(
+          <%_ if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
+          label: Align(
+            alignment: Alignment.centerLeft,
+            child: _buildColumnLabel(
+              context,
+              '<%= field.fieldNameHumanized %>',
+              '<%- field.fieldName -%>',
+              FilterMaps.filterTableNumeric,
+              'numeric',
+            ),
           ),
+          numeric: true,
+          <%_ } else if(field.fieldType === 'bool' ) {_%>
+          label: Align(
+            alignment: Alignment.centerLeft,
+            child: _buildColumnLabel(
+              context,
+              '<%= field.fieldNameHumanized %>',
+              '<%- field.fieldName -%>',
+              FilterMaps.filterTable,
+              'bool',
+            ),
+          ),
+          size: ColumnSize.S,
+          <%_ } else if(field.fieldType === 'String' ) {_%>
+          label: Align(
+            alignment: Alignment.centerLeft,
+            child: _buildColumnLabel(
+              context,
+              '<%= field.fieldNameHumanized %>',
+              '<%- field.fieldName -%>',
+              FilterMaps.filterTableString,
+              'string',
+            ),
+          ),
+          <%_ } else if(field.fieldType === 'DateTime' ) {_%>
+          label: Align(
+            alignment: Alignment.centerLeft,
+            child: _buildColumnLabel(
+              context,
+              '<%= field.fieldNameHumanized %>',
+              '<%- field.fieldName -%>',
+              FilterMaps.filterTableNumeric,
+              'date',
+            ),
+          ),
+          <%_ } else { _%>
+          label: Align(
+            alignment: Alignment.centerLeft,
+            child: _buildColumnLabel(
+              context,
+              '<%= field.fieldNameHumanized %>',
+              '<%- field.fieldName -%>',
+              FilterMaps.filterTableString,
+              'string',
+            ),
+          ),
+          <%_ } _%>
+          onSort: (columnIndex, ascending) => sort(columnIndex, ascending, blocContext),
         ),
         <%_ } else { _%>
+          DataColumn2(
+            label: Align(
+              alignment: Alignment.centerLeft,
+              child: Text('<%= field.fieldNameHumanized %>',),
+            ),
+            <%_ if(field.fieldType === 'bool') { _%>
+            size: ColumnSize.S,
+            <%_ } else if(field.fieldType === 'DateTime' ) { _%>
+            size: ColumnSize.M,
+            <%_ } else if(field.fieldType === 'String' ) { _%>
+            size: ColumnSize.L,
+            <%_ } else { _%>
+            size: ColumnSize.M,
+            <%_ } _%>
+            <%_ if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
+            numeric: true,
+            <%_ } _%>
+            onSort: (columnIndex, ascending) => sort(columnIndex, ascending, blocContext),
+          ),
+        <%_ } _%>
+      <%_ } else { _%>
+      DataColumn2(
         label: Align(
           alignment: Alignment.centerLeft,
-          child: _buildColumnLabel(
-            context,
-            '<%= field.fieldNameHumanized %>',
-            '<%- field.fieldName -%>',
-            FilterMaps.filterTableString,
-            'string',
-          ),
+          child: Text('<%= field.fieldNameHumanized %>',),
         ),
+        <%_ if(field.fieldType === 'bool') { _%>
+        size: ColumnSize.S,
+        <%_ } else if(field.fieldType === 'DateTime' ) { _%>
+        size: ColumnSize.M,
+        <%_ } else if(field.fieldType === 'String' ) { _%>
+        size: ColumnSize.L,
+        <%_ } else { _%>
+        size: ColumnSize.M,
+        <%_ } _%>
+        <%_ if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
+        numeric: true,
         <%_ } _%>
         onSort: (columnIndex, ascending) => sort(columnIndex, ascending, blocContext),
       ),
+      <%_ } _%>
     <%_ }); _%>
     <%_ relationships.forEach(relationship => { %>
       <%_ if(!relationship.isList) { _%>
@@ -490,7 +539,7 @@ class <%= entityClass %>Table extends StatelessWidget {
           String? filtroString = state.filters[columnName];
           if (filtroString != null) {
             partes = filtroString.split('=');
-            claveEncontrada = obtenerClavePorValor(filter, partes[0]);
+            claveEncontrada = FilterMaps.obtenerClavePorValor(filter, partes[0]);
 
             valorEncontrado = type == 'date'
                 ? CustomDateTime.formatearFechaHoraMin(partes[1])
@@ -509,55 +558,64 @@ class <%= entityClass %>Table extends StatelessWidget {
                 spacing: 10,
                 runSpacing: 5,
                 children: [
-                  Text(label),
-                  Tooltip(
-                    message: state.filters.containsKey(columnName)
-                        ? 'Filtro aplicado $claveEncontrada, valor $valorEncontrado.'
-                        : '',
-                    child: IconButton(
-                      onPressed: () {
-                        if (state.filters.containsKey(columnName)) {
-                          Map<String, String> newFilter =
-                              Map<String, String>.from(state.filters);
+                  SizedBox(
+                    width: double.infinity,
+                    child: Text(
+                      label,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child:                   Tooltip(
+                      message: state.filters.containsKey(columnName)
+                          ? 'Filtro aplicado $claveEncontrada, valor $valorEncontrado.'
+                          : '',
+                      child: IconButton(
+                        onPressed: () {
+                          if (state.filters.containsKey(columnName)) {
+                            Map<String, String> newFilter =
+                                Map<String, String>.from(state.filters);
 
-                          if (newFilter.containsKey(columnName)) {
-                            newFilter.remove(columnName);
-                            blocContext.read<<%= entityClass %>Bloc>().add(<%= entityClass %>FilterChanged(
-                                  filters: newFilter,
-                                ));
+                            if (newFilter.containsKey(columnName)) {
+                              newFilter.remove(columnName);
+                              blocContext.read<<%= entityClass %>Bloc>().add(<%= entityClass %>FilterChanged(
+                                    filters: newFilter,
+                                  ));
 
-                            String columnNameSort = state.columnName;
-                            var order = state.sortAscending ? 'asc' : 'desc';
-                            int pageQuery = state.currentPage - 1;
+                              String columnNameSort = state.columnName;
+                              var order = state.sortAscending ? 'asc' : 'desc';
+                              int pageQuery = state.currentPage - 1;
 
-                            blocContext.read<<%= entityClass %>Bloc>().add(<%= entityClass %>Filter(
-                                  page: pageQuery,
-                                  sort: columnNameSort,
-                                  ascending: order,
-                                ));
+                              blocContext.read<<%= entityClass %>Bloc>().add(<%= entityClass %>Filter(
+                                    page: pageQuery,
+                                    sort: columnNameSort,
+                                    ascending: order,
+                                  ));
+                            }
+                          } else {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return <%= entityClass %>FilterDialog(
+                                  columnName: columnName,
+                                  filter: filter,
+                                  type: type,
+                                  blocContext: blocContext,
+                                  dialogContext: context,
+                                );
+                              },
+                            );
                           }
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return <%= entityClass %>FilterDialog(
-                                columnName: columnName,
-                                filter: filter,
-                                type: type,
-                                blocContext: blocContext,
-                                dialogContext: context,
-                              );
-                            },
-                          );
-                        }
-                      },
-                      icon: Icon(
-                        state.filters.containsKey(columnName)
-                            ? Icons.filter_alt_off_rounded
-                            : Icons.filter_alt,
-                        color: state.filters.containsKey(columnName)
-                            ? Colors.blueAccent
-                            : Colors.grey,
+                        },
+                        icon: Icon(
+                          state.filters.containsKey(columnName)
+                              ? Icons.filter_alt_off_rounded
+                              : Icons.filter_alt,
+                          color: state.filters.containsKey(columnName)
+                              ? Colors.blueAccent
+                              : Colors.grey,
+                        ),
                       ),
                     ),
                   ),
@@ -570,9 +628,11 @@ class <%= entityClass %>Table extends StatelessWidget {
     );
   }
 
-  List<DataCell> _cell(<%= entityClass %> <%= entityInstance %>,
+  List<DataCell> _cell(
+      <%= entityClass %> <%= entityInstance %>,
       double widthSize,
-      BuildContext context,) {
+      BuildContext context,
+      ) {
     return [
       DataCell(
         Row(
@@ -664,20 +724,28 @@ class <%= entityClass %>Table extends StatelessWidget {
         <%_ if(field.fieldType === 'int' || field.fieldType === 'double') { _%>
         Align(
           alignment: Alignment.centerLeft,
+          <%_ if(field.fieldValidateRules != 'required' ) { _%>
           child: Text('${<%= entityInstance %>.<%- field.fieldName -%> ?? '0.00'}'),
+          <%_ } else { _%>
+          child: Text('${<%= entityInstance %>.<%- field.fieldName -%>}'),
+          <%_ } _%>
         ),
         <%_ } else if (field.fieldIsEnum) {_%>
         Text(
           '${<%= entityInstance %>.<%- field.fieldName -%>?.name}',
           style: TextStyle(
-              fontWeight: FontWeight.bold, color: getColorStatus(<%= entityInstance %>.<%- field.fieldName -%>)),
+              fontWeight: FontWeight.bold, color: getColor<%= field.fieldType %>(<%= entityInstance %>.<%- field.fieldName -%>)),
         ),
         <%_ } else if (field.fieldType === 'DateTime') {_%>
         Text(<%= entityInstance %>.<%- field.fieldName -%> != null
         ? CustomDateTime.formatearFechaHora(<%= entityInstance %>.<%- field.fieldName -%>!)
         : 'S/D'),
         <%_ } else { _%>
-        Text('${<%= entityInstance %>.<%- field.fieldName -%> ?? 'S/D'}'),
+          <%_ if(field.fieldValidateRules != 'required' ) { _%>
+            Text('${<%= entityInstance %>.<%- field.fieldName -%> ?? 'S/D'}'),
+          <%_ } else { _%>
+            Text('${<%= entityInstance %>.<%- field.fieldName -%>}'),
+          <%_ } _%>
         <%_ } _%>
       ),
     <%_ }); _%>
@@ -751,24 +819,26 @@ class <%= entityClass %>Table extends StatelessWidget {
     }
   }
 
-  Color getColorStatus(StatusTypes? estado) {
+  <%_
+  const enumsAlreadyDeclared = [];
+  fields.forEach(field => {
+      if (field.fieldIsEnum && enumsAlreadyDeclared.indexOf(field.fieldType) === -1) {
+          enumsAlreadyDeclared.push(field.fieldType);
+  _%>
+  Color getColor<%= field.fieldType %>(<%= field.fieldType %>? estado) {
+    <% const enums = field.fieldValues.split(','); %>
     switch (estado) {
-      case StatusTypes.OBTENCIONIDTRX:
-        return Colors.cyan;
-      case StatusTypes.PAGO_APROBADO:
-        return Colors.green;
-      case StatusTypes.PAGO_CANCELADO:
-        return Colors.orange;
-      case StatusTypes.PAGO_DENEGADO:
-        return Colors.red;
-      case StatusTypes.PAGO_ENVIADO:
-        return Colors.blue;
-      case StatusTypes.REFUND_APROBADO:
-        return Colors.deepPurple;
-      case StatusTypes.REFUND_DENEGADO:
-        return Colors.red;
+      <% for (let i = 0; i < enums.length; i++) {
+        let red = Math.floor(Math.random() * 256);
+        let green = Math.floor(Math.random() * 256);
+        let blue = Math.floor(Math.random() * 256);
+      %>
+      case <%= field.fieldType %>.<%= enums[i] %>:
+        return Color.fromARGB(255, <%= red %>, <%= green %>, <%= blue %>);
+      <% } %>
       default:
         return Colors.black;
     }
   }
+  <%_}});_%>
 }

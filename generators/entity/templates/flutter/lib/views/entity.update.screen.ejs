@@ -27,10 +27,10 @@ import 'package:intl/intl.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:<%= baseName %>/core/core.dart';
+import 'package:<%= baseName %>/core/constants/constants.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/bloc/<%= entityFileName %>_bloc.dart';
 import 'package:<%= baseName %>/entities/<%= entityFileName %>/models/<%= entityFileName %>_models.dart';
 import 'package:<%= baseName %>/shared/widgets/widgets.dart';
-import 'package:<%= baseName %>/core/core.dart';
 <%_ relationships.forEach(relationship => { %>
 <%_ if(!relationship.isList) { _%>
 import 'package:<%= baseName %>/entities/<%= relationship.otherEntityFileName %>/bloc/<%= relationship.otherEntityFileName %>_bloc.dart';
@@ -69,8 +69,8 @@ class <%= entityClass %>UpdateScreen extends StatelessWidget {
         }
       },
 	  child: Scaffold(
-        appBar: const CustomAppBar(
-          title: 'ManagerMP',
+        appBar: CustomAppBar(
+          title: AppData.name,
         ),
         body: CustomLayout(
           title: BlocBuilder<<%= entityClass %>Bloc, <%= entityClass %>State>(
@@ -111,14 +111,14 @@ class Form<%= entityClass %> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-	return const Padding(
+	return Padding(
 		padding: const EdgeInsets.all(20),
 		child: Center(
 			child: Container(
 				constraints: const BoxConstraints(
 				  maxWidth: 600,
 				),
-				child: Form(
+				child: const Form(
 					child: Column(
 						children: <Widget>[
 							<%_ fields.forEach(field => { _%>
@@ -250,7 +250,7 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 
 								context
 								  .read<<%= entityClass %>Bloc>()
-								  .add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: value!));
+								  .add(<%= entityClass %><%= field.fieldNameCapitalized %>Changed(<%= field.fieldName %>: parsedDate));
 							}
 						  },
 						  validator: FormBuilderValidators.compose(
@@ -458,10 +458,6 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 							  decimal: true,
 							  signed: true,
 							),
-							maxLength: 18,
-							inputFormatters: <TextInputFormatter>[
-							  LengthLimitingTextInputFormatter(18),
-							],
 							style: const TextStyle(
 								color: Color(0xff1b070b),
 								fontSize: 16,
@@ -484,20 +480,8 @@ class <%= field.fieldNameCapitalized %>Field extends StatelessWidget {
 						),
 					  ),
 					],
-				  );
-			return TextFormField(
-
-			  decoration: InputDecoration(
-				  prefixIcon: const Icon(Icons.numbers_rounded),
-				  labelText: ,
-
-				  hintText: 'Ejemplo: 99.99',
-				  labelStyle: const TextStyle(height: 0.5, fontWeight: FontWeight.bold),
-				  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-
-				  ),
-			  );
-			}
+				);
+			},
 		);
 	}
 }
@@ -623,7 +607,7 @@ class <%= relationship.otherEntityNameCapitalized %>Field extends StatelessWidge
 			  }
 			  if (BlocProvider.of<<%= relationship.otherEntityNameCapitalized %>Bloc>(context).state.<%= relationship.otherEntityName %>StatusUI ==
 			  <%= relationship.otherEntityNameCapitalized %>StatusUI.loading) {
-				return const LoadingIndicator();
+				return const LoadingIndicator(message: 'Cargando');
 			  }
 			  return const Center(child: CircularProgressIndicator());
 			},

@@ -2,7 +2,7 @@
   "generator-jhipster-blueprint": {
     "promptValues": {
       "githubName": "jsalvini",
-      "authorName": "Jose Salvini",
+      "authorName": "Jose Salvini"
     }
   }
 }

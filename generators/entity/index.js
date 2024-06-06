@@ -199,12 +199,26 @@ module.exports = class extends BaseGenerator {
         context.fieldsIsReactAvField = false;
         context.blobFields = [];
         context.differentTypes = [context.entityClass];
+
         if (!context.relationships) {
             context.relationships = [];
         }
+
         context.differentRelationships = {};
         context.i18nToLoad = [context.entityInstance];
         context.i18nKeyPrefix = `${context.angularAppName}.${context.entityTranslationKey}`;
+
+        if (!context.filtering) {
+            this.log(chalk.green(`No usa filtros ${context.filtering}!!\n`));
+        } else {
+            this.log(chalk.green(`Usa filtros ${context.filtering}!!\n`));
+        }
+
+        // this.log(chalk.green(`entityTableName ${context.entityTableName}!!\n`));
+        // this.log(chalk.green(`applications ${context.applications}!!\n`));
+        // this.log(chalk.green(`pagination ${context.pagination}!!\n`));
+
+        this.log(chalk.green('Leyendo columnas entidad...\n'));
 
         // Load in-memory data for fields
         context.fields.forEach((field) => {
@@ -675,6 +689,8 @@ module.exports = class extends BaseGenerator {
 
         try {
             const routeImport = `import 'package:${baseName}/entities/${entityFileName}/${entityFileName}_routes.dart';`;
+            const iconImport = 'import \'package:font_awesome_flutter/font_awesome_flutter.dart\';';
+
             utils.rewriteFile({
                 file: routersClassPath,
                 needle: 'jhipster-merlin-needle-import-add',
@@ -701,34 +717,8 @@ module.exports = class extends BaseGenerator {
                 ]
             }, this);
 
-            const drawerClassPath = 'lib/shared/widgets/drawer_widget.dart';
-
-            const newMenuEntry = `Padding(
-                padding: const EdgeInsets.only(left: 20),
-                child: ListTile(
-                    leading: const Icon(Icons.label, size: iconSize,),
-                    title: const Text('${entityClassPlural}'),
-                    onTap: () => context.go(${entityClass}Routes.list),
-                ),
-            ),`;
-            utils.rewriteFile({
-                file: drawerClassPath,
-                needle: 'jhipster-merlin-needle-menu-entry-add',
-                splicable: [
-                    this.stripMargin(newMenuEntry)
-                ]
-            }, this);
-
-            utils.rewriteFile({
-                file: drawerClassPath,
-                needle: 'jhipster-merlin-needle-import-add',
-                splicable: [
-                    this.stripMargin(routeImport)
-                ]
-            }, this);
-
             const routesPath = 'lib/core/router/routes.dart';
-            const newRoute = `static const ${entityInstance} = '${entityInstance}';`;
+            const newRoute = `static const ${entityInstance} = '/${entityInstance}';`;
 
             utils.rewriteFile({
                 file: routesPath,
@@ -739,17 +729,24 @@ module.exports = class extends BaseGenerator {
             }, this);
 
             const newScreens = `'${entityClassPlural}': {
-                'routeName': '${entityInstance}',
+                'routeName': '/${entityInstance}',
                 'icon': FaIcon(
-                  FontAwesomeIcons.calendarDays,
+                  FontAwesomeIcons.circleDot,
                   size: iconSize,
                 ),
-              },`;
+            },`;
             utils.rewriteFile({
                 file: routesPath,
                 needle: 'jhipster-merlin-needle-screens-entry-add',
                 splicable: [
                     this.stripMargin(newScreens)
+                ]
+            }, this);
+            utils.rewriteFile({
+                file: routersClassPath,
+                needle: 'jhipster-merlin-needle-import-add',
+                splicable: [
+                    this.stripMargin(iconImport)
                 ]
             }, this);
         } catch (e) {

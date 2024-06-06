@@ -74,7 +74,6 @@ const FLUTTER_FILES = {
                 'shared/utils/utils.dart',
                 'shared/utils/validate_json.dart',
                 'shared/widgets/loading_indicator_widget.dart',
-                'shared/widgets/drawer_widget.dart',
                 'shared/widgets/custom_app_bar.dart',
                 'shared/widgets/custom_drawer.dart',
                 'shared/widgets/custom_layout.dart',

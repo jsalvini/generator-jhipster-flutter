@@ -40,13 +40,13 @@ class ErrorResponse extends Equatable implements JsonSerializable {
       );
 
   factory ErrorResponse.fromJson(Map<String, dynamic> json) => ErrorResponse(
-        type: json["type"],
-        title: json["title"],
-        status: json["status"],
-        detail: json["detail"],
-        instance: json["instance"],
-        message: json["message"],
-        path: json["path"],
+        type: json["type"] ?? '',
+        title: json["title"] ?? '',
+        status: json["status"] ?? 0,
+        detail: json["detail"] ?? '',
+        instance: json["instance"] ?? '',
+        message: json["message"] ?? '',
+        path: json["path"] ?? '',
       );
 
   @override
@@ -71,65 +71,3 @@ class ErrorResponse extends Equatable implements JsonSerializable {
         path,
       ];
 }
-
-
-/*
-@jsonSerializable
-class ErrorResponse extends Equatable {
-  @JsonProperty(name: 'type')
-  final String? type;
-
-  @JsonProperty(name: 'title')
-  final String? title;
-
-  @JsonProperty(name: 'status')
-  final int? status;
-
-  @JsonProperty(name: 'instance')
-  final String? instance;
-
-  @JsonProperty(name: 'detail')
-  final String? detail;
-
-  @JsonProperty(name: 'message')
-  final String? message;
-
-  @JsonProperty(name: 'path')
-  final String? path;
-
-  const ErrorResponse(
-    this.type,
-    this.title,
-    this.status,
-    this.detail,
-    this.instance,
-    this.message,
-    this.path,
-  );
-
-  static const empty = ErrorResponse('', '', 0, '', '', '', '');
-
-  @override
-  String toString() {
-    return '''ErrorResponse{
-      type: $type,
-      title: $title,
-      status: $status,
-      detail: $detail,
-      instance: $instance,
-      message: $message,
-      path: $path,
-      }''';
-  }
-
-  @override
-  List<Object?> get props => [
-        type,
-        title,
-        status,
-        detail,
-        instance,
-        message,
-        path,
-      ];
-}*/

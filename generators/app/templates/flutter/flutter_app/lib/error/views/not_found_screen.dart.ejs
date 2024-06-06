@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:<%= baseName %>/shared/widgets/drawer_widget.dart';
+import 'package:<%= baseName %>/shared/widgets/widgets.dart';
 
 class NotFoundScreen extends StatelessWidget {
   const NotFoundScreen({super.key, required this.message});
@@ -16,6 +16,7 @@ class NotFoundScreen extends StatelessWidget {
         centerTitle: true,
         title: const Text('Error'),
       ),
+      drawer: const CustomDrawer(),
       body: Center(
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.9,
@@ -71,7 +72,6 @@ class NotFoundScreen extends StatelessWidget {
           ),
         ),
       ),
-      drawer: const GatewaympDrawer(),
     );
   }
 }

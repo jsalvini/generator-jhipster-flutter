@@ -29,11 +29,11 @@ class <%= entityClass %>ListScreen extends StatelessWidget {
       listener: (context, state) {
         if(state.deleteStatus == <%= entityClass %>DeleteStatus.ok ||
             state.deleteStatus == <%= entityClass %>DeleteStatus.error ||
-            state.<%= entityFileName %>StatusUI == <%= entityClass %>StatusUI.error) {
+            state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.error) {
 		Color backgroundColor = Colors.green;
 		IconData iconData = Icons.info_outline_rounded;
 		if (state.deleteStatus == <%= entityClass %>DeleteStatus.error ||
-        state.<%= entityFileName %>StatusUI == <%= entityClass %>StatusUI.error) {
+        state.<%= entityInstance %>StatusUI == <%= entityClass %>StatusUI.error) {
             backgroundColor = Colors.red;
             iconData = Icons.dangerous_outlined;
         }

@@ -34,4 +34,12 @@ abstract class FilterMaps {
     ...filterTable,
     ...filterOnlyNumeric,
   };
+  // Función para obtener la clave a partir de un valor
+  static String? obtenerClavePorValor(Map<String, String> mapa, String valor) {
+    try {
+      return mapa.entries.firstWhere((entrada) => entrada.value == valor).key;
+    } catch (e) {
+      return null; // Retorna null si no se encuentra la clave
+    }
+  }
 }
